@@ -15,13 +15,13 @@
 class PC2toDraco {
 public:
     //! Constructor.
-    explicit PC2toDraco(sensor_msgs::PointCloud2 PC2);
+    explicit PC2toDraco(sensor_msgs::PointCloud2 PC2, std::string topic);
 
     //! Destructor
     //~PC2toDraco();
 
     //! Method for converting into Draco pointcloud
-    std::unique_ptr<draco::PointCloud> convert(bool deduplicate_flag);
+    std::unique_ptr<draco::PointCloud> convert(bool deduplicate_flag, bool expert_encoding_flag);
 
 private:
     //! Message to be converted
@@ -69,6 +69,9 @@ private:
         s_mapStringValues["ny"] =       enumval13;
         s_mapStringValues["nz"] =       enumval14;
     }
+
+    std::string base_topic_;
+
 };
 
 
