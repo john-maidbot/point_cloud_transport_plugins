@@ -1,38 +1,27 @@
+// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-FileCopyrightText: Czech Technical University in Prague .. 2019, paplhjak
 
-#include "draco_point_cloud_transport/conversion_utilities.h"
+#include <draco_point_cloud_transport/conversion_utilities.h>
 
-void assign_description_of_PointCloud2(sensor_msgs::PointCloud2& target, const draco_point_cloud_transport::CompressedPointCloud2& source)
+namespace draco_point_cloud_transport
 {
-    target.header = source.header;
-    target.height = source.height;
-    target.width = source.width;
-    target.fields = source.fields;
-    target.is_bigendian = source.is_bigendian;
-    target.point_step = source.point_step;
-    target.row_step = source.row_step;
-    target.is_dense = source.is_dense;
+
+void assign_description_of_PointCloud2(sensor_msgs::PointCloud2& target,
+                                       const draco_point_cloud_transport::CompressedPointCloud2& source)
+{
+  copyCloudMetadata(target, source);
 }
 
-void assign_description_of_PointCloud2(draco_point_cloud_transport::CompressedPointCloud2& target, const sensor_msgs::PointCloud2& source)
+void assign_description_of_PointCloud2(draco_point_cloud_transport::CompressedPointCloud2& target,
+                                       const sensor_msgs::PointCloud2& source)
 {
-    target.header = source.header;
-    target.height = source.height;
-    target.width = source.width;
-    target.fields = source.fields;
-    target.is_bigendian = source.is_bigendian;
-    target.point_step = source.point_step;
-    target.row_step = source.row_step;
-    target.is_dense = source.is_dense;;
+  copyCloudMetadata(target, source);
 }
 
-void assign_description_of_PointCloud2(sensor_msgs::PointCloud2& target, const draco_point_cloud_transport::CompressedPointCloud2ConstPtr source)
+void assign_description_of_PointCloud2(sensor_msgs::PointCloud2& target,
+                                       const draco_point_cloud_transport::CompressedPointCloud2ConstPtr& source)
 {
-    target.header = source->header;
-    target.height = source->height;
-    target.width = source->width;
-    target.fields = source->fields;
-    target.is_bigendian = source->is_bigendian;
-    target.point_step = source->point_step;
-    target.row_step = source->row_step;
-    target.is_dense = source->is_dense;
+  copyCloudMetadata(target, *source);
+}
+
 }
