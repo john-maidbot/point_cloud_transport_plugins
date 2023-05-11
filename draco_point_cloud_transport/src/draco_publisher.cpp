@@ -12,8 +12,8 @@
 #include <draco/point_cloud/point_cloud_builder.h>
 
 #include <cras_cpp_common/expected.hpp>
+#include <cras_cpp_common/log_utils.h>
 #include <cras_cpp_common/string_utils.hpp>
-#include <ros/ros.h>
 
 #include <draco_point_cloud_transport/CompressedPointCloud2.h>
 #include <draco_point_cloud_transport/conversion_utilities.h>
@@ -102,17 +102,17 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
         }
         else
         {
-          ROS_ERROR_STREAM("Attribute data type not recognized for " + field.name
-                               + " field entry. Using regular type recognition instead.");
+          CRAS_ERROR_STREAM("Attribute data type not recognized for " + field.name + " field entry. "
+                            "Using regular type recognition instead.");
           expert_settings_ok = false;
         }
       }
       else
       {
-        ROS_ERROR_STREAM("Attribute data type not specified for " + field.name
-                             + " field entry. Using regular type recognition instead.");
-        ROS_INFO_STREAM("To set attribute type for " + field.name + " field entry, set " + topic
-                            + "/draco/attribute_mapping/attribute_type/" + field.name);
+        CRAS_ERROR_STREAM("Attribute data type not specified for " + field.name + " field entry."
+                          "Using regular type recognition instead.");
+        CRAS_INFO_STREAM("To set attribute type for " + field.name + " field entry, set " + topic +
+                         "/draco/attribute_mapping/attribute_type/" + field.name);
         expert_settings_ok = false;
       }
     }
@@ -261,10 +261,10 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
           }
           else
           {
-            ROS_ERROR_STREAM("Attribute quantization not specified for " + field.name
-                                 + " field entry. Using regular encoder instead.");
-            ROS_INFO_STREAM("To set quantization for " + field.name + " field entry, set " + base_topic_
-                                + "/draco/attribute_mapping/quantization_bits/" + field.name);
+            CRAS_ERROR_STREAM("Attribute quantization not specified for " + field.name + " field entry. "
+                              "Using regular encoder instead.");
+            CRAS_INFO_STREAM("To set quantization for " + field.name + " field entry, set " + base_topic_ +
+                             "/draco/attribute_mapping/quantization_bits/" + field.name);
             expert_settings_ok = false;
           }
           att_id++;
