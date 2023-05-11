@@ -12,8 +12,8 @@
 #include <cras_cpp_common/expected.hpp>
 #include <sensor_msgs/PointCloud2.h>
 
-#include <draco/point_cloud/point_cloud.h>
-#include <draco/point_cloud/point_cloud_builder.h>
+#include <point_cloud/point_cloud.h>
+#include <point_cloud/point_cloud_builder.h>
 
 namespace draco_point_cloud_transport
 {

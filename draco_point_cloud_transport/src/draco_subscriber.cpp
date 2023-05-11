@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include <draco/compression/decode.h>
+#include <compression/decode.h>
 
 #include <cras_cpp_common/expected.hpp>
 #include <cras_cpp_common/string_utils.hpp>

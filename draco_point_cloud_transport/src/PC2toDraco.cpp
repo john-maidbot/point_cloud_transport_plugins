@@ -6,9 +6,9 @@
 #include <utility>
 #include <vector>
 
-#include <draco/attributes/geometry_attribute.h>
-#include <draco/point_cloud/point_cloud.h>
-#include <draco/point_cloud/point_cloud_builder.h>
+#include <attributes/geometry_attribute.h>
+#include <point_cloud/point_cloud.h>
+#include <point_cloud/point_cloud_builder.h>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>

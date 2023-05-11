@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include <draco/compression/expert_encode.h>
-#include <draco/compression/encode.h>
+#include <compression/expert_encode.h>
+#include <compression/encode.h>
 
 #include <cras_cpp_common/expected.hpp>
 #include <cras_cpp_common/string_utils.hpp>

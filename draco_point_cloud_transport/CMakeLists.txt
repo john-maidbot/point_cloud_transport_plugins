@@ -12,13 +12,13 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs)
 
 # There are some find_package/naming issues due to name draco/Draco mismatch.
-# Currently, with cakting tools only DracoConfig.cmake is found with just two
+# Currently, with caktin tools only DracoConfig.cmake is found with just two
 # variables defined, draco_INCLUDE_DIR and draco_LIBRARY_DIR. In that case we
 # try to reconstruct the rest from FindDraco.cmake (module mode).
 find_package(Draco REQUIRED)
 if(draco_INCLUDE_DIR)
   set(draco_FOUND TRUE)
-  set(draco_INCLUDE_DIRS "${draco_INCLUDE_DIR}/..")
+  set(draco_INCLUDE_DIRS "${draco_INCLUDE_DIR}" "${draco_INCLUDE_DIR}/..")
   set(draco_LIBRARY_DIRS "${draco_LIBRARY_DIR}")
   set(draco_LIBRARIES draco)
 endif()
@@ -45,7 +45,7 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${draco_INCLUDE_DIRS})
 link_directories(${draco_LIBRARY_DIRS})
 
 set(SOURCE_FILES
-  src/DracotoPC2.cpp
+  src/DracoToPC2.cpp
   src/PC2toDraco.cpp
   src/draco_publisher.cpp
   src/draco_subscriber.cpp

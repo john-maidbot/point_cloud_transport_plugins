@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include <draco/attributes/geometry_indices.h>
-#include <draco/point_cloud/point_cloud.h>
+#include <attributes/geometry_indices.h>
+#include <point_cloud/point_cloud.h>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
