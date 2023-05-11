@@ -2,8 +2,8 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2023-05-11)
+------------------
 * More robust Draco CMake finding.
 * Adopted direct encoders and decoders.
 * Moved draco_point_cloud_transport into its own folder
