@@ -2,16 +2,12 @@
 // SPDX-FileCopyrightText: Czech Technical University in Prague .. 2019, paplhjak
 
 #include <memory>
-#include <string>
-#include <utility>
 #include <vector>
-
-#include <boost/bind.hpp>
-#include <boost/make_shared.hpp>
 
 #include <draco/compression/decode.h>
 
-#include <ros/ros.h>
+#include <cras_cpp_common/expected.hpp>
+#include <cras_cpp_common/string_utils.hpp>
 #include <sensor_msgs/PointCloud2.h>
 
 #include <draco_point_cloud_transport/CompressedPointCloud2.h>
@@ -21,44 +17,18 @@
 namespace draco_point_cloud_transport
 {
 
-void DracoSubscriber::subscribeImpl(ros::NodeHandle& nh, const std::string& base_topic, uint32_t queue_size,
-                                    const Callback& callback, const ros::VoidPtr& tracked_object,
-                                    const point_cloud_transport::TransportHints& transport_hints)
-{
-  typedef point_cloud_transport::SimpleSubscriberPlugin<draco_point_cloud_transport::CompressedPointCloud2> Base;
-  Base::subscribeImpl(nh, base_topic, queue_size, callback, tracked_object, transport_hints);
-
-  // Set up reconfigure server for this topic
-  reconfigure_server_ = boost::make_shared<ReconfigureServer>(this->nh());
-  ReconfigureServer::CallbackType f = boost::bind(&DracoSubscriber::configCb, this, _1, _2);
-  reconfigure_server_->setCallback(f);
-}
-
-void DracoSubscriber::configCb(Config& config, uint32_t level)
-{
-  config_ = config;
-}
-
-void DracoSubscriber::shutdown()
-{
-  reconfigure_server_.reset();
-  point_cloud_transport::SimpleSubscriberPlugin<draco_point_cloud_transport::CompressedPointCloud2>::shutdown();
-}
-
-void DracoSubscriber::internalCallback(const draco_point_cloud_transport::CompressedPointCloud2ConstPtr& message,
-                                       const Callback& user_cb)
+DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
+    const CompressedPointCloud2& compressed, const DracoSubscriberConfig& config) const
 {
   // get size of buffer with compressed data in Bytes
-  uint32_t compressed_data_size = message->compressed_data.size();
+  uint32_t compressed_data_size = compressed.compressed_data.size();
 
   // empty buffer
   if (compressed_data_size == 0)
-  {
-    return;
-  }
+    return cras::make_unexpected("Received compressed Draco message with zero length.");
 
   draco::DecoderBuffer decode_buffer;
-  std::vector<unsigned char> vec_data = (message->compressed_data);
+  std::vector<unsigned char> vec_data = compressed.compressed_data;
 
   // Sets the buffer's internal data. Note that no copy of the input data is
   // made so the data owner needs to keep the data valid and unchanged for
@@ -90,16 +60,19 @@ void DracoSubscriber::internalCallback(const draco_point_cloud_transport::Compre
   }
 
   // decode buffer into draco point cloud
-  std::unique_ptr<draco::PointCloud> decoded_pc =
-      decoder.DecodePointCloudFromBuffer(&decode_buffer).value();
+  const auto res = decoder.DecodePointCloudFromBuffer(&decode_buffer);
+  if (!res.ok())
+    return cras::make_unexpected(
+        cras::format("Draco decoder returned code %i: %s.", res.status().code(), res.status().error_msg()));
 
-  // create and initiate converter object
-  DracoToPC2 converter_b(std::move(decoded_pc), message);
-  // convert draco point cloud to sensor_msgs::PointCloud2
-  sensor_msgs::PointCloud2Ptr ptr_PC2(new sensor_msgs::PointCloud2(std::move(converter_b.convert())));
+  const std::unique_ptr<draco::PointCloud>& decoded_pc = res.value();
 
-  // Publish message to user callback
-  user_cb(ptr_PC2);
+  sensor_msgs::PointCloud2Ptr message(new sensor_msgs::PointCloud2);
+  const auto convertRes = convertDracoToPC2(*decoded_pc, compressed, *message);
+  if (!convertRes)
+    return cras::make_unexpected(convertRes.error());
+
+  return message;
 }
 
 }

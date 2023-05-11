@@ -7,8 +7,6 @@
 #include <vector>
 
 #include <draco/attributes/geometry_attribute.h>
-#include <draco/attributes/geometry_indices.h>
-#include <draco/core/draco_types.h>
 #include <draco/point_cloud/point_cloud.h>
 #include <draco/point_cloud/point_cloud_builder.h>
 
@@ -18,22 +16,16 @@
 
 #include <draco_point_cloud_transport/PC2toDraco.h>
 
-//! Constructor
-PC2toDraco::PC2toDraco(sensor_msgs::PointCloud2 PC2, std::string topic)
+namespace draco_point_cloud_transport
 {
-  PC2_ = PC2;
-  base_topic_ = topic;
 
-  Initialize();
-}
-
-//! Method for converting into Draco pointcloud using draco::PointCloudBuilder
-std::unique_ptr<draco::PointCloud> PC2toDraco::convert(bool deduplicate_flag, bool expert_encoding_flag)
+cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
+    sensor_msgs::PointCloud2 PC2, const std::string& topic, bool deduplicate, bool expert_encoding)
 {
   // object for conversion into Draco Point Cloud format
   draco::PointCloudBuilder builder;
   // number of points in point cloud
-  uint64_t number_of_points = PC2_.height * PC2_.width;
+  uint64_t number_of_points = PC2.height * PC2.width;
   // initialize builder object, requires prior knowledge of point cloud size for buffer allocation
   builder.Start(number_of_points);
   // vector to hold IDs of attributes for builder object
@@ -53,12 +45,12 @@ std::unique_ptr<draco::PointCloud> PC2toDraco::convert(bool deduplicate_flag, bo
   std::string expert_attribute_data_type;
 
   // fill in att_ids with attributes from PointField[] fields
-  for (const auto& field : PC2_.fields)
+  for (const auto& field : PC2.fields)
   {
-    if (expert_encoding_flag)  // find attribute type in user specified parameters
+    if (expert_encoding)  // find attribute type in user specified parameters
     {
       rgba_tweak = false;
-      if (ros::param::getCached(base_topic_ + "/draco/attribute_mapping/attribute_type/" + field.name,
+      if (ros::param::getCached(topic + "/draco/attribute_mapping/attribute_type/" + field.name,
                                 expert_attribute_data_type))
       {
         if (expert_attribute_data_type == "POSITION")  // if data type is POSITION
@@ -72,7 +64,7 @@ std::unique_ptr<draco::PointCloud> PC2toDraco::convert(bool deduplicate_flag, bo
         else if (expert_attribute_data_type == "COLOR")  // if data type is COLOR
         {
           attribute_type = draco::GeometryAttribute::COLOR;
-          ros::param::getCached(base_topic_ + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
+          ros::param::getCached(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
         }
         else if (expert_attribute_data_type == "TEX_COORD")  // if data type is TEX_COORD
         {
@@ -93,75 +85,55 @@ std::unique_ptr<draco::PointCloud> PC2toDraco::convert(bool deduplicate_flag, bo
       {
         ROS_ERROR_STREAM("Attribute data type not specified for " + field.name
                              + " field entry. Using regular type recognition instead.");
-        ROS_INFO_STREAM("To set attribute type for " + field.name + " field entry, set " + base_topic_
+        ROS_INFO_STREAM("To set attribute type for " + field.name + " field entry, set " + topic
                             + "/draco/attribute_mapping/attribute_type/" + field.name);
         expert_settings_ok = false;
       }
     }
 
-    if ((!expert_encoding_flag) || (!expert_settings_ok))  // find attribute type in recognized names
+    // find attribute type in recognized names
+    if ((!expert_encoding) || (!expert_settings_ok))
     {
-      rgba_tweak = false;
-      // attribute type switch
-      // TODO: add texture coordinate (TEX_COORD) recognized names
-      switch (s_mapStringValues[field.name])
-      {
-        case enumval1 :  // "x"
-        case enumval2 :  // "y"
-        case enumval3 :  // "z"
-        case enumval4 :  // "pos"
-        case enumval5 :  // "position"
-          attribute_type = draco::GeometryAttribute::POSITION;
-          break;
-        case enumval10 :  // "rgb"
-        case enumval11 :  // "rgba"
-          //
-          rgba_tweak = true;
-        case enumval6 :  // "r"
-        case enumval7 :  // "g"
-        case enumval8 :  // "b"
-        case enumval9 :  // "a"
-          attribute_type = draco::GeometryAttribute::COLOR;
-          break;
-        case enumval12 :  // "nx"
-        case enumval13 :  // "ny"
-        case enumval14 :  // "nz"
-          attribute_type = draco::GeometryAttribute::NORMAL;
-          break;
-        case enumvalGeneric :  // all unrecognized attributes
-          attribute_type = draco::GeometryAttribute::GENERIC;
-        default:ROS_ASSERT("Unknown enum type.");
-          break;
-      }  // attribute type switch end
-    }  // find attribute type in recognized names end
+      rgba_tweak = field.name == "rgb" || field.name == "rgba";
+      attribute_type = draco::GeometryAttribute::GENERIC;
+      const auto& it = attributeTypes.find(field.name);
+      if (it != attributeTypes.end())
+        attribute_type = it->second;
+    }
 
     // attribute data type switch
     switch (field.datatype)
     {
-      case 1 :attribute_data_type = draco::DT_INT8;
+      case sensor_msgs::PointField::INT8:
+        attribute_data_type = draco::DT_INT8;
         break;
-      case 2 :attribute_data_type = draco::DT_UINT8;
+      case sensor_msgs::PointField::UINT8:
+        attribute_data_type = draco::DT_UINT8;
         break;
-      case 3 :attribute_data_type = draco::DT_INT16;
+      case sensor_msgs::PointField::INT16:
+        attribute_data_type = draco::DT_INT16;
         break;
-      case 4 :attribute_data_type = draco::DT_UINT16;
+      case sensor_msgs::PointField::UINT16:
+        attribute_data_type = draco::DT_UINT16;
         break;
-      case 5 :attribute_data_type = draco::DT_INT32;
+      case sensor_msgs::PointField::INT32:
+        attribute_data_type = draco::DT_INT32;
         rgba_tweak_64bit = false;
         break;
-      case 6 :attribute_data_type = draco::DT_UINT32;
+      case sensor_msgs::PointField::UINT32:
+        attribute_data_type = draco::DT_UINT32;
         rgba_tweak_64bit = false;
         break;
-      case 7 :attribute_data_type = draco::DT_FLOAT32;
+      case sensor_msgs::PointField::FLOAT32:
+        attribute_data_type = draco::DT_FLOAT32;
         rgba_tweak_64bit = false;
         break;
-      case 8 :attribute_data_type = draco::DT_FLOAT64;
+      case sensor_msgs::PointField::FLOAT64:
+        attribute_data_type = draco::DT_FLOAT64;
         rgba_tweak_64bit = true;
         break;
-      default:attribute_data_type = draco::DT_INVALID;
-        // RAISE ERROR - INVALID DATA TYPE
-        ROS_FATAL_STREAM(" Invalid data type in PointCloud2 to Draco conversion");
-        break;
+      default:
+        return cras::make_unexpected("Invalid data type in PointCloud2 to Draco conversion");
     }  // attribute data type switch end
 
     // add attribute to point cloud builder
@@ -184,21 +156,19 @@ std::unique_ptr<draco::PointCloud> PC2toDraco::convert(bool deduplicate_flag, bo
     if ((!att_ids.empty()) && (attribute_data_type != draco::DT_INVALID))
     {
       builder.SetAttributeValuesForAllPoints(
-          static_cast<int>(att_ids.back()), &PC2_.data[0] + field.offset, PC2_.point_step);
+          static_cast<int>(att_ids.back()), &PC2.data[0] + field.offset, PC2.point_step);
     }
   }
   // finalize point cloud *** builder.Finalize(bool deduplicate) ***
-  std::unique_ptr<draco::PointCloud> pc = builder.Finalize(deduplicate_flag);
+  std::unique_ptr<draco::PointCloud> pc = builder.Finalize(deduplicate);
 
   if (pc == nullptr)
-  {
-    ROS_FATAL_STREAM("Conversion from sensor_msgs::PointCloud2 to Draco::PointCloud failed");
-  }
+    return cras::make_unexpected("Conversion from sensor_msgs::PointCloud2 to Draco::PointCloud failed");
 
   // add metadata to point cloud
   std::unique_ptr<draco::GeometryMetadata> metadata = std::make_unique<draco::GeometryMetadata>();
 
-  if (deduplicate_flag)
+  if (deduplicate)
   {
     metadata->AddEntryInt("deduplicate", 1);  // deduplication=true flag
   }
@@ -208,9 +178,10 @@ std::unique_ptr<draco::PointCloud> PC2toDraco::convert(bool deduplicate_flag, bo
   }
   pc->AddMetadata(std::move(metadata));
 
-  if ((pc->num_points() != number_of_points) && !deduplicate_flag)
-  {
-    ROS_FATAL_STREAM("Number of points in Draco::PointCloud differs from sensor_msgs::PointCloud2!");
-  }
+  if ((pc->num_points() != number_of_points) && !deduplicate)
+    return cras::make_unexpected("Number of points in Draco::PointCloud differs from sensor_msgs::PointCloud2!");
+
   return pc;
+}
+
 }

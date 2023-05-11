@@ -35,6 +35,8 @@ generate_messages(DEPENDENCIES
 generate_dynamic_reconfigure_options(cfg/DracoPublisher.cfg cfg/DracoSubscriber.cfg)
 
 catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS message_runtime sensor_msgs std_msgs
 )
 
@@ -42,28 +44,37 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${draco_INCLUDE_DIRS})
 
 link_directories(${draco_LIBRARY_DIRS})
 
-add_library(${PROJECT_NAME}
+set(SOURCE_FILES
   src/DracotoPC2.cpp
   src/PC2toDraco.cpp
-  src/conversion_utilities.cpp
   src/draco_publisher.cpp
   src/draco_subscriber.cpp
-  src/manifest.cpp
+)
+
+add_library(${PROJECT_NAME}
+  ${SOURCE_FILES}
 )
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${draco_LIBRARIES})
-class_loader_hide_library_symbols(${PROJECT_NAME})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${catkin_LIBRARIES} PRIVATE ${draco_LIBRARIES})
 
-install(TARGETS ${PROJECT_NAME}
+add_library(${PROJECT_NAME}_plugin
+  ${SOURCE_FILES}
+  src/manifest.cpp
+)
+add_dependencies(${PROJECT_NAME}_plugin ${${PROJECT_NAME}_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_plugin PUBLIC ${catkin_LIBRARIES} PRIVATE ${draco_LIBRARIES})
+class_loader_hide_library_symbols(${PROJECT_NAME}_plugin)
+
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_plugin
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
 )
 
-#install(DIRECTORY include/${PROJECT_NAME}/
-#  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#  FILES_MATCHING PATTERN "*.h"
-#)
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+)
 
 install(FILES draco_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}

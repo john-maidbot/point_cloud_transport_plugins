@@ -17,7 +17,7 @@ namespace draco_point_cloud_transport
 {
 
 class DracoSubscriber
-    : public point_cloud_transport::SimpleSubscriberPlugin<draco_point_cloud_transport::CompressedPointCloud2>
+    : public point_cloud_transport::SimpleSubscriberPlugin<CompressedPointCloud2, DracoSubscriberConfig>
 {
 public:
   std::string getTransportName() const override
@@ -25,23 +25,7 @@ public:
     return "draco";
   }
 
-  void shutdown() override;
-
-protected:
-  // Overridden to set up reconfigure server
-  void subscribeImpl(ros::NodeHandle& nh, const std::string& base_topic, uint32_t queue_size,
-                     const Callback& callback, const ros::VoidPtr& tracked_object,
-                     const point_cloud_transport::TransportHints& transport_hints) override;
-
-  void internalCallback(const draco_point_cloud_transport::CompressedPointCloud2ConstPtr& message,
-                        const Callback& user_cb) override;
-
-  typedef draco_point_cloud_transport::DracoSubscriberConfig Config;
-  typedef dynamic_reconfigure::Server<Config> ReconfigureServer;
-  boost::shared_ptr<ReconfigureServer> reconfigure_server_;
-  Config config_;
-
-  void configCb(Config& config, uint32_t level);
+  DecodeResult decodeTyped(const CompressedPointCloud2& compressed, const DracoSubscriberConfig& config) const override;
 };
 
 }
