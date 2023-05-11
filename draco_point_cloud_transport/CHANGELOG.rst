@@ -2,6 +2,12 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Report log messages from the transport via the log helper.
+* Hide draco library symbols from include files so that it does not have to be exported.
+* Contributors: Martin Pecka
+
 1.0.1 (2023-05-11)
 ------------------
 * More robust Draco CMake finding.
