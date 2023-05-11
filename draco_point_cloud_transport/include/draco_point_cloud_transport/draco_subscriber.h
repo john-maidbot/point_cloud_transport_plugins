@@ -5,8 +5,6 @@
 
 #include <string>
 
-#include <dynamic_reconfigure/server.h>
-#include <ros/ros.h>
 #include <point_cloud_transport/simple_subscriber_plugin.h>
 #include <point_cloud_transport/transport_hints.h>
 
@@ -20,10 +18,7 @@ class DracoSubscriber
     : public point_cloud_transport::SimpleSubscriberPlugin<CompressedPointCloud2, DracoSubscriberConfig>
 {
 public:
-  std::string getTransportName() const override
-  {
-    return "draco";
-  }
+  std::string getTransportName() const override;
 
   DecodeResult decodeTyped(const CompressedPointCloud2& compressed, const DracoSubscriberConfig& config) const override;
 };

@@ -23,9 +23,9 @@ public:
   TypedEncodeResult encodeTyped(const sensor_msgs::PointCloud2& raw,
                                 const draco_point_cloud_transport::DracoPublisherConfig& config) const override;
 
-  void registerPositionField(const std::string& field) const;
-  void registerColorField(const std::string& field) const;
-  void registerNormalField(const std::string& field) const;
+  static void registerPositionField(const std::string& field);
+  static void registerColorField(const std::string& field);
+  static void registerNormalField(const std::string& field);
 };
 
 }

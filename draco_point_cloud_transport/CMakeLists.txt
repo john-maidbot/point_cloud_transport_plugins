@@ -4,6 +4,7 @@ project(draco_point_cloud_transport)
 # Use Draco as a standalone cmake project, it gets built thanks to catkin
 # package.xml.
 find_package(catkin REQUIRED COMPONENTS
+  cras_cpp_common
   dynamic_reconfigure
   message_generation
   pluginlib
@@ -18,9 +19,10 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Draco REQUIRED)
 if(draco_INCLUDE_DIR)
   set(draco_FOUND TRUE)
-  set(draco_INCLUDE_DIRS "${draco_INCLUDE_DIR}" "${draco_INCLUDE_DIR}/..")
   set(draco_LIBRARY_DIRS "${draco_LIBRARY_DIR}")
-  set(draco_LIBRARIES draco)
+  find_path(draco_INCLUDE_DIRS draco/point_cloud/point_cloud.h PATHS "${draco_INCLUDE_DIR}/..")
+  find_library(draco_LIBRARIES NAMES draco PATHS "${draco_LIBRARY_DIR}")
+  message("Draco found: ${draco_INCLUDE_DIRS}, ${draco_LIBRARIES}")
 endif()
 
 add_message_files(FILES
@@ -37,16 +39,12 @@ generate_dynamic_reconfigure_options(cfg/DracoPublisher.cfg cfg/DracoSubscriber.
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS message_runtime sensor_msgs std_msgs
+  CATKIN_DEPENDS message_runtime point_cloud_transport sensor_msgs std_msgs
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${draco_INCLUDE_DIRS})
-
-link_directories(${draco_LIBRARY_DIRS})
+include_directories(include ${catkin_INCLUDE_DIRS} SYSTEM ${draco_INCLUDE_DIRS})
 
 set(SOURCE_FILES
-  src/DracoToPC2.cpp
-  src/PC2toDraco.cpp
   src/draco_publisher.cpp
   src/draco_subscriber.cpp
 )

@@ -15,18 +15,19 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>cras_cpp_common</build_depend>
   <build_depend>draco</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
-  <build_depend>point_cloud_transport</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>pluginlib</build_depend>
 
+  <exec_depend>cras_cpp_common</exec_depend>
   <exec_depend>draco</exec_depend>
   <exec_depend>dynamic_reconfigure</exec_depend>
-  <exec_depend>point_cloud_transport</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>pluginlib</exec_depend>
 
+  <depend>point_cloud_transport</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
 
