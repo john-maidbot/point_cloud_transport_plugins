@@ -204,7 +204,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
     return cras::make_unexpected("Number of points in Draco::PointCloud differs from sensor_msgs::PointCloud2!");
   }
 
-  return pc;
+  return std::move(pc);  // std::move() has to be here for GCC 7
 }
 
 std::string DracoPublisher::getTransportName() const
