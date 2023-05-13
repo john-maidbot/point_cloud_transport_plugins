@@ -2,6 +2,9 @@
 Changelog for package point_cloud_transport_plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 1.0.2 (2023-05-11)
 ------------------
 

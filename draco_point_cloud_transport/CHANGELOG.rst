@@ -2,6 +2,11 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Compatibility with GCC 7.
+* Contributors: Martin Pecka
+
 1.0.2 (2023-05-11)
 ------------------
 * Report log messages from the transport via the log helper.
