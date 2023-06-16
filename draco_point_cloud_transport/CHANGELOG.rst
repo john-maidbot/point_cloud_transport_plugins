@@ -2,8 +2,8 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.5 (2023-06-16)
+------------------
 * Fixed formatting.
 * Contributors: Martin Pecka
 
