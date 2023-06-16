@@ -59,17 +59,6 @@ cras::expected<bool, std::string> convertDracoToPC2(
   // copy PointCloud2 description (header, width, ...)
   copyCloudMetadata(PC2, compressed_PC2);
 
-  // if points were deduplicated, overwrite height and width
-  int deduplicate;
-  pc.GetMetadata()->GetEntryInt("deduplicate", &deduplicate);
-
-  if (deduplicate == 1)
-  {
-    PC2.width = number_of_points;
-    PC2.height = 1;
-    PC2.is_dense = false;
-  }
-
   return true;
 }
 

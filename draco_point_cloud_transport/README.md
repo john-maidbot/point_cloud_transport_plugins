@@ -3,7 +3,9 @@
 Plugin for ROS package [point_cloud_transport](https://wiki.ros.org/point_cloud_transport), which uses Google Draco compression library for low-bandwidth lossy transportation of PointCloud2 messages.
 
 ## Publisher
-The plugin provides dynamic reconfiguration parameters, which can be used to change the compression during runtime. 
+The plugin provides dynamic reconfiguration parameters, which can be used to change the compression during runtime.
+
+Draco cannot encode invalid values, so all pointclouds with invalid values are turned into unstructured dense clouds (no NaNs, height = 1).
 
 ![publisher_settings](https://github.com/paplhjak/draco_point_cloud_transport/blob/master/readme_images/publisher.png)
 

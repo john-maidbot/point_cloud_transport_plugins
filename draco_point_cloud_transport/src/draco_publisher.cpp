@@ -11,6 +11,7 @@
 #include <draco/compression/encode.h>
 #include <draco/point_cloud/point_cloud_builder.h>
 
+#include <cras_cpp_common/cloud.hpp>
 #include <cras_cpp_common/expected.hpp>
 #include <cras_cpp_common/log_utils.h>
 #include <cras_cpp_common/string_utils.hpp>
@@ -46,7 +47,7 @@ static std::unordered_map<std::string, draco::GeometryAttribute::Type> attribute
 };
 
 cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
-    sensor_msgs::PointCloud2 PC2, const std::string& topic, bool deduplicate, bool expert_encoding)
+    const sensor_msgs::PointCloud2& PC2, const std::string& topic, bool deduplicate, bool expert_encoding)
 {
   // object for conversion into Draco Point Cloud format
   draco::PointCloudBuilder builder;
@@ -215,18 +216,36 @@ std::string DracoPublisher::getTransportName() const
 DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     const sensor_msgs::PointCloud2& raw, const draco_point_cloud_transport::DracoPublisherConfig& config) const
 {
+  // Remove invalid points if the cloud contains them - draco cannot cope with them
+  sensor_msgs::PointCloud2Ptr rawCleaned;
+  if (!raw.is_dense) {
+    rawCleaned = boost::make_shared<sensor_msgs::PointCloud2>();
+    CREATE_FILTERED_CLOUD(raw, *rawCleaned, false, std::isfinite(*x_it) && std::isfinite(*y_it) && std::isfinite(*z_it))
+  }
+  
+  const sensor_msgs::PointCloud2& rawDense = raw.is_dense ? raw : *rawCleaned;
+
   // Compressed message
   draco_point_cloud_transport::CompressedPointCloud2 compressed;
+  
+  copyCloudMetadata(compressed, rawDense);
 
-  copyCloudMetadata(compressed, raw);
-
-  auto res = convertPC2toDraco(raw, base_topic_, config.deduplicate, config.expert_attribute_types);
+  auto res = convertPC2toDraco(rawDense, base_topic_, config.deduplicate, config.expert_attribute_types);
   if (!res)
   {
     return cras::make_unexpected(res.error());
   }
 
   const auto& pc = res.value();
+  
+  if (config.deduplicate)
+  {
+      compressed.height = 1;
+      compressed.width = pc->num_points();
+      compressed.row_step = compressed.width * compressed.point_step;
+      compressed.is_dense = true;
+  }
+  
   draco::EncoderBuffer encode_buffer;
 
   // tracks if all necessary parameters were set for expert encoder
@@ -252,7 +271,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
         int att_id = 0;
         int attribute_quantization_bits;
 
-        for (const auto& field : raw.fields)
+        for (const auto& field : rawDense.fields)
         {
           if (ros::param::getCached(base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
                                     attribute_quantization_bits))
