@@ -1,13 +1,10 @@
-# \<DRACO POINT CLOUD TRANSPORT>
+# DRACO POINT CLOUD TRANSPORT
 
-# Description
-Plugin for ROS package point_cloud_transport, which uses Google Draco compression library for low-bandwidth transportation of PointCloud2 messages.
+Plugin for ROS package [point_cloud_transport](https://wiki.ros.org/point_cloud_transport), which uses Google Draco compression library for low-bandwidth lossy transportation of PointCloud2 messages.
 
-# Dynamic Reconfiguration
-
+## Publisher
 The plugin provides dynamic reconfiguration parameters, which can be used to change the compression during runtime. 
 
-##Publisher
 ![publisher_settings](https://github.com/paplhjak/draco_point_cloud_transport/blob/master/readme_images/publisher.png)
 
 ### Encode and Decode Speed
@@ -54,9 +51,10 @@ To set a quantization for a PointField entry "x" of point cloud which will be ad
 /base_topic/draco/attribute_mapping/quantization_bits/x.
 
 Example:
-~~~~~~ bash
+
+```bash
 $ rosparam set /base_topic/draco/attribute_mapping/quantization_bits/x 16
-~~~~~~
+```
 
 When using **expert_quantization**, user must specify the quantization bits for all PointField entries of point cloud.
 
@@ -65,12 +63,13 @@ When using **expert_quantization**, user must specify the quantization bits for 
 **Expert_attribute_types** option tell the encoder to use custom attribute types for encoding of point cloud attributes.
 
 To set a type for a PointField entry "x" of point cloud which will be advertised on base topic *base_topic*, one must set the parameter:
-/base_topic/draco/attribute_mapping/attribute_type/x.
+`/base_topic/draco/attribute_mapping/attribute_type/x`.
 
 Example:
-~~~~~~ bash
+
+```bash
 $ rosparam set /base_topic/draco/attribute_mapping/attribute_type/x "'POSITION'"
-~~~~~~
+```
 
 When using **expert_attribute_types**, user must specify the type for all PointField entries of point cloud. Accepted types are:
  - POSITION 
@@ -81,9 +80,9 @@ When using **expert_attribute_types**, user must specify the type for all PointF
 
 When encoding rgb/rgba COLOR, user can specify to use the common rgba tweak of ROS (encoding rgba as 4 instances of 1 Byte instead of 1 instance of float32). To inform the encoder, that PointField entry "rgb" should be handled with the tweak, set parameter:
 
-~~~~~~ bash
+```bash
 $ rosparam set /base_topic/draco/attribute_mapping/rgba_tweak/rgb true
-~~~~~~
+```
 
 ## Subscriber
 ![subscriber_settings](https://github.com/paplhjak/draco_point_cloud_transport/blob/master/readme_images/subscriber.png)
