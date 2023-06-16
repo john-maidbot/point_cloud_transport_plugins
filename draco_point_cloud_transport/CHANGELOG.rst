@@ -2,6 +2,11 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed formatting.
+* Contributors: Martin Pecka
+
 1.0.4 (2023-06-16)
 ------------------
 * Fixed handling of clouds with invalid points.
