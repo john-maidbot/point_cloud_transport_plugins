@@ -2,6 +2,11 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed handling of clouds with invalid points.
+* Contributors: Martin Pecka
+
 1.0.3 (2023-05-13)
 ------------------
 * Compatibility with GCC 7.
