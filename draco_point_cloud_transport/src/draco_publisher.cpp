@@ -222,12 +222,12 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     rawCleaned = boost::make_shared<sensor_msgs::PointCloud2>();
     CREATE_FILTERED_CLOUD(raw, *rawCleaned, false, std::isfinite(*x_it) && std::isfinite(*y_it) && std::isfinite(*z_it))
   }
-  
+
   const sensor_msgs::PointCloud2& rawDense = raw.is_dense ? raw : *rawCleaned;
 
   // Compressed message
   draco_point_cloud_transport::CompressedPointCloud2 compressed;
-  
+
   copyCloudMetadata(compressed, rawDense);
 
   auto res = convertPC2toDraco(rawDense, base_topic_, config.deduplicate, config.expert_attribute_types);
@@ -237,7 +237,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   }
 
   const auto& pc = res.value();
-  
+
   if (config.deduplicate)
   {
       compressed.height = 1;
@@ -245,7 +245,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
       compressed.row_step = compressed.width * compressed.point_step;
       compressed.is_dense = true;
   }
-  
+
   draco::EncoderBuffer encode_buffer;
 
   // tracks if all necessary parameters were set for expert encoder
