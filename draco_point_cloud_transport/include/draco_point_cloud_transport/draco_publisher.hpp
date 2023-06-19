@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include <draco/point_cloud/point_cloud.h>

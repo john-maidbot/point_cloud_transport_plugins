@@ -7,6 +7,8 @@
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 
+#include <draco/point_cloud/point_cloud.h>
+
 #include <point_cloud_transport/simple_subscriber_plugin.hpp>
 #include <point_cloud_transport/transport_hints.hpp>
 

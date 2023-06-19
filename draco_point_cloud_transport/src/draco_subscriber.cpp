@@ -10,6 +10,7 @@
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 #include <point_cloud_transport/expected.hpp>
 
+#include <draco/point_cloud/point_cloud.h>
 #include <draco/compression/decode.h>
 
 #include <draco_point_cloud_transport/conversion_utilities.h>

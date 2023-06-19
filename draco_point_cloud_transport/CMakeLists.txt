@@ -12,22 +12,19 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
-# Use Draco as a standalone cmake project, it gets built thanks to catkin
-# package.xml.
-# There are some find_package/naming issues due to name draco/Draco mismatch.
-# Currently, with caktin tools only DracoConfig.cmake is found with just two
-# variables defined, draco_INCLUDE_DIR and draco_LIBRARY_DIR. In that case we
-# try to reconstruct the rest from FindDraco.cmake (module mode).
 find_package(Draco REQUIRED)
-if(draco_INCLUDE_DIR)
-  set(draco_FOUND TRUE)
-  set(draco_LIBRARY_DIRS "${draco_LIBRARY_DIR}")
-  find_path(draco_INCLUDE_DIRS draco/point_cloud/point_cloud.h PATHS "${draco_INCLUDE_DIR}/..")
-  find_library(draco_LIBRARIES NAMES draco PATHS "${draco_LIBRARY_DIR}")
-  message("Draco found: ${draco_INCLUDE_DIRS}, ${draco_LIBRARIES}")
-endif()
 
-include_directories(include SYSTEM ${draco_INCLUDE_DIRS})
+set(dependencies
+  pluginlib
+  point_cloud_interfaces
+  point_cloud_transport
+  rclcpp
+  sensor_msgs
+  std_msgs
+)
+
+
+include_directories(include ${DRACO_INCLUDE_DIR})
 
 add_library(${PROJECT_NAME}
   SHARED
@@ -37,19 +34,19 @@ add_library(${PROJECT_NAME}
   src/manifest.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${darco_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${DRACO_LIBRARY})
 
-ament_target_dependencies(${PROJECT_NAME} pluginlib point_cloud_interfaces point_cloud_transport sensor_msgs std_msgs)
+ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
-  DIRECTORY "include/"
-  DESTINATION include
+  DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
 )
 
 pluginlib_export_plugin_description_file(point_cloud_transport draco_plugins.xml)
@@ -88,4 +85,7 @@ pluginlib_export_plugin_description_file(point_cloud_transport draco_plugins.xml
 #   roslint_add_test()
 # endif()
 
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies(${dependencies})
 ament_package()

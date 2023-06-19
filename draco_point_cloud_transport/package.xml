@@ -23,6 +23,7 @@
 
   <depend>point_cloud_interfaces</depend>
   <depend>point_cloud_transport</depend>
+  <depend>rclcpp</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
 
