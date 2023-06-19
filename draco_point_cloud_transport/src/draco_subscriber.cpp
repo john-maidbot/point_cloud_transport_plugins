@@ -5,24 +5,25 @@
 #include <string>
 #include <vector>
 
+#include <sensor_msgs/msg/point_cloud2.hpp>
+
 #include <draco/compression/decode.h>
 
 #include <cras_cpp_common/expected.hpp>
 #include <cras_cpp_common/string_utils.hpp>
-#include <sensor_msgs/PointCloud2.h>
 
-#include <draco_point_cloud_transport/CompressedPointCloud2.h>
+#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
 #include <draco_point_cloud_transport/conversion_utilities.h>
-#include <draco_point_cloud_transport/draco_subscriber.h>
+#include <draco_point_cloud_transport/draco_subscriber.hpp>
 
 namespace draco_point_cloud_transport
 {
 
-//! Method for converting into sensor_msgs::PointCloud2
+//! Method for converting into sensor_msgs::msg::PointCloud2
 cras::expected<bool, std::string> convertDracoToPC2(
     const draco::PointCloud& pc,
-    const draco_point_cloud_transport::CompressedPointCloud2& compressed_PC2,
-    sensor_msgs::PointCloud2& PC2)
+    const draco_point_cloud_transport::msg::CompressedPointCloud2& compressed_PC2,
+    sensor_msgs::msg::PointCloud2& PC2)
 {
   // number of all attributes of point cloud
   int32_t number_of_attributes = pc.num_attributes();
@@ -117,7 +118,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
 
   const std::unique_ptr<draco::PointCloud>& decoded_pc = res.value();
 
-  sensor_msgs::PointCloud2Ptr message(new sensor_msgs::PointCloud2);
+  auto message = std::make_shared<sensor_msgs::msg::PointCloud2>();
   const auto convertRes = convertDracoToPC2(*decoded_pc, compressed, *message);
   if (!convertRes)
     return cras::make_unexpected(convertRes.error());

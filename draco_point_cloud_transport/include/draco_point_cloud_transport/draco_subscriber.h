@@ -5,12 +5,10 @@
 
 #include <string>
 
-#include <point_cloud_transport/simple_subscriber_plugin.h>
-#include <point_cloud_transport/transport_hints.h>
+#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
 
-#include <draco_point_cloud_transport/CompressedPointCloud2.h>
-#include <draco_point_cloud_transport/DracoSubscriberConfig.h>
-
+#include <point_cloud_transport/simple_subscriber_plugin.hpp>
+#include <point_cloud_transport/transport_hints.hpp>
 namespace draco_point_cloud_transport
 {
 

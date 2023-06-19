@@ -5,11 +5,11 @@
 
 #include <string>
 
-#include <point_cloud_transport/simple_publisher_plugin.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <draco_point_cloud_transport/CompressedPointCloud2.h>
-#include <draco_point_cloud_transport/DracoPublisherConfig.h>
+#include <point_cloud_transport/simple_publisher_plugin.hpp>
+
+#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
 
 namespace draco_point_cloud_transport
 {
@@ -20,7 +20,7 @@ class DracoPublisher
 public:
   std::string getTransportName() const override;
 
-  TypedEncodeResult encodeTyped(const sensor_msgs::PointCloud2& raw,
+  TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2& raw,
                                 const draco_point_cloud_transport::DracoPublisherConfig& config) const override;
 
   static void registerPositionField(const std::string& field);

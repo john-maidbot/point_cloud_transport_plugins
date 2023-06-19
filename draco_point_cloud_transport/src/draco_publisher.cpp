@@ -11,12 +11,9 @@
 #include <draco/compression/encode.h>
 #include <draco/point_cloud/point_cloud_builder.h>
 
-#include <cras_cpp_common/cloud.hpp>
-#include <cras_cpp_common/expected.hpp>
-#include <cras_cpp_common/log_utils.h>
-#include <cras_cpp_common/string_utils.hpp>
-
-#include <draco_point_cloud_transport/CompressedPointCloud2.h>
+#include <draco_point_cloud_transport/cloud.hpp>
+#include <draco_point_cloud_transport/expected.hpp>
+#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
 #include <draco_point_cloud_transport/conversion_utilities.h>
 #include <draco_point_cloud_transport/draco_publisher.h>
 
@@ -47,7 +44,7 @@ static std::unordered_map<std::string, draco::GeometryAttribute::Type> attribute
 };
 
 cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
-    const sensor_msgs::PointCloud2& PC2, const std::string& topic, bool deduplicate, bool expert_encoding)
+    const sensor_msgs::msg::PointCloud2& PC2, const std::string& topic, bool deduplicate, bool expert_encoding)
 {
   // object for conversion into Draco Point Cloud format
   draco::PointCloudBuilder builder;
@@ -77,7 +74,8 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
     if (expert_encoding)  // find attribute type in user specified parameters
     {
       rgba_tweak = false;
-      if (ros::param::getCached(topic + "/draco/attribute_mapping/attribute_type/" + field.name,
+
+      if (node_->get_parameter(topic + "/draco/attribute_mapping/attribute_type/" + field.name,
                                 expert_attribute_data_type))
       {
         if (expert_attribute_data_type == "POSITION")  // if data type is POSITION
@@ -91,7 +89,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
         else if (expert_attribute_data_type == "COLOR")  // if data type is COLOR
         {
           attribute_type = draco::GeometryAttribute::COLOR;
-          ros::param::getCached(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
+          node_->get_parameter(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
         }
         else if (expert_attribute_data_type == "TEX_COORD")  // if data type is TEX_COORD
         {
@@ -184,7 +182,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
 
   if (pc == nullptr)
   {
-    return cras::make_unexpected("Conversion from sensor_msgs::PointCloud2 to Draco::PointCloud failed");
+    return cras::make_unexpected("Conversion from sensor_msgs::msg::PointCloud2 to Draco::PointCloud failed");
   }
 
   // add metadata to point cloud
@@ -202,7 +200,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
 
   if ((pc->num_points() != number_of_points) && !deduplicate)
   {
-    return cras::make_unexpected("Number of points in Draco::PointCloud differs from sensor_msgs::PointCloud2!");
+    return cras::make_unexpected("Number of points in Draco::PointCloud differs from sensor_msgs::msg::PointCloud2!");
   }
 
   return std::move(pc);  // std::move() has to be here for GCC 7
@@ -214,19 +212,19 @@ std::string DracoPublisher::getTransportName() const
 }
 
 DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
-    const sensor_msgs::PointCloud2& raw, const draco_point_cloud_transport::DracoPublisherConfig& config) const
+    const sensor_msgs::msg::PointCloud2& raw, const draco_point_cloud_transport::DracoPublisherConfig& config) const
 {
   // Remove invalid points if the cloud contains them - draco cannot cope with them
-  sensor_msgs::PointCloud2Ptr rawCleaned;
+  sensor_msgs::msg::PointCloud2::SharedPtr rawCleaned;
   if (!raw.is_dense) {
-    rawCleaned = boost::make_shared<sensor_msgs::PointCloud2>();
+    rawCleaned = std::make_shared<sensor_msgs::msg::PointCloud2>();
     CREATE_FILTERED_CLOUD(raw, *rawCleaned, false, std::isfinite(*x_it) && std::isfinite(*y_it) && std::isfinite(*z_it))
   }
 
-  const sensor_msgs::PointCloud2& rawDense = raw.is_dense ? raw : *rawCleaned;
+  const sensor_msgs::msg::PointCloud2& rawDense = raw.is_dense ? raw : *rawCleaned;
 
   // Compressed message
-  draco_point_cloud_transport::CompressedPointCloud2 compressed;
+  draco_point_cloud_transport::msg::CompressedPointCloud2 compressed;
 
   copyCloudMetadata(compressed, rawDense);
 
@@ -273,16 +271,16 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
         for (const auto& field : rawDense.fields)
         {
-          if (ros::param::getCached(base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
+          if (node_->get_parameter(base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
                                     attribute_quantization_bits))
           {
             expert_encoder.SetAttributeQuantization(att_id, attribute_quantization_bits);
           }
           else
           {
-            CRAS_ERROR_STREAM("Attribute quantization not specified for " + field.name + " field entry. "
+            RCLCPP_ERROR_STREAM(node_->get_logger(), "Attribute quantization not specified for " + field.name + " field entry. "
                               "Using regular encoder instead.");
-            CRAS_INFO_STREAM("To set quantization for " + field.name + " field entry, set " + base_topic_ +
+            RCLCPP_INFO_STREAM(node_->get_logger(), "To set quantization for " + field.name + " field entry, set " + base_topic_ +
                              "/draco/attribute_mapping/quantization_bits/" + field.name);
             expert_settings_ok = false;
           }
@@ -303,8 +301,9 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
     if (status.code() != 0)
     {
+      // TODO: Fix with proper format
       return cras::make_unexpected(
-          cras::format("Draco encoder returned code %i: %s.", status.code(), status.error_msg()));
+          "Draco encoder returned code "+std::to_string(status.code())+": "+status.error_msg()+".");
     }
   }
   // expert encoder end
@@ -345,7 +344,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     if (!status.ok())
     {
       return cras::make_unexpected(
-          cras::format("Draco encoder returned code %i: %s.", status.code(), status.error_msg()));
+          "Draco encoder returned code "+std::to_string(status.code())+": "+status.error_msg()+".");
     }
   }
   // regular encoder end

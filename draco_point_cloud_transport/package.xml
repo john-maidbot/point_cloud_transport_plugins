@@ -13,29 +13,27 @@
   <url type="website">https://wiki.ros.org/draco_point_cloud_transport</url>
   <url type="bugtracker">https://github.com/ctu-vras/draco_point_cloud_transport/issues</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>builtin_interfaces</build_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-  <build_depend>cras_cpp_common</build_depend>
   <build_depend>draco</build_depend>
-  <build_depend>dynamic_reconfigure</build_depend>
-  <build_depend>message_generation</build_depend>
   <build_depend>pluginlib</build_depend>
 
-  <exec_depend>cras_cpp_common</exec_depend>
   <exec_depend>draco</exec_depend>
-  <exec_depend>dynamic_reconfigure</exec_depend>
-  <exec_depend>message_runtime</exec_depend>
   <exec_depend>pluginlib</exec_depend>
 
   <depend>point_cloud_transport</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
 
-  <test_depend condition="$ROS_PYTHON_VERSION == 2">python-catkin-lint</test_depend>
-  <test_depend condition="$ROS_PYTHON_VERSION == 3">python3-catkin-lint</test_depend>
-  <test_depend>roslint</test_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
+    <build_type>ament_cmake</build_type>
     <point_cloud_transport plugin="${prefix}/draco_plugins.xml" />
   </export>
 </package>
