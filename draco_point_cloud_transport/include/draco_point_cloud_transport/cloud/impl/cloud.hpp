@@ -10,9 +10,9 @@
 
 #include <string>
 
-#include <sensor_msgs/PointField.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
+#include <sensor_msgs/msg/point_field.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
 namespace cras
 {
@@ -62,15 +62,15 @@ protected:
 template<typename T = unsigned char>
 class GenericCloudConstIterator :
   public GenericCloudIteratorBase<T, const T, const unsigned char,
-    const ::sensor_msgs::PointCloud2, GenericCloudConstIterator>
+    const ::sensor_msgs::msg::PointCloud2, GenericCloudConstIterator>
 {
 public:
   /**
    * \param[in] cloud_msg The PointCloud2 to iterate upon.
    * \param[in] field_name The field to iterate upon.
    */
-  GenericCloudConstIterator(const ::sensor_msgs::PointCloud2 &cloud_msg, const ::std::string &field_name) :
-    GenericCloudIteratorBase<T, const T, const unsigned char, const ::sensor_msgs::PointCloud2,
+  GenericCloudConstIterator(const ::sensor_msgs::msg::PointCloud2 &cloud_msg, const ::std::string &field_name) :
+    GenericCloudIteratorBase<T, const T, const unsigned char, const ::sensor_msgs::msg::PointCloud2,
       GenericCloudConstIterator>::GenericCloudIteratorBase(cloud_msg, field_name)
   {
   }
@@ -96,15 +96,15 @@ public:
  */
 template<typename T = unsigned char>
 class GenericCloudIterator :
-  public GenericCloudIteratorBase<T, T, unsigned char, ::sensor_msgs::PointCloud2, GenericCloudIterator>
+  public GenericCloudIteratorBase<T, T, unsigned char, ::sensor_msgs::msg::PointCloud2, GenericCloudIterator>
 {
 public:
   /**
    * \param[in] cloud_msg The PointCloud2 to iterate upon.
    * \param[in] field_name The field to iterate upon.
    */
-  GenericCloudIterator(::sensor_msgs::PointCloud2 &cloud_msg, const ::std::string &field_name) :
-    GenericCloudIteratorBase<T, T, unsigned char, ::sensor_msgs::PointCloud2,
+  GenericCloudIterator(::sensor_msgs::msg::PointCloud2 &cloud_msg, const ::std::string &field_name) :
+    GenericCloudIteratorBase<T, T, unsigned char, ::sensor_msgs::msg::PointCloud2,
       GenericCloudIterator>::GenericCloudIteratorBase(cloud_msg, field_name)
   {
   }

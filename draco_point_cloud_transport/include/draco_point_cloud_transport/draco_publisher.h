@@ -9,13 +9,13 @@
 
 #include <point_cloud_transport/simple_publisher_plugin.hpp>
 
-#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 
 namespace draco_point_cloud_transport
 {
 
 class DracoPublisher
-    : public point_cloud_transport::SimplePublisherPlugin<CompressedPointCloud2, DracoPublisherConfig>
+    : public point_cloud_transport::SimplePublisherPlugin<point_cloud_interfaces::msg::CompressedPointCloud2, DracoPublisherConfig>
 {
 public:
   std::string getTransportName() const override;

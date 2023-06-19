@@ -7,13 +7,14 @@
 #include <utility>
 #include <vector>
 
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
+
 #include <draco/compression/expert_encode.h>
 #include <draco/compression/encode.h>
 #include <draco/point_cloud/point_cloud_builder.h>
 
 #include <draco_point_cloud_transport/cloud.hpp>
 #include <draco_point_cloud_transport/expected.hpp>
-#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
 #include <draco_point_cloud_transport/conversion_utilities.h>
 #include <draco_point_cloud_transport/draco_publisher.h>
 
@@ -101,16 +102,16 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
         }
         else
         {
-          CRAS_ERROR_STREAM("Attribute data type not recognized for " + field.name + " field entry. "
+          RCLCPP_ERROR_STREAM(node_->get_logger(), "Attribute data type not recognized for " + field.name + " field entry. "
                             "Using regular type recognition instead.");
           expert_settings_ok = false;
         }
       }
       else
       {
-        CRAS_ERROR_STREAM("Attribute data type not specified for " + field.name + " field entry."
+        RCLCPP_ERROR_STREAM(node_->get_logger(), "Attribute data type not specified for " + field.name + " field entry."
                           "Using regular type recognition instead.");
-        CRAS_INFO_STREAM("To set attribute type for " + field.name + " field entry, set " + topic +
+        RCLCPP_INFO_STREAM(node_->get_logger(), "To set attribute type for " + field.name + " field entry, set " + topic +
                          "/draco/attribute_mapping/attribute_type/" + field.name);
         expert_settings_ok = false;
       }
@@ -131,24 +132,24 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
     // attribute data type switch
     switch (field.datatype)
     {
-      case sensor_msgs::PointField::INT8:attribute_data_type = draco::DT_INT8;
+      case sensor_msgs::msg::PointField::INT8:attribute_data_type = draco::DT_INT8;
         break;
-      case sensor_msgs::PointField::UINT8:attribute_data_type = draco::DT_UINT8;
+      case sensor_msgs::msg::PointField::UINT8:attribute_data_type = draco::DT_UINT8;
         break;
-      case sensor_msgs::PointField::INT16:attribute_data_type = draco::DT_INT16;
+      case sensor_msgs::msg::PointField::INT16:attribute_data_type = draco::DT_INT16;
         break;
-      case sensor_msgs::PointField::UINT16:attribute_data_type = draco::DT_UINT16;
+      case sensor_msgs::msg::PointField::UINT16:attribute_data_type = draco::DT_UINT16;
         break;
-      case sensor_msgs::PointField::INT32:attribute_data_type = draco::DT_INT32;
+      case sensor_msgs::msg::PointField::INT32:attribute_data_type = draco::DT_INT32;
         rgba_tweak_64bit = false;
         break;
-      case sensor_msgs::PointField::UINT32:attribute_data_type = draco::DT_UINT32;
+      case sensor_msgs::msg::PointField::UINT32:attribute_data_type = draco::DT_UINT32;
         rgba_tweak_64bit = false;
         break;
-      case sensor_msgs::PointField::FLOAT32:attribute_data_type = draco::DT_FLOAT32;
+      case sensor_msgs::msg::PointField::FLOAT32:attribute_data_type = draco::DT_FLOAT32;
         rgba_tweak_64bit = false;
         break;
-      case sensor_msgs::PointField::FLOAT64:attribute_data_type = draco::DT_FLOAT64;
+      case sensor_msgs::msg::PointField::FLOAT64:attribute_data_type = draco::DT_FLOAT64;
         rgba_tweak_64bit = true;
         break;
       default:return cras::make_unexpected("Invalid data type in PointCloud2 to Draco conversion");
@@ -224,7 +225,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   const sensor_msgs::msg::PointCloud2& rawDense = raw.is_dense ? raw : *rawCleaned;
 
   // Compressed message
-  draco_point_cloud_transport::msg::CompressedPointCloud2 compressed;
+  point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
 
   copyCloudMetadata(compressed, rawDense);
 

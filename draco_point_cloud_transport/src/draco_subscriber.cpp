@@ -7,12 +7,11 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
+
 #include <draco/compression/decode.h>
 
-#include <cras_cpp_common/expected.hpp>
-#include <cras_cpp_common/string_utils.hpp>
-
-#include <draco_point_cloud_transport/msg/compressed_point_cloud2.hpp>
+#include <draco_point_cloud_transport/expected.hpp>
 #include <draco_point_cloud_transport/conversion_utilities.h>
 #include <draco_point_cloud_transport/draco_subscriber.hpp>
 
@@ -22,7 +21,7 @@ namespace draco_point_cloud_transport
 //! Method for converting into sensor_msgs::msg::PointCloud2
 cras::expected<bool, std::string> convertDracoToPC2(
     const draco::PointCloud& pc,
-    const draco_point_cloud_transport::msg::CompressedPointCloud2& compressed_PC2,
+    const point_cloud_interfaces::msg::CompressedPointCloud2& compressed_PC2,
     sensor_msgs::msg::PointCloud2& PC2)
 {
   // number of all attributes of point cloud
@@ -69,7 +68,7 @@ std::string DracoSubscriber::getTransportName() const
 }
 
 DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
-    const CompressedPointCloud2& compressed, const DracoSubscriberConfig& config) const
+    const point_cloud_interfaces::msg::CompressedPointCloud2& compressed, const DracoSubscriberConfig& config) const
 {
   // get size of buffer with compressed data in Bytes
   uint32_t compressed_data_size = compressed.compressed_data.size();

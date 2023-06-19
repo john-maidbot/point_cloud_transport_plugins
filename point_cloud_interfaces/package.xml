@@ -1,9 +1,8 @@
 <package format="3">
-  <name>draco_point_cloud_transport</name>
+  <name>point_cloud_interfaces</name>
   <version>1.0.5</version>
   <description>
-    draco_point_cloud_transport provides a plugin to point_cloud_transport for sending point clouds
-    encoded with KD tree compression.
+    msg definitions for use with point_cloud_transport plugins.
   </description>
   <author>Jakub Paplham</author>
   <maintainer email="peckama2@fel.cvut.cz">Martin Pecka</maintainer>
@@ -14,20 +13,18 @@
   <url type="bugtracker">https://github.com/ctu-vras/draco_point_cloud_transport/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>builtin_interfaces</build_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-  <build_depend>draco</build_depend>
-  <build_depend>pluginlib</build_depend>
-
-  <exec_depend>draco</exec_depend>
-  <exec_depend>pluginlib</exec_depend>
-
-  <depend>point_cloud_interfaces</depend>
-  <depend>point_cloud_transport</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
 
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
   <export>
     <build_type>ament_cmake</build_type>
-    <point_cloud_transport plugin="${prefix}/draco_plugins.xml" />
   </export>
 </package>

@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.10.2)
+
 project(draco_point_cloud_transport)
 
-find_package(builtin_interfaces REQUIRED)
+find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(point_cloud_interfaces REQUIRED)
 find_package(point_cloud_transport REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
+find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
@@ -23,46 +25,32 @@ if(draco_INCLUDE_DIR)
   message("Draco found: ${draco_INCLUDE_DIRS}, ${draco_LIBRARIES}")
 endif()
 
-set(msg_files
-  "msg/CompressedPointCloud2.msg"
-)
-
-rosidl_generate_interfaces(${PROJECT_NAME}
-  ${msg_files}
-  DEPENDENCIES sensor_msgs std_msgs builtin_interfaces
-)
-
 include_directories(include SYSTEM ${draco_INCLUDE_DIRS})
 
 add_library(${PROJECT_NAME}
-  src/cloud.cpp
-  src/draco_publisher.cpp
-  src/draco_subscriber.cpp
-)
-ament_target_dependencies(${PROJECT_NAME} pluginlib point_cloud_transport sensor_msgs std_msgs)
-
-add_library(${PROJECT_NAME}_plugin
+  SHARED
   src/cloud.cpp
   src/draco_publisher.cpp
   src/draco_subscriber.cpp
   src/manifest.cpp
 )
-ament_target_dependencies(${PROJECT_NAME} pluginlib point_cloud_transport sensor_msgs std_msgs)
-class_loader_hide_library_symbols(${PROJECT_NAME}_plugin)
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_plugin
+target_link_libraries(${PROJECT_NAME} ${darco_LIBRARIES})
+
+ament_target_dependencies(${PROJECT_NAME} pluginlib point_cloud_interfaces point_cloud_transport sensor_msgs std_msgs)
+
+install(TARGETS ${PROJECT_NAME}
+  ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION bin
 )
 
 install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include/${PROJECT_NAME}
+  DIRECTORY "include/"
+  DESTINATION include
 )
 
-install(FILES draco_plugins.xml
-  DESTINATION DESTINATION share/${PROJECT_NAME}
-)
+pluginlib_export_plugin_description_file(point_cloud_transport draco_plugins.xml)
 
 # TODO: Fix tests
 # if (CATKIN_ENABLE_TESTING)

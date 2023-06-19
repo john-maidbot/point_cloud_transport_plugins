@@ -79,38 +79,38 @@ inline size_t numPoints(const ::cras::Cloud& cloud)
 bool hasField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
 
 /**
- * \brief Return the sensor_msgs::PointField with the given name.
+ * \brief Return the sensor_msgs::msg::PointField with the given name.
  * \param[in] cloud Cloud to extract the field from.
  * \param[in] fieldName Name of the field.
  * \return Reference to the field.
  * \throws std::runtime_error if the field doesn't exist.
  */
-::sensor_msgs::PointField& getField(::cras::Cloud& cloud, const ::std::string& fieldName);
+::sensor_msgs::msg::PointField& getField(::cras::Cloud& cloud, const ::std::string& fieldName);
 
 /**
- * \brief Return the sensor_msgs::PointField with the given name.
+ * \brief Return the sensor_msgs::msg::PointField with the given name.
  * \param[in] cloud Cloud to extract the field from.
  * \param[in] fieldName Name of the field.
  * \return Reference to the field.
  * \throws std::runtime_error if the field doesn't exist.
  */
-const ::sensor_msgs::PointField& getField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
+const ::sensor_msgs::msg::PointField& getField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
 
 /**
- * \brief Return the size (in bytes) of a sensor_msgs::PointField datatype.
- * \param[in] datatype The datatype (one of sensor_msgs::PointField::(U?INT(8|16|32)|FLOAT(32|64)) constants).
+ * \brief Return the size (in bytes) of a sensor_msgs::msg::PointField datatype.
+ * \param[in] datatype The datatype (one of sensor_msgs::msg::PointField::(U?INT(8|16|32)|FLOAT(32|64)) constants).
  * \return Size of the datatype in bytes.
  * \throws std::runtime_error if wrong datatype is passed.
  */
 size_t sizeOfPointField(int datatype);
 
 /**
- * \brief Return the size (in bytes) of the data represented by the sensor_msgs::PointField.
+ * \brief Return the size (in bytes) of the data represented by the sensor_msgs::msg::PointField.
  * \param[in] field The pointfield specification.
  * \return Size of the data.
  * \throws std::runtime_error if wrong datatype is passed.
  */
-size_t sizeOfPointField(const ::sensor_msgs::PointField& field);
+size_t sizeOfPointField(const ::sensor_msgs::msg::PointField& field);
 
 /**
  * \brief Copy data belonging to the given field from `in` cloud to `out` cloud.
