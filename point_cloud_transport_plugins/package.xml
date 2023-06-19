@@ -15,7 +15,7 @@
   <exec_depend>draco_point_cloud_transport</exec_depend>
 
   <export>
-    <metapackage/>
+    <build_type>ament_cmake</build_type>
   </export>
 
 </package>

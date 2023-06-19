@@ -8,10 +8,10 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
+#include <point_cloud_transport/expected.hpp>
 
 #include <draco/compression/decode.h>
 
-#include <draco_point_cloud_transport/expected.hpp>
 #include <draco_point_cloud_transport/conversion_utilities.h>
 #include <draco_point_cloud_transport/draco_subscriber.hpp>
 
@@ -68,7 +68,7 @@ std::string DracoSubscriber::getTransportName() const
 }
 
 DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
-    const point_cloud_interfaces::msg::CompressedPointCloud2& compressed, const DracoSubscriberConfig& config) const
+    const point_cloud_interfaces::msg::CompressedPointCloud2& compressed) const
 {
   // get size of buffer with compressed data in Bytes
   uint32_t compressed_data_size = compressed.compressed_data.size();
@@ -113,7 +113,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
   const auto res = decoder.DecodePointCloudFromBuffer(&decode_buffer);
   if (!res.ok())
     return cras::make_unexpected(
-        cras::format("Draco decoder returned code %i: %s.", res.status().code(), res.status().error_msg()));
+        "Draco decoder returned code "+std::to_string(res.status().code())+": "+res.status().error_msg()+".");
 
   const std::unique_ptr<draco::PointCloud>& decoded_pc = res.value();
 

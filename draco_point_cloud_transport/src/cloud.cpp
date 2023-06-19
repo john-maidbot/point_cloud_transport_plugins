@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <string>
+#include <cstring>
 
 #include <draco_point_cloud_transport/cloud.hpp>
 

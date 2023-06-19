@@ -8,15 +8,15 @@
 #include <vector>
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
+#include <point_cloud_transport/expected.hpp>
 
 #include <draco/compression/expert_encode.h>
 #include <draco/compression/encode.h>
 #include <draco/point_cloud/point_cloud_builder.h>
 
 #include <draco_point_cloud_transport/cloud.hpp>
-#include <draco_point_cloud_transport/expected.hpp>
 #include <draco_point_cloud_transport/conversion_utilities.h>
-#include <draco_point_cloud_transport/draco_publisher.h>
+#include <draco_point_cloud_transport/draco_publisher.hpp>
 
 namespace draco_point_cloud_transport
 {
@@ -44,8 +44,8 @@ static std::unordered_map<std::string, draco::GeometryAttribute::Type> attribute
     {"normal_z", draco::GeometryAttribute::Type::NORMAL},
 };
 
-cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
-    const sensor_msgs::msg::PointCloud2& PC2, const std::string& topic, bool deduplicate, bool expert_encoding)
+cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::convertPC2toDraco(
+    const sensor_msgs::msg::PointCloud2& PC2, const std::string& topic, bool deduplicate, bool expert_encoding) const
 {
   // object for conversion into Draco Point Cloud format
   draco::PointCloudBuilder builder;
@@ -76,7 +76,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
     {
       rgba_tweak = false;
 
-      if (node_->get_parameter(topic + "/draco/attribute_mapping/attribute_type/" + field.name,
+      if (getParam(topic + "/draco/attribute_mapping/attribute_type/" + field.name,
                                 expert_attribute_data_type))
       {
         if (expert_attribute_data_type == "POSITION")  // if data type is POSITION
@@ -90,7 +90,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
         else if (expert_attribute_data_type == "COLOR")  // if data type is COLOR
         {
           attribute_type = draco::GeometryAttribute::COLOR;
-          node_->get_parameter(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
+          getParam(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
         }
         else if (expert_attribute_data_type == "TEX_COORD")  // if data type is TEX_COORD
         {
@@ -102,16 +102,16 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDrac
         }
         else
         {
-          RCLCPP_ERROR_STREAM(node_->get_logger(), "Attribute data type not recognized for " + field.name + " field entry. "
+          RCLCPP_ERROR_STREAM(getLogger(), "Attribute data type not recognized for " + field.name + " field entry. "
                             "Using regular type recognition instead.");
           expert_settings_ok = false;
         }
       }
       else
       {
-        RCLCPP_ERROR_STREAM(node_->get_logger(), "Attribute data type not specified for " + field.name + " field entry."
+        RCLCPP_ERROR_STREAM(getLogger(), "Attribute data type not specified for " + field.name + " field entry."
                           "Using regular type recognition instead.");
-        RCLCPP_INFO_STREAM(node_->get_logger(), "To set attribute type for " + field.name + " field entry, set " + topic +
+        RCLCPP_INFO_STREAM(getLogger(), "To set attribute type for " + field.name + " field entry, set " + topic +
                          "/draco/attribute_mapping/attribute_type/" + field.name);
         expert_settings_ok = false;
       }
@@ -213,7 +213,7 @@ std::string DracoPublisher::getTransportName() const
 }
 
 DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
-    const sensor_msgs::msg::PointCloud2& raw, const draco_point_cloud_transport::DracoPublisherConfig& config) const
+    const sensor_msgs::msg::PointCloud2& raw) const
 {
   // Remove invalid points if the cloud contains them - draco cannot cope with them
   sensor_msgs::msg::PointCloud2::SharedPtr rawCleaned;
@@ -229,7 +229,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
   copyCloudMetadata(compressed, rawDense);
 
-  auto res = convertPC2toDraco(rawDense, base_topic_, config.deduplicate, config.expert_attribute_types);
+  auto res = convertPC2toDraco(rawDense, base_topic_, config_.deduplicate, config_.expert_attribute_types);
   if (!res)
   {
     return cras::make_unexpected(res.error());
@@ -237,7 +237,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
   const auto& pc = res.value();
 
-  if (config.deduplicate)
+  if (config_.deduplicate)
   {
       compressed.height = 1;
       compressed.width = pc->num_points();
@@ -251,20 +251,20 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   bool expert_settings_ok = true;
 
   // expert encoder
-  if (config.expert_quantization)
+  if (config_.expert_quantization)
   {
     draco::ExpertEncoder expert_encoder(*pc);
-    expert_encoder.SetSpeedOptions(config.encode_speed, config.decode_speed);
+    expert_encoder.SetSpeedOptions(config_.encode_speed, config_.decode_speed);
 
     // default
-    if ((config.encode_method == 0) && (!config.force_quantization))
+    if ((config_.encode_method == 0) && (!config_.force_quantization))
     {
       // let draco handle method selection
     }
       // force kd tree
-    else if ((config.encode_method == 1) || (config.force_quantization))
+    else if ((config_.encode_method == 1) || (config_.force_quantization))
     {
-      if (config.force_quantization)
+      if (config_.force_quantization)
       {
         // keep track of which attribute is being processed
         int att_id = 0;
@@ -272,16 +272,16 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
         for (const auto& field : rawDense.fields)
         {
-          if (node_->get_parameter(base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
+          if (getParam(base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
                                     attribute_quantization_bits))
           {
             expert_encoder.SetAttributeQuantization(att_id, attribute_quantization_bits);
           }
           else
           {
-            RCLCPP_ERROR_STREAM(node_->get_logger(), "Attribute quantization not specified for " + field.name + " field entry. "
+            RCLCPP_ERROR_STREAM(getLogger(), "Attribute quantization not specified for " + field.name + " field entry. "
                               "Using regular encoder instead.");
-            RCLCPP_INFO_STREAM(node_->get_logger(), "To set quantization for " + field.name + " field entry, set " + base_topic_ +
+            RCLCPP_INFO_STREAM(getLogger(), "To set quantization for " + field.name + " field entry, set " + base_topic_ +
                              "/draco/attribute_mapping/quantization_bits/" + field.name);
             expert_settings_ok = false;
           }
@@ -310,26 +310,26 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   // expert encoder end
 
   // regular encoder
-  if ((!config.expert_quantization) || (!expert_settings_ok))
+  if ((!config_.expert_quantization) || (!expert_settings_ok))
   {
     draco::Encoder encoder;
-    encoder.SetSpeedOptions(config.encode_speed, config.decode_speed);
+    encoder.SetSpeedOptions(config_.encode_speed, config_.decode_speed);
 
     // default
-    if ((config.encode_method == 0) && (!config.force_quantization))
+    if ((config_.encode_method == 0) && (!config_.force_quantization))
     {
       // let draco handle method selection
     }
       // force kd tree
-    else if ((config.encode_method == 1) || (config.force_quantization))
+    else if ((config_.encode_method == 1) || (config_.force_quantization))
     {
-      if (config.force_quantization)
+      if (config_.force_quantization)
       {
-        encoder.SetAttributeQuantization(draco::GeometryAttribute::POSITION, config.quantization_POSITION);
-        encoder.SetAttributeQuantization(draco::GeometryAttribute::NORMAL, config.quantization_NORMAL);
-        encoder.SetAttributeQuantization(draco::GeometryAttribute::COLOR, config.quantization_COLOR);
-        encoder.SetAttributeQuantization(draco::GeometryAttribute::TEX_COORD, config.quantization_TEX_COORD);
-        encoder.SetAttributeQuantization(draco::GeometryAttribute::GENERIC, config.quantization_GENERIC);
+        encoder.SetAttributeQuantization(draco::GeometryAttribute::POSITION, config_.quantization_POSITION);
+        encoder.SetAttributeQuantization(draco::GeometryAttribute::NORMAL, config_.quantization_NORMAL);
+        encoder.SetAttributeQuantization(draco::GeometryAttribute::COLOR, config_.quantization_COLOR);
+        encoder.SetAttributeQuantization(draco::GeometryAttribute::TEX_COORD, config_.quantization_TEX_COORD);
+        encoder.SetAttributeQuantization(draco::GeometryAttribute::GENERIC, config_.quantization_GENERIC);
       }
       encoder.SetEncodingMethod(draco::POINT_CLOUD_KD_TREE_ENCODING);
     }
