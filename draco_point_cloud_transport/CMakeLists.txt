@@ -51,6 +51,11 @@ install(
 
 pluginlib_export_plugin_description_file(point_cloud_transport draco_plugins.xml)
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 # TODO: Fix tests
 # if (CATKIN_ENABLE_TESTING)
 #   find_package(roslint REQUIRED)
