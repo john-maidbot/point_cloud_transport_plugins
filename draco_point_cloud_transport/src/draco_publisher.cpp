@@ -112,8 +112,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "encode_speed") {
           int value = parameter.as_int();
-          if (value >= 0 && value <= 10)
-          {
+          if (value >= 0 && value <= 10) {
             config_.encode_speed = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -122,8 +121,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "decode_speed") {
           int value = parameter.as_int();
-          if (value >= 0 && value <= 10)
-          {
+          if (value >= 0 && value <= 10) {
             config_.decode_speed = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -132,8 +130,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "method_enum") {
           int value = parameter.as_int();
-          if (value >= 0 && value <= 2)
-          {
+          if (value >= 0 && value <= 2) {
             config_.method_enum = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -149,8 +146,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "quantization_POSITION") {
           int value = parameter.as_int();
-          if (value >= 1 && value <= 31)
-          {
+          if (value >= 1 && value <= 31) {
             config_.quantization_POSITION = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -159,8 +155,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "quantization_NORMAL") {
           int value = parameter.as_int();
-          if (value >= 1 && value <= 31)
-          {
+          if (value >= 1 && value <= 31) {
             config_.quantization_NORMAL = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -169,8 +164,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "quantization_COLOR") {
           int value = parameter.as_int();
-          if (value >= 1 && value <= 31)
-          {
+          if (value >= 1 && value <= 31) {
             config_.quantization_COLOR = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -179,8 +173,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "quantization_TEX_COORD") {
           int value = parameter.as_int();
-          if (value >= 1 && value <= 31)
-          {
+          if (value >= 1 && value <= 31) {
             config_.quantization_TEX_COORD = value;
           } else {
             RCLCPP_ERROR_STREAM(
@@ -189,8 +182,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "quantization_GENERIC") {
           int value = parameter.as_int();
-          if (value >= 1 && value <= 31)
-          {
+          if (value >= 1 && value <= 31) {
             config_.quantization_GENERIC = value;
           } else {
             RCLCPP_ERROR_STREAM(
