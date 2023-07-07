@@ -1,0 +1,19 @@
+<library path="pcl_point_cloud_transport">
+    <class
+        name="point_cloud_transport/pcl_pub"
+        type="pcl_point_cloud_transport::PCLPublisher"
+        base_class_type="point_cloud_transport::PublisherPlugin">
+        <description>
+          PCL publisher
+        </description>
+    </class>
+
+    <class
+        name="point_cloud_transport/pcl_sub"
+        type="pcl_point_cloud_transport::PCLSubscriber"
+        base_class_type="point_cloud_transport::SubscriberPlugin">
+        <description>
+          PCL
+        </description>
+    </class>
+</library>
