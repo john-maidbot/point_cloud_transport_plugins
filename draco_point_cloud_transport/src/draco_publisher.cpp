@@ -75,18 +75,148 @@ static std::unordered_map<std::string, draco::GeometryAttribute::Type> attribute
 
 void DracoPublisher::declareParameters(const std::string & base_topic)
 {
-  declareParam<int>(std::string("encode_speed"), 7);
-  declareParam<int>(std::string("decode_speed"), 7);
-  declareParam<int>(std::string("encode_method"), 0);
-  declareParam<bool>(std::string("deduplicate"), true);
-  declareParam<bool>(std::string("force_quantization"), true);
-  declareParam<int>(std::string("quantization_POSITION"), 14);
-  declareParam<int>(std::string("quantization_NORMAL"), 14);
-  declareParam<int>(std::string("quantization_COLOR"), 14);
-  declareParam<int>(std::string("quantization_TEX_COORD"), 14);
-  declareParam<int>(std::string("quantization_GENERIC"), 14);
-  declareParam<bool>(std::string("expert_quantization"), true);
-  declareParam<bool>(std::string("expert_attribute_types"), true);
+  rcl_interfaces::msg::ParameterDescriptor encode_speed_paramDescriptor;
+  encode_speed_paramDescriptor.name = "encode_speed";
+  encode_speed_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  encode_speed_paramDescriptor.description =
+    "0 = slowest speed, but the best compression 10 = fastest, but the worst compression.";
+  encode_speed_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(10)
+      .set__step(1)});
+  declareParam<int>(encode_speed_paramDescriptor.name, 7, encode_speed_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor decode_speed_paramDescriptor;
+  decode_speed_paramDescriptor.name = "decode_speed";
+  decode_speed_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  decode_speed_paramDescriptor.description =
+    "0 = slowest speed, but the best compression 10 = fastest, but the worst compression.";
+  decode_speed_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(10)
+      .set__step(1)});
+  declareParam<int>(decode_speed_paramDescriptor.name, 7, decode_speed_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor encode_method_paramDescriptor;
+  encode_method_paramDescriptor.name = "encode_method";
+  encode_method_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  encode_method_paramDescriptor.description =
+    "Encoding process method, 0 = auto, 1 = KD-tree, 2 = sequential";
+  encode_method_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(10)
+      .set__step(1)});
+  declareParam<int>(encode_method_paramDescriptor.name, 0, encode_method_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor deduplicate_paramDescriptor;
+  deduplicate_paramDescriptor.name = "deduplicate";
+  deduplicate_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  deduplicate_paramDescriptor.description =
+    "Remove duplicate point entries.";
+  declareParam<bool>(deduplicate_paramDescriptor.name, true, deduplicate_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor force_quantization_paramDescriptor;
+  force_quantization_paramDescriptor.name = "force_quantization";
+  force_quantization_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  force_quantization_paramDescriptor.description =
+    "Force attribute quantization. Attributes of type float32 must be quantized for kd-tree "
+    "encoding.";
+  declareParam<bool>(
+    force_quantization_paramDescriptor.name, true,
+    force_quantization_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_POSITION_paramDescriptor;
+  quantization_POSITION_paramDescriptor.name = "force_quantization";
+  quantization_POSITION_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_POSITION_paramDescriptor.description =
+    "Number of bits for quantization of POSITION type attributes.";
+  quantization_POSITION_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_POSITION_paramDescriptor.name, 14, quantization_POSITION_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_NORMAL_paramDescriptor;
+  quantization_NORMAL_paramDescriptor.name = "force_quantization";
+  quantization_NORMAL_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_NORMAL_paramDescriptor.description =
+    "Number of bits for quantization of NORMAL type attributes.";
+  quantization_NORMAL_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_NORMAL_paramDescriptor.name, 14,
+    quantization_NORMAL_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_COLOR_paramDescriptor;
+  quantization_COLOR_paramDescriptor.name = "force_quantization";
+  quantization_COLOR_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  quantization_COLOR_paramDescriptor.description =
+    "Number of bits for quantization of COLOR type attributes.";
+  quantization_COLOR_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_COLOR_paramDescriptor.name, 14,
+    quantization_COLOR_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_TEX_COORD_paramDescriptor;
+  quantization_TEX_COORD_paramDescriptor.name = "force_quantization";
+  quantization_TEX_COORD_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  quantization_TEX_COORD_paramDescriptor.description =
+    "Number of bits for quantization of TEX_COORD type attributes.";
+  quantization_TEX_COORD_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_TEX_COORD_paramDescriptor.name, 14,
+    quantization_TEX_COORD_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_GENERIC_paramDescriptor;
+  quantization_GENERIC_paramDescriptor.name = "force_quantization";
+  quantization_GENERIC_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  quantization_GENERIC_paramDescriptor.description =
+    "Number of bits for quantization of GENERIC type attributes.";
+  quantization_GENERIC_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_GENERIC_paramDescriptor.name, 14,
+    quantization_GENERIC_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor expert_quantization_paramDescriptor;
+  expert_quantization_paramDescriptor.name = "expert_quantization";
+  expert_quantization_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  expert_quantization_paramDescriptor.description =
+    "WARNING: Apply user specified quantization for PointField entries. User must specify all "
+    "entries at parameter server.";
+  declareParam<bool>(
+    expert_quantization_paramDescriptor.name, true,
+    expert_quantization_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor expert_attribute_types_paramDescriptor;
+  expert_attribute_types_paramDescriptor.name = "expert_attribute_types";
+  expert_attribute_types_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  expert_attribute_types_paramDescriptor.description =
+    "WARNING: Apply user specified attribute types for PointField entries. User must specify all "
+    "entries at parameter server.";
+  declareParam<bool>(
+    expert_attribute_types_paramDescriptor.name, true,
+    expert_attribute_types_paramDescriptor);
 
   declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/x", "POSITION");
   declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/y", "POSITION");
@@ -99,7 +229,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgba", false);
 
   auto param_change_callback =
-    [this](std::vector<rclcpp::Parameter> parameters) -> rcl_interfaces::msg::SetParametersResult
+    [this](const std::vector<rclcpp::Parameter> & parameters) -> rcl_interfaces::msg::
+    SetParametersResult
     {
       auto result = rcl_interfaces::msg::SetParametersResult();
       result.successful = true;
@@ -112,21 +243,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           return result;
         } else if (parameter.get_name() == "encode_speed") {
           int value = parameter.as_int();
-          if (value >= 0 && value <= 10) {
-            config_.encode_speed = value;
-          } else {
-            RCLCPP_ERROR_STREAM(
-              getLogger(), "encode_speed value range should be between [0, 10] ");
-          }
           return result;
         } else if (parameter.get_name() == "decode_speed") {
           int value = parameter.as_int();
-          if (value >= 0 && value <= 10) {
-            config_.decode_speed = value;
-          } else {
-            RCLCPP_ERROR_STREAM(
-              getLogger(), "decode_speed value range should be between [0, 10] ");
-          }
           return result;
         } else if (parameter.get_name() == "method_enum") {
           int value = parameter.as_int();
