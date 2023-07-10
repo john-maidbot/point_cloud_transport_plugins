@@ -1,13 +1,46 @@
-#pragma once
+/*
+ * Copyright (c) 2023, Czech Technical University in Prague
+ * Copyright (c) 2019, paplhjak
+ * Copyright (c) 2009, Willow Garage, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright
+ *      notice, this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the copyright holder nor the names of its
+ *      contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#ifndef DRACO_POINT_CLOUD_TRANSPORT__CLOUD_HPP_
+#define DRACO_POINT_CLOUD_TRANSPORT__CLOUD_HPP_
 
 /**
  * \file
  * \brief Utilities for comfortable working with PointCloud2 messages.
  * \author Martin Pecka
- * SPDX-License-Identifier: BSD-3-Clause
- * SPDX-FileCopyrightText: Czech Technical University in Prague
  */
 
+#include <limits>
 #include <string>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -65,7 +98,7 @@ typedef ::cras::impl::GenericCloudConstIterator<> GenericCloudConstIter;
  * \param[in] cloud The cloud to examine.
  * \return The number of points.
  */
-inline size_t numPoints(const ::cras::Cloud& cloud)
+inline size_t numPoints(const ::cras::Cloud & cloud)
 {
   return static_cast<size_t>(cloud.height) * static_cast<size_t>(cloud.width);
 }
@@ -76,7 +109,7 @@ inline size_t numPoints(const ::cras::Cloud& cloud)
  * \param[in] fieldName Name of the field.
  * \return Whether the field is there or not.
  */
-bool hasField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
+bool hasField(const ::cras::Cloud & cloud, const ::std::string & fieldName);
 
 /**
  * \brief Return the sensor_msgs::msg::PointField with the given name.
@@ -85,7 +118,7 @@ bool hasField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
  * \return Reference to the field.
  * \throws std::runtime_error if the field doesn't exist.
  */
-::sensor_msgs::msg::PointField& getField(::cras::Cloud& cloud, const ::std::string& fieldName);
+::sensor_msgs::msg::PointField & getField(::cras::Cloud & cloud, const ::std::string & fieldName);
 
 /**
  * \brief Return the sensor_msgs::msg::PointField with the given name.
@@ -94,7 +127,9 @@ bool hasField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
  * \return Reference to the field.
  * \throws std::runtime_error if the field doesn't exist.
  */
-const ::sensor_msgs::msg::PointField& getField(const ::cras::Cloud& cloud, const ::std::string& fieldName);
+const ::sensor_msgs::msg::PointField & getField(
+  const ::cras::Cloud & cloud,
+  const ::std::string & fieldName);
 
 /**
  * \brief Return the size (in bytes) of a sensor_msgs::msg::PointField datatype.
@@ -110,7 +145,7 @@ size_t sizeOfPointField(int datatype);
  * \return Size of the data.
  * \throws std::runtime_error if wrong datatype is passed.
  */
-size_t sizeOfPointField(const ::sensor_msgs::msg::PointField& field);
+size_t sizeOfPointField(const ::sensor_msgs::msg::PointField & field);
 
 /**
  * \brief Copy data belonging to the given field from `in` cloud to `out` cloud.
@@ -121,7 +156,9 @@ size_t sizeOfPointField(const ::sensor_msgs::msg::PointField& field);
  * \throws std::runtime_error If the output cloud is smaller (in nr. of points) than the input cloud.
  * \throws std::runtime_error If the given field doesn't exist in either of the clouds.
  */
-void copyChannelData(const ::cras::Cloud& in, ::cras::Cloud& out, const ::std::string& fieldName);
+void copyChannelData(
+  const ::cras::Cloud & in, ::cras::Cloud & out,
+  const ::std::string & fieldName);
 
 /**
  * \brief Create a pointcloud that contains a subset of points of `IN` defined by
@@ -129,52 +166,56 @@ void copyChannelData(const ::cras::Cloud& in, ::cras::Cloud& out, const ::std::s
  * which can use the following: `i`: index of the point, `x_it, y_it, z_it` iterators to XYZ coordinates.
  * Points for which FILTER is true are part of the final pointcloud.
  */
-#define CREATE_FILTERED_CLOUD(IN, OUT, KEEP_ORGANIZED, FILTER) {\
-  const auto inputIsOrganized = (IN).height > 1; \
-  const auto outIsOrganized = (KEEP_ORGANIZED) && inputIsOrganized; \
-  \
-  (OUT).header = (IN).header; \
-  (OUT).fields = (IN).fields; \
-  (OUT).point_step = (IN).point_step; \
-  (OUT).height = outIsOrganized ? (IN).height : 1; \
-  (OUT).width = outIsOrganized ? (IN).width : 0; \
-  \
-  (OUT).data.resize(0); \
-  (OUT).data.reserve((IN).data.size()); \
-  \
-  ::cras::CloudConstIter x_it((IN), "x"); \
-  ::cras::CloudConstIter y_it((IN), "y"); \
-  ::cras::CloudConstIter z_it((IN), "z"); \
-  \
-  const auto numPoints = ::cras::numPoints(IN); \
-  \
-  if (!outIsOrganized) { \
-    for (size_t i = 0; i < numPoints; ++i, ++x_it, ++y_it, ++z_it) { \
-      if (FILTER) { \
-        size_t from = (i / (IN).width) * (IN).row_step + (i % (IN).width) * (IN).point_step; \
-        size_t to = from + (IN).point_step; \
-        (OUT).data.insert((OUT).data.end(), (IN).data.begin() + from, \
-                        (IN).data.begin() + to); \
-        (OUT).width++; \
+#define CREATE_FILTERED_CLOUD(IN, OUT, KEEP_ORGANIZED, FILTER) { \
+    const auto inputIsOrganized = (IN).height > 1; \
+    const auto outIsOrganized = (KEEP_ORGANIZED) && inputIsOrganized; \
+ \
+    (OUT).header = (IN).header; \
+    (OUT).fields = (IN).fields; \
+    (OUT).point_step = (IN).point_step; \
+    (OUT).height = outIsOrganized ? (IN).height : 1; \
+    (OUT).width = outIsOrganized ? (IN).width : 0; \
+ \
+    (OUT).data.resize(0); \
+    (OUT).data.reserve((IN).data.size()); \
+ \
+    ::cras::CloudConstIter x_it((IN), "x"); \
+    ::cras::CloudConstIter y_it((IN), "y"); \
+    ::cras::CloudConstIter z_it((IN), "z"); \
+ \
+    const auto numPoints = ::cras::numPoints(IN); \
+ \
+    if (!outIsOrganized) { \
+      for (size_t i = 0; i < numPoints; ++i, ++x_it, ++y_it, ++z_it) { \
+        if (FILTER) { \
+          size_t from = (i / (IN).width) * (IN).row_step + (i % (IN).width) * (IN).point_step; \
+          size_t to = from + (IN).point_step; \
+          (OUT).data.insert( \
+            (OUT).data.end(), (IN).data.begin() + from, \
+            (IN).data.begin() + to); \
+          (OUT).width++; \
+        } \
+      } \
+      (OUT).is_dense = true; \
+    } else { \
+      (OUT).data.insert((OUT).data.end(), (IN).data.begin(), (IN).data.end()); \
+ \
+      ::cras::CloudIter x_out_it((OUT), "x"); \
+      ::cras::CloudIter y_out_it((OUT), "y"); \
+      ::cras::CloudIter z_out_it((OUT), "z"); \
+      const auto invalidValue = std::numeric_limits<float>::quiet_NaN(); \
+ \
+      for (size_t i = 0; i < numPoints; \
+        ++i, ++x_it, ++y_it, ++z_it, ++x_out_it, ++y_out_it, ++z_out_it) { \
+        if (!(FILTER)) { \
+          *x_out_it = *y_out_it = *z_out_it = invalidValue; \
+          (OUT).is_dense = false; \
+        } \
       } \
     } \
-    (OUT).is_dense = true; \
-  } else { \
-    (OUT).data.insert((OUT).data.end(), (IN).data.begin(), (IN).data.end()); \
-    \
-    ::cras::CloudIter x_out_it((OUT), "x"); \
-    ::cras::CloudIter y_out_it((OUT), "y"); \
-    ::cras::CloudIter z_out_it((OUT), "z"); \
-    const auto invalidValue = std::numeric_limits<float>::quiet_NaN(); \
-    \
-    for (size_t i = 0; i < numPoints; ++i, ++x_it, ++y_it, ++z_it, ++x_out_it, ++y_out_it, ++z_out_it) { \
-      if (!(FILTER)) { \
-        *x_out_it = *y_out_it = *z_out_it = invalidValue; \
-        (OUT).is_dense = false; \
-      } \
-    } \
-  } \
-  \
-  (OUT).row_step = (OUT).width * (OUT).point_step;\
+ \
+    (OUT).row_step = (OUT).width * (OUT).point_step; \
 }
-}
+}  // namespace cras
+
+#endif  // DRACO_POINT_CLOUD_TRANSPORT__CLOUD_HPP_
