@@ -242,16 +242,22 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           config_.force_quantization = parameter.as_bool();
           return result;
         } else if (parameter.get_name() == "encode_speed") {
-          int value = parameter.as_int();
+          config_.encode_speed = parameter.as_int();
+          if (!(config_.encode_speed >= 0 && config_.encode_speed <= 10)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "encode_speed value range should be between [0, 10] ");
+          }
           return result;
         } else if (parameter.get_name() == "decode_speed") {
-          int value = parameter.as_int();
+          config_.decode_speed = parameter.as_int();
+          if (!(config_.decode_speed >= 0 && config_.decode_speed <= 10)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "decode_speed value range should be between [0, 10] ");
+          }
           return result;
         } else if (parameter.get_name() == "method_enum") {
-          int value = parameter.as_int();
-          if (value >= 0 && value <= 2) {
-            config_.method_enum = value;
-          } else {
+          config_.method_enum = parameter.as_int();
+          if (!(config_.method_enum >= 0 && config_.method_enum <= 2)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "method_enum value range should be between [0, 2], "
               "0 = auto, 1 = KD-tree, 2 = sequential ");
@@ -264,46 +270,36 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           config_.deduplicate = parameter.as_bool();
           return result;
         } else if (parameter.get_name() == "quantization_POSITION") {
-          int value = parameter.as_int();
-          if (value >= 1 && value <= 31) {
-            config_.quantization_POSITION = value;
-          } else {
+          config_.quantization_POSITION = parameter.as_int();
+          if (!(config_.quantization_POSITION >= 1 && config_.quantization_POSITION <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_POSITION value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_NORMAL") {
-          int value = parameter.as_int();
-          if (value >= 1 && value <= 31) {
-            config_.quantization_NORMAL = value;
-          } else {
+          config_.quantization_NORMAL = parameter.as_int();
+          if (!(config_.quantization_NORMAL >= 1 && config_.quantization_NORMAL <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_NORMAL value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_COLOR") {
-          int value = parameter.as_int();
-          if (value >= 1 && value <= 31) {
-            config_.quantization_COLOR = value;
-          } else {
+          config_.quantization_COLOR = parameter.as_int();
+          if (!(config_.quantization_COLOR >= 1 && config_.quantization_COLOR <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_COLOR value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_TEX_COORD") {
-          int value = parameter.as_int();
-          if (value >= 1 && value <= 31) {
-            config_.quantization_TEX_COORD = value;
-          } else {
+          config_.quantization_TEX_COORD = parameter.as_int();
+          if (!(config_.quantization_TEX_COORD >= 1 && config_.quantization_TEX_COORD <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_TEX_COORD value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_GENERIC") {
-          int value = parameter.as_int();
-          if (value >= 1 && value <= 31) {
-            config_.quantization_GENERIC = value;
-          } else {
+          config_.quantization_GENERIC = parameter.as_int();
+          if (!(config_.quantization_GENERIC >= 1 && config_.quantization_GENERIC <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_GENERIC value range should be between [1, 31] ");
           }
