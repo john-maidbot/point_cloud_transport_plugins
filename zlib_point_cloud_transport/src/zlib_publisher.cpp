@@ -56,7 +56,7 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
 {
   gzip::Comp comp(gzip::Comp::Level::Level_7, true);
   auto g_compressed_data =
-    comp.Process(&raw.data[0], raw.width * raw.height, true);
+    comp.Process(&raw.data[0], raw.data.size(), true);
 
   point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
 
@@ -79,6 +79,8 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   compressed.point_step = raw.point_step;
   compressed.is_bigendian = raw.is_bigendian;
   compressed.is_dense = raw.is_dense;
+  compressed.header = raw.header;
+  compressed.fields = raw.fields;
 
   return compressed;
 }

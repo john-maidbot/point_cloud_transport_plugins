@@ -29,6 +29,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <list>
 #include <memory>
 #include <string>
 #include <vector>
@@ -66,12 +67,17 @@ ZlibSubscriber::DecodeResult ZlibSubscriber::decodeTyped(
 
   std::shared_ptr<gzip::DataBlock> data2 = gzip::ExpandDataList(out_data_list);
 
+  result->data.resize(data2->size);
+  memcpy(&result->data[0], data2->ptr, data2->size);
+
   result->width = msg.width;
   result->height = msg.height;
   result->row_step = msg.row_step;
   result->point_step = msg.point_step;
   result->is_bigendian = msg.is_bigendian;
   result->is_dense = msg.is_dense;
+  result->header = msg.header;
+  result->fields = msg.fields;
 
   return result;
 }
