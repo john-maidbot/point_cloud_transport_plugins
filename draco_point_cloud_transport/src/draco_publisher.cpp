@@ -107,9 +107,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   encode_method_paramDescriptor.set__integer_range(
     {rcl_interfaces::msg::IntegerRange()
       .set__from_value(0)
-      .set__to_value(10)
+      .set__to_value(2)
       .set__step(1)});
-  declareParam<int>(encode_method_paramDescriptor.name, 0, encode_method_paramDescriptor);
+  declareParam<int>(encode_method_paramDescriptor.name, 2, encode_method_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor deduplicate_paramDescriptor;
   deduplicate_paramDescriptor.name = "deduplicate";
@@ -129,7 +129,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     force_quantization_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_POSITION_paramDescriptor;
-  quantization_POSITION_paramDescriptor.name = "force_quantization";
+  quantization_POSITION_paramDescriptor.name = "quantization_POSITION";
   quantization_POSITION_paramDescriptor.type =
     rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   quantization_POSITION_paramDescriptor.description =
@@ -143,7 +143,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     quantization_POSITION_paramDescriptor.name, 14, quantization_POSITION_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_NORMAL_paramDescriptor;
-  quantization_NORMAL_paramDescriptor.name = "force_quantization";
+  quantization_NORMAL_paramDescriptor.name = "quantization_NORMAL";
   quantization_NORMAL_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   quantization_NORMAL_paramDescriptor.description =
     "Number of bits for quantization of NORMAL type attributes.";
@@ -157,7 +157,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     quantization_NORMAL_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_COLOR_paramDescriptor;
-  quantization_COLOR_paramDescriptor.name = "force_quantization";
+  quantization_COLOR_paramDescriptor.name = "quantization_COLOR";
   quantization_COLOR_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
   quantization_COLOR_paramDescriptor.description =
     "Number of bits for quantization of COLOR type attributes.";
@@ -171,7 +171,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     quantization_COLOR_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_TEX_COORD_paramDescriptor;
-  quantization_TEX_COORD_paramDescriptor.name = "force_quantization";
+  quantization_TEX_COORD_paramDescriptor.name = "quantization_TEX_COORD";
   quantization_TEX_COORD_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
   quantization_TEX_COORD_paramDescriptor.description =
     "Number of bits for quantization of TEX_COORD type attributes.";
@@ -185,7 +185,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     quantization_TEX_COORD_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_GENERIC_paramDescriptor;
-  quantization_GENERIC_paramDescriptor.name = "force_quantization";
+  quantization_GENERIC_paramDescriptor.name = "quantization_GENERIC";
   quantization_GENERIC_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
   quantization_GENERIC_paramDescriptor.description =
     "Number of bits for quantization of GENERIC type attributes.";
