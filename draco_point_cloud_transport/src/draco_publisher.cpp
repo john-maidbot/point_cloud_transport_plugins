@@ -158,7 +158,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
 
   rcl_interfaces::msg::ParameterDescriptor quantization_COLOR_paramDescriptor;
   quantization_COLOR_paramDescriptor.name = "quantization_COLOR";
-  quantization_COLOR_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  quantization_COLOR_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   quantization_COLOR_paramDescriptor.description =
     "Number of bits for quantization of COLOR type attributes.";
   quantization_COLOR_paramDescriptor.set__integer_range(
@@ -172,7 +172,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
 
   rcl_interfaces::msg::ParameterDescriptor quantization_TEX_COORD_paramDescriptor;
   quantization_TEX_COORD_paramDescriptor.name = "quantization_TEX_COORD";
-  quantization_TEX_COORD_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  quantization_TEX_COORD_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   quantization_TEX_COORD_paramDescriptor.description =
     "Number of bits for quantization of TEX_COORD type attributes.";
   quantization_TEX_COORD_paramDescriptor.set__integer_range(
@@ -186,7 +187,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
 
   rcl_interfaces::msg::ParameterDescriptor quantization_GENERIC_paramDescriptor;
   quantization_GENERIC_paramDescriptor.name = "quantization_GENERIC";
-  quantization_GENERIC_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  quantization_GENERIC_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   quantization_GENERIC_paramDescriptor.description =
     "Number of bits for quantization of GENERIC type attributes.";
   quantization_GENERIC_paramDescriptor.set__integer_range(
@@ -200,7 +202,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
 
   rcl_interfaces::msg::ParameterDescriptor expert_quantization_paramDescriptor;
   expert_quantization_paramDescriptor.name = "expert_quantization";
-  expert_quantization_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  expert_quantization_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   expert_quantization_paramDescriptor.description =
     "WARNING: Apply user specified quantization for PointField entries. User must specify all "
     "entries at parameter server.";
@@ -210,7 +213,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
 
   rcl_interfaces::msg::ParameterDescriptor expert_attribute_types_paramDescriptor;
   expert_attribute_types_paramDescriptor.name = "expert_attribute_types";
-  expert_attribute_types_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  expert_attribute_types_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   expert_attribute_types_paramDescriptor.description =
     "WARNING: Apply user specified attribute types for PointField entries. User must specify all "
     "entries at parameter server.";
