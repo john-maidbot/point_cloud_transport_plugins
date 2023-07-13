@@ -28,7 +28,7 @@ RCLCPP_USING_CUSTOM_TYPE_AS_ROS_MESSAGE_TYPE(
 class ShowPointCloud : public rclcpp::Node
 {
 public:
-  explicit ShowPointCloud()
+  ShowPointCloud()
   : Node("showpointcloud")
   {
     setvbuf(stdout, NULL, _IONBF, BUFSIZ);
@@ -57,32 +57,27 @@ private:
     qos.reliability(reliability_policy_);
     auto callback =
       [this](const pcl_point_cloud_transport::PCLContainer & container) {
-        process_image(container, show_image_, this->get_logger());
+        process_pointcloud(container, this->get_logger());
       };
 
     RCLCPP_INFO(this->get_logger(), "Subscribing to topic '/pct/point_cloud/pcl'");
-    sub_ = create_subscription<pcl_point_cloud_transport::PCLContainer>("/pct/point_cloud/pcl", rclcpp::SensorDataQoS(), callback);
-
-    if (window_name_ == "") {
-      // If no custom window name is given, use the topic name
-      window_name_ = sub_->get_topic_name();
-    }
+    sub_ = create_subscription<pcl_point_cloud_transport::PCLContainer>(
+      "/pct/point_cloud/pcl",
+      rclcpp::SensorDataQoS(), callback);
   }
 
   /// Convert the ROS Image message to an OpenCV matrix and display it to the user.
   // \param[in] container The image message to show.
-  void process_image(
-    const pcl_point_cloud_transport::PCLContainer & container, bool show_image, rclcpp::Logger logger)
+  void process_pointcloud(
+    const pcl_point_cloud_transport::PCLContainer & container, rclcpp::Logger logger)
   {
-    RCLCPP_INFO(logger, "Received image #%s", container.header().frame_id.c_str());
+    RCLCPP_INFO(logger, "Received point_cloud #%s", container.header().frame_id.c_str());
   }
 
   rclcpp::Subscription<pcl_point_cloud_transport::PCLContainer>::SharedPtr sub_;
   size_t depth_ = rmw_qos_profile_default.depth;
   rmw_qos_reliability_policy_t reliability_policy_ = rmw_qos_profile_default.reliability;
   rmw_qos_history_policy_t history_policy_ = rmw_qos_profile_default.history;
-  bool show_image_ = true;
-  std::string window_name_;
 };
 
 int main(int argc, char * argv[])

@@ -1,16 +1,17 @@
 <package format="3">
   <name>pcl_point_cloud_transport</name>
-  <version>1.0.5</version>
+  <version>0.0.0</version>
   <description>
-    Add descrioptuio
+    pcl_point_cloud_transport provides a plugin to point_cloud_transport for sending point clouds
+    encoded with PCL
   </description>
   <author>Jakub Paplham</author>
   <maintainer email="alejandro@openrobotics.org">Alejandro Hernandez Cordero</maintainer>
   <license>BSD</license>
 
-  <url type="repository"></url>
-  <url type="website"></url>
-  <url type="bugtracker"></url>
+  <url type="repository">https://github.com/john-maidbot/point_cloud_transport_plugins</url>
+  <url type="website">https://github.com/john-maidbot/point_cloud_transport_plugins</url>
+  <url type="bugtracker">https://github.com/john-maidbot/point_cloud_transport_plugins/issues</url>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

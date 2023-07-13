@@ -1,4 +1,4 @@
-// Copyright 2021 Open Source Robotics Foundation, Inc.
+// Copyright 2023 Open Source Robotics Foundation, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,11 +28,6 @@ namespace pcl_point_cloud_transport
 
 namespace
 {
-// int
-// encoding2mat_type(const std::string & encoding)
-// {
-// }
-
 template<typename T>
 struct NotNull
 {
@@ -55,41 +50,17 @@ PCLContainer::PCLContainer(
       unique_sensor_msgs_point_cloud2.get(),
       "unique_sensor_msgs_point_cloud2 cannot be nullptr"
 ).pointer->header)
-
-  // storage_(std::move(unique_sensor_msgs_point_cloud2))
 {
-  // pcl::PCLPointCloud2 pcl_pc2;
-  // pcl_conversions::copyPointCloud2MetaData(*unique_sensor_msgs_point_cloud2.get(), pcl_pc2); // Like pcl_conversions::toPCL, but does not copy the binary data
-  // pcl::MsgFieldMap field_map;
-  // pcl::createMapping<T> (pcl_pc2.fields, field_map);
-  // pcl::fromPCLPointCloud2(pcl_pc2, frame_, field_map, &(*unique_sensor_msgs_point_cloud2.get(),).data[0]);
-
   pcl_conversions::toPCL(*unique_sensor_msgs_point_cloud2.get(), frame_);
-
   storage_ = std::move(unique_sensor_msgs_point_cloud2);
-
-  //
-  // pcl::copyPointCloud(other.frame_, frame_);
-
 }
 
 PCLContainer::PCLContainer(
   std::shared_ptr<sensor_msgs::msg::PointCloud2> shared_sensor_msgs_point_cloud2)
 : header_(shared_sensor_msgs_point_cloud2->header)
-//   frame_(
-//     shared_sensor_msgs_point_cloud2->height,
-//     shared_sensor_msgs_point_cloud2->width,
-//     encoding2mat_type(shared_sensor_msgs_point_cloud2->encoding),
-//     shared_sensor_msgs_point_cloud2->data.data(),
-//     shared_sensor_msgs_point_cloud2->step),
-//   storage_(shared_sensor_msgs_point_cloud2)
 {
-
   pcl_conversions::toPCL(*shared_sensor_msgs_point_cloud2.get(), frame_);
-
   storage_ = shared_sensor_msgs_point_cloud2;
-
-
 }
 
 PCLContainer::PCLContainer(
@@ -168,29 +139,7 @@ void
 PCLContainer::get_sensor_msgs_msg_point_cloud2_copy(
   sensor_msgs::msg::PointCloud2 & sensor_msgs_point_cloud2) const
 {
-  // sensor_msgs_point_cloud2.height = frame_.rows;
-  // sensor_msgs_point_cloud2.width = frame_.cols;
-  // switch (frame_.type()) {
-  //   case CV_8UC1:
-  //     sensor_msgs_point_cloud2.encoding = "mono8";
-  //     break;
-  //   case CV_8UC3:
-  //     sensor_msgs_point_cloud2.encoding = "bgr8";
-  //     break;
-  //   case CV_16SC1:
-  //     sensor_msgs_point_cloud2.encoding = "mono16";
-  //     break;
-  //   case CV_8UC4:
-  //     sensor_msgs_point_cloud2.encoding = "rgba8";
-  //     break;
-  //   default:
-  //     throw std::runtime_error("unsupported encoding type");
-  // }
-  // sensor_msgs_point_cloud2.step = static_cast<sensor_msgs::msg::PointCloud2::_step_type>(frame_.step);
-  // size_t size = frame_.step * frame_.rows;
-  // sensor_msgs_point_cloud2.data.resize(size);
-  // memcpy(&sensor_msgs_point_cloud2.data[0], frame_.data, size);
-  // sensor_msgs_point_cloud2.header = header_;
+  // TODO(ahcorde): Implement this emthod
 }
 
 bool
@@ -199,4 +148,4 @@ PCLContainer::is_bigendian() const
   return is_bigendian_;
 }
 
-}  // namespace image_tools
+}  // namespace pcl_point_cloud_transport

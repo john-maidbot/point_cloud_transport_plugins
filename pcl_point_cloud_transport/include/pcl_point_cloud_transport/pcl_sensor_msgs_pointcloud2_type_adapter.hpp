@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef IMAGE_TOOLS__CV_MAT_sensor_msgs_point_cloud2_TYPE_ADAPTER_HPP_
-#define IMAGE_TOOLS__CV_MAT_sensor_msgs_point_cloud2_TYPE_ADAPTER_HPP_
-
-#include <cstddef>
-#include <memory>
-#include <variant>  // NOLINT[build/include_order]
+#ifndef PCL_POINT_CLOUD_TRANSPORT__PCL_SENSOR_MSGS_POINTCLOUD2_TYPE_ADAPTER_HPP_
+#define PCL_POINT_CLOUD_TRANSPORT__PCL_SENSOR_MSGS_POINTCLOUD2_TYPE_ADAPTER_HPP_
 
 #include <pcl/common/io.h>
 #include <pcl/PCLPointCloud2.h>
 
 #include <pcl_conversions/pcl_conversions.h>
+
+#include <cstddef>
+#include <memory>
+#include <variant>  // NOLINT[build/include_order]
 
 #include <rclcpp/type_adapter.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -66,7 +66,9 @@ public:
   {
     if (std::holds_alternative<std::shared_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_)) {
       storage_ = std::get<std::shared_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_);
-    } else if (std::holds_alternative<std::unique_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_)) {
+    } else if (  // NOLINT
+      std::holds_alternative<std::unique_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_))
+    {
       storage_ = std::make_unique<sensor_msgs::msg::PointCloud2>(
         *std::get<std::unique_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_));
     }
@@ -80,7 +82,9 @@ public:
       is_bigendian_ = other.is_bigendian_;
       if (std::holds_alternative<std::shared_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_)) {
         storage_ = std::get<std::shared_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_);
-      } else if (std::holds_alternative<std::unique_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_)) {
+      } else if (  // NOLINT
+        std::holds_alternative<std::unique_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_))
+      {
         storage_ = std::make_unique<sensor_msgs::msg::PointCloud2>(
           *std::get<std::unique_ptr<sensor_msgs::msg::PointCloud2>>(other.storage_));
       } else if (std::holds_alternative<std::nullptr_t>(other.storage_)) {
@@ -90,11 +94,15 @@ public:
     return *this;
   }
 
-  /// Store an owning pointer to a sensor_msg::msg::PointCloud2, and create a pcl::PCLPointCloud2 that references it.
-  explicit PCLContainer(std::unique_ptr<sensor_msgs::msg::PointCloud2> unique_sensor_msgs_point_cloud2);
+  /// Store an owning pointer to a sensor_msg::msg::PointCloud2, and create a pcl::PCLPointCloud2
+  /// that references it.
+  explicit PCLContainer(
+    std::unique_ptr<sensor_msgs::msg::PointCloud2> unique_sensor_msgs_point_cloud2);
 
-  /// Store an owning pointer to a sensor_msg::msg::PointCloud2, and create a pcl::PCLPointCloud2 that references it.
-  explicit PCLContainer(std::shared_ptr<sensor_msgs::msg::PointCloud2> shared_sensor_msgs_point_cloud2);
+  /// Store an owning pointer to a sensor_msg::msg::PointCloud2, and create a pcl::PCLPointCloud2
+  /// that references it.
+  explicit PCLContainer(
+    std::shared_ptr<sensor_msgs::msg::PointCloud2> shared_sensor_msgs_point_cloud2);
 
   /// Shallow copy the given pcl::PCLPointCloud2 into this class, but do not own the data directly.
   PCLContainer(
@@ -108,7 +116,8 @@ public:
     const std_msgs::msg::Header & header,
     bool is_bigendian = is_bigendian_system);
 
-  /// Copy the sensor_msgs::msg::PointCloud2 into this contain and create a pcl::PCLPointCloud2 that references it.
+  /// Copy the sensor_msgs::msg::PointCloud2 into this contain and create a pcl::PCLPointCloud2
+  /// that references it.
   explicit PCLContainer(const sensor_msgs::msg::PointCloud2 & sensor_msgs_point_cloud2);
 
   /// Return true if this class owns the data the cv_mat references.
@@ -153,7 +162,8 @@ public:
 
   /// Get a copy of the image as a sensor_msgs::msg::PointCloud2.
   void
-  get_sensor_msgs_msg_point_cloud2_copy(sensor_msgs::msg::PointCloud2 & sensor_msgs_point_cloud2) const;
+  get_sensor_msgs_msg_point_cloud2_copy(sensor_msgs::msg::PointCloud2 & sensor_msgs_point_cloud2)
+  const;
 
   /// Return true if the data is stored in big endian, otherwise return false.
   bool
@@ -166,7 +176,7 @@ private:
   bool is_bigendian_;
 };
 
-}  // namespace image_tools
+}  // namespace pcl_point_cloud_transport
 
 template<>
 struct rclcpp::TypeAdapter<pcl_point_cloud_transport::PCLContainer, sensor_msgs::msg::PointCloud2>
@@ -185,31 +195,6 @@ struct rclcpp::TypeAdapter<pcl_point_cloud_transport::PCLContainer, sensor_msgs:
     pcl::PCLPointCloud2 cloud = source.pcl();
     // pcl::toROSMsg<pcl::PCLPointCloud2>(cloud, msg);
     pcl_conversions::moveFromPCL(cloud, destination);
-
-
-    // destination.height = source.cv_mat().rows;
-    // destination.width = source.cv_mat().cols;
-    // switch (source.cv_mat().type()) {
-    //   case CV_8UC1:
-    //     destination.encoding = "mono8";
-    //     break;
-    //   case CV_8UC3:
-    //     destination.encoding = "bgr8";
-    //     break;
-    //   case CV_16SC1:
-    //     destination.encoding = "mono16";
-    //     break;
-    //   case CV_8UC4:
-    //     destination.encoding = "rgba8";
-    //     break;
-    //   default:
-    //     throw std::runtime_error("unsupported encoding type");
-    // }
-    // destination.step = static_cast<sensor_msgs::msg::PointCloud2::_step_type>(source.cv_mat().step);
-    // size_t size = source.cv_mat().step * source.cv_mat().rows;
-    // destination.data.resize(size);
-    // memcpy(&destination.data[0], source.cv_mat().data, size);
-    // destination.header = source.header();
   }
 
   static
@@ -221,5 +206,4 @@ struct rclcpp::TypeAdapter<pcl_point_cloud_transport::PCLContainer, sensor_msgs:
     destination = pcl_point_cloud_transport::PCLContainer(source);
   }
 };
-
-#endif  // IMAGE_TOOLS__CV_MAT_sensor_msgs_point_cloud2_TYPE_ADAPTER_HPP_
+#endif  // PCL_POINT_CLOUD_TRANSPORT__PCL_SENSOR_MSGS_POINTCLOUD2_TYPE_ADAPTER_HPP_
