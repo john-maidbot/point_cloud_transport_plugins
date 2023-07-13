@@ -71,7 +71,6 @@ private:
   {
     int encode_speed = 7;
     int decode_speed = 7;
-    int method_enum = 0;
     int encode_method = 0;
     bool deduplicate = true;
     bool force_quantization = true;

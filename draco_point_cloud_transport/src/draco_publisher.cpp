@@ -85,7 +85,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__from_value(0)
       .set__to_value(10)
       .set__step(1)});
-  declareParam<int>(encode_speed_paramDescriptor.name, 7, encode_speed_paramDescriptor);
+  declareParam<int>(encode_speed_paramDescriptor.name, config_.encode_speed,
+    encode_speed_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor decode_speed_paramDescriptor;
   decode_speed_paramDescriptor.name = "decode_speed";
@@ -97,7 +98,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__from_value(0)
       .set__to_value(10)
       .set__step(1)});
-  declareParam<int>(decode_speed_paramDescriptor.name, 7, decode_speed_paramDescriptor);
+  declareParam<int>(decode_speed_paramDescriptor.name, config_.decode_speed,
+    decode_speed_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor encode_method_paramDescriptor;
   encode_method_paramDescriptor.name = "encode_method";
@@ -109,7 +111,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__from_value(0)
       .set__to_value(2)
       .set__step(1)});
-  declareParam<int>(encode_method_paramDescriptor.name, 2, encode_method_paramDescriptor);
+  declareParam<int>(encode_method_paramDescriptor.name, config_.encode_method,
+    encode_method_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor deduplicate_paramDescriptor;
   deduplicate_paramDescriptor.name = "deduplicate";
@@ -125,7 +128,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     "Force attribute quantization. Attributes of type float32 must be quantized for kd-tree "
     "encoding.";
   declareParam<bool>(
-    force_quantization_paramDescriptor.name, true,
+    force_quantization_paramDescriptor.name, config_.force_quantization,
     force_quantization_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_POSITION_paramDescriptor;
@@ -140,7 +143,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_POSITION_paramDescriptor.name, 14, quantization_POSITION_paramDescriptor);
+    quantization_POSITION_paramDescriptor.name, config_.quantization_NORMAL,
+    quantization_POSITION_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_NORMAL_paramDescriptor;
   quantization_NORMAL_paramDescriptor.name = "quantization_NORMAL";
@@ -153,7 +157,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_NORMAL_paramDescriptor.name, 14,
+    quantization_NORMAL_paramDescriptor.name, config_.quantization_COLOR,
     quantization_NORMAL_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_COLOR_paramDescriptor;
@@ -167,7 +171,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_COLOR_paramDescriptor.name, 14,
+    quantization_COLOR_paramDescriptor.name, config_.quantization_TEX_COORD,
     quantization_COLOR_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_TEX_COORD_paramDescriptor;
@@ -182,7 +186,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_TEX_COORD_paramDescriptor.name, 14,
+    quantization_TEX_COORD_paramDescriptor.name, config_.quantization_GENERIC,
     quantization_TEX_COORD_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_GENERIC_paramDescriptor;
@@ -197,7 +201,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_GENERIC_paramDescriptor.name, 14,
+    quantization_GENERIC_paramDescriptor.name, config_.quantization_POSITION,
     quantization_GENERIC_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor expert_quantization_paramDescriptor;
@@ -208,7 +212,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     "WARNING: Apply user specified quantization for PointField entries. User must specify all "
     "entries at parameter server.";
   declareParam<bool>(
-    expert_quantization_paramDescriptor.name, true,
+    expert_quantization_paramDescriptor.name, config_.expert_quantization,
     expert_quantization_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor expert_attribute_types_paramDescriptor;
@@ -219,7 +223,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     "WARNING: Apply user specified attribute types for PointField entries. User must specify all "
     "entries at parameter server.";
   declareParam<bool>(
-    expert_attribute_types_paramDescriptor.name, true,
+    expert_attribute_types_paramDescriptor.name, config_.expert_attribute_types,
     expert_attribute_types_paramDescriptor);
 
   declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/x", "POSITION");
@@ -257,14 +261,6 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           if (!(config_.decode_speed >= 0 && config_.decode_speed <= 10)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "decode_speed value range should be between [0, 10] ");
-          }
-          return result;
-        } else if (parameter.get_name() == "method_enum") {
-          config_.method_enum = parameter.as_int();
-          if (!(config_.method_enum >= 0 && config_.method_enum <= 2)) {
-            RCLCPP_ERROR_STREAM(
-              getLogger(), "method_enum value range should be between [0, 2], "
-              "0 = auto, 1 = KD-tree, 2 = sequential ");
           }
           return result;
         } else if (parameter.get_name() == "encode_method") {
