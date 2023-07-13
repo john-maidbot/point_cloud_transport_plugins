@@ -42,9 +42,9 @@ By adjusting the **encode_speed** and **dedode_speed** parameters, one can adjus
  - "ny" - NORMAL
  - "nz" - NORMAL
  - all others are encoded as GENERIC
- 
+
  To specify custom quantization, one can either edit the list of recognized names or use **expert_quantization** and **expert_attribute_type** options.
- 
+
 ### Expert Quantization
 
 **Expert_quantization** option tell the encoder to use custom quantization values for point cloud attributes. Multiple POSITION attribute can therefore be encoded with varying quantization levels.
@@ -55,7 +55,7 @@ To set a quantization for a PointField entry "x" of point cloud which will be ad
 Example:
 
 ```bash
-$ rosparam set /base_topic/draco/attribute_mapping/quantization_bits/x 16
+ros2 param set <node name> /<base_topic>/draco/attribute_mapping/quantization_bits/x 16
 ```
 
 When using **expert_quantization**, user must specify the quantization bits for all PointField entries of point cloud.
@@ -70,11 +70,11 @@ To set a type for a PointField entry "x" of point cloud which will be advertised
 Example:
 
 ```bash
-$ rosparam set /base_topic/draco/attribute_mapping/attribute_type/x "'POSITION'"
+ros2 param set <node name> /<base_topic>/draco/attribute_mapping/attribute_type/x "'POSITION'"
 ```
 
 When using **expert_attribute_types**, user must specify the type for all PointField entries of point cloud. Accepted types are:
- - POSITION 
+ - POSITION
  - NORMAL
  - COLOR
  - TEX_COORD
@@ -83,7 +83,7 @@ When using **expert_attribute_types**, user must specify the type for all PointF
 When encoding rgb/rgba COLOR, user can specify to use the common rgba tweak of ROS (encoding rgba as 4 instances of 1 Byte instead of 1 instance of float32). To inform the encoder, that PointField entry "rgb" should be handled with the tweak, set parameter:
 
 ```bash
-$ rosparam set /base_topic/draco/attribute_mapping/rgba_tweak/rgb true
+ros2 param set <node name> /<base_topic>/draco/attribute_mapping/rgba_tweak/rgb true
 ```
 
 ## Subscriber

@@ -1,0 +1,33 @@
+<package format="3">
+  <name>pcl_point_cloud_transport</name>
+  <version>0.0.0</version>
+  <description>
+    pcl_point_cloud_transport provides a plugin to point_cloud_transport for sending point clouds
+    encoded with PCL
+  </description>
+  <author>Jakub Paplham</author>
+  <maintainer email="alejandro@openrobotics.org">Alejandro Hernandez Cordero</maintainer>
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/john-maidbot/point_cloud_transport_plugins</url>
+  <url type="website">https://github.com/john-maidbot/point_cloud_transport_plugins</url>
+  <url type="bugtracker">https://github.com/john-maidbot/point_cloud_transport_plugins/issues</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>libpcl-common</depend>
+  <depend>libpcl-io</depend>
+  <depend>pcl_conversions</depend>
+  <depend>pluginlib</depend>
+  <depend>point_cloud_transport</depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -51,6 +51,8 @@ class DracoSubscriber
 public:
   std::string getTransportName() const override;
 
+  void declareParameters() override;
+
   DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
   const override;
 

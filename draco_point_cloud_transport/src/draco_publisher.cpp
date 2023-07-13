@@ -73,6 +73,132 @@ static std::unordered_map<std::string, draco::GeometryAttribute::Type> attribute
   {"normal_z", draco::GeometryAttribute::Type::NORMAL},
 };
 
+void DracoPublisher::declareParameters(const std::string & base_topic)
+{
+  declareParam<int>(std::string("encode_speed"), 7);
+  declareParam<int>(std::string("decode_speed"), 7);
+  declareParam<int>(std::string("encode_method"), 0);
+  declareParam<bool>(std::string("deduplicate"), true);
+  declareParam<bool>(std::string("force_quantization"), true);
+  declareParam<int>(std::string("quantization_POSITION"), 14);
+  declareParam<int>(std::string("quantization_NORMAL"), 14);
+  declareParam<int>(std::string("quantization_COLOR"), 14);
+  declareParam<int>(std::string("quantization_TEX_COORD"), 14);
+  declareParam<int>(std::string("quantization_GENERIC"), 14);
+  declareParam<bool>(std::string("expert_quantization"), true);
+  declareParam<bool>(std::string("expert_attribute_types"), true);
+
+  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/x", "POSITION");
+  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/y", "POSITION");
+  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/z", "POSITION");
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/x", 16);
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/y", 16);
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/z", 16);
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/rgb", 16);
+  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgb", true);
+  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgba", false);
+
+  auto param_change_callback =
+    [this](std::vector<rclcpp::Parameter> parameters) -> rcl_interfaces::msg::SetParametersResult
+    {
+      auto result = rcl_interfaces::msg::SetParametersResult();
+      result.successful = true;
+      for (auto parameter : parameters) {
+        if (parameter.get_name() == "expert_quantization") {
+          config_.expert_quantization = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "force_quantization") {
+          config_.force_quantization = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "encode_speed") {
+          int value = parameter.as_int();
+          if (value >= 0 && value <= 10) {
+            config_.encode_speed = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "encode_speed value range should be between [0, 10] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "decode_speed") {
+          int value = parameter.as_int();
+          if (value >= 0 && value <= 10) {
+            config_.decode_speed = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "decode_speed value range should be between [0, 10] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "method_enum") {
+          int value = parameter.as_int();
+          if (value >= 0 && value <= 2) {
+            config_.method_enum = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "method_enum value range should be between [0, 2], "
+              "0 = auto, 1 = KD-tree, 2 = sequential ");
+          }
+          return result;
+        } else if (parameter.get_name() == "encode_method") {
+          config_.encode_method = parameter.as_int();
+          return result;
+        } else if (parameter.get_name() == "deduplicate") {
+          config_.deduplicate = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "quantization_POSITION") {
+          int value = parameter.as_int();
+          if (value >= 1 && value <= 31) {
+            config_.quantization_POSITION = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_POSITION value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_NORMAL") {
+          int value = parameter.as_int();
+          if (value >= 1 && value <= 31) {
+            config_.quantization_NORMAL = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_NORMAL value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_COLOR") {
+          int value = parameter.as_int();
+          if (value >= 1 && value <= 31) {
+            config_.quantization_COLOR = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_COLOR value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_TEX_COORD") {
+          int value = parameter.as_int();
+          if (value >= 1 && value <= 31) {
+            config_.quantization_TEX_COORD = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_TEX_COORD value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_GENERIC") {
+          int value = parameter.as_int();
+          if (value >= 1 && value <= 31) {
+            config_.quantization_GENERIC = value;
+          } else {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_GENERIC value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "expert_attribute_types") {
+          config_.expert_attribute_types = parameter.as_bool();
+          return result;
+        }
+      }
+      return result;
+    };
+  setParamCallback(param_change_callback);
+}
+
 cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::convertPC2toDraco(
   const sensor_msgs::msg::PointCloud2 & PC2, const std::string & topic, bool deduplicate,
   bool expert_encoding) const
@@ -103,9 +229,8 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
   for (const auto & field : PC2.fields) {
     if (expert_encoding) {  // find attribute type in user specified parameters
       rgba_tweak = false;
-
       if (getParam(
-          topic + "/draco/attribute_mapping/attribute_type/" + field.name,
+          topic + "/attribute_mapping/attribute_type/" + field.name,
           expert_attribute_data_type))
       {
         if (expert_attribute_data_type == "POSITION") {  // if data type is POSITION
@@ -114,7 +239,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
           attribute_type = draco::GeometryAttribute::NORMAL;
         } else if (expert_attribute_data_type == "COLOR") {  // if data type is COLOR
           attribute_type = draco::GeometryAttribute::COLOR;
-          getParam(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
+          getParam(topic + "/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
         } else if (expert_attribute_data_type == "TEX_COORD") {  // if data type is TEX_COORD
           attribute_type = draco::GeometryAttribute::TEX_COORD;
         } else if (expert_attribute_data_type == "GENERIC") {  // if data type is GENERIC
@@ -131,7 +256,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
           "Using regular type recognition instead.");
         RCLCPP_INFO_STREAM(
           getLogger(), "To set attribute type for " + field.name + " field entry, set " + topic +
-          "/draco/attribute_mapping/attribute_type/" + field.name);
+          "/attribute_mapping/attribute_type/" + field.name);
         expert_settings_ok = false;
       }
     }
@@ -280,7 +405,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
         for (const auto & field : rawDense.fields) {
           if (getParam(
-              base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
+              base_topic_ + "/attribute_mapping/quantization_bits/" + field.name,
               attribute_quantization_bits))
           {
             expert_encoder.SetAttributeQuantization(att_id, attribute_quantization_bits);
@@ -290,7 +415,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
               " field entry. Using regular encoder instead.");
             RCLCPP_INFO_STREAM(
               getLogger(), "To set quantization for " + field.name + " field entry, set " +
-              base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name);
+              base_topic_ + "/attribute_mapping/quantization_bits/" + field.name);
             expert_settings_ok = false;
           }
           att_id++;
@@ -314,7 +439,6 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     }
   }
   // expert encoder end
-
   // regular encoder
   if ((!config_.expert_quantization) || (!expert_settings_ok)) {
     draco::Encoder encoder;
