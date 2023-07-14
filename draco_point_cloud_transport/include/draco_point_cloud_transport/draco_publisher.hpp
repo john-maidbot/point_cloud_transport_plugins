@@ -67,13 +67,14 @@ private:
     const sensor_msgs::msg::PointCloud2 & PC2, const std::string & topic, bool deduplicate,
     bool expert_encoding) const;
 
-  struct DracoPublisherConfig
+  class DracoPublisherConfig
   {
+  public:
     int encode_speed = 7;
     int decode_speed = 7;
     int encode_method = 0;
     bool deduplicate = true;
-    bool force_quantization = true;
+    bool force_quantization = false;
     int quantization_POSITION = 14;
     int quantization_NORMAL = 14;
     int quantization_COLOR = 14;
