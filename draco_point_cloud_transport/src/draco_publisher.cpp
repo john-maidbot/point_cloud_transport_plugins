@@ -73,6 +73,247 @@ static std::unordered_map<std::string, draco::GeometryAttribute::Type> attribute
   {"normal_z", draco::GeometryAttribute::Type::NORMAL},
 };
 
+void DracoPublisher::declareParameters(const std::string & base_topic)
+{
+  rcl_interfaces::msg::ParameterDescriptor encode_speed_paramDescriptor;
+  encode_speed_paramDescriptor.name = "encode_speed";
+  encode_speed_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  encode_speed_paramDescriptor.description =
+    "0 = slowest speed, but the best compression 10 = fastest, but the worst compression.";
+  encode_speed_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(10)
+      .set__step(1)});
+  declareParam<int>(encode_speed_paramDescriptor.name, config_.encode_speed,
+    encode_speed_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor decode_speed_paramDescriptor;
+  decode_speed_paramDescriptor.name = "decode_speed";
+  decode_speed_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  decode_speed_paramDescriptor.description =
+    "0 = slowest speed, but the best compression 10 = fastest, but the worst compression.";
+  decode_speed_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(10)
+      .set__step(1)});
+  declareParam<int>(decode_speed_paramDescriptor.name, config_.decode_speed,
+    decode_speed_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor encode_method_paramDescriptor;
+  encode_method_paramDescriptor.name = "encode_method";
+  encode_method_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  encode_method_paramDescriptor.description =
+    "Encoding process method, 0 = auto, 1 = KD-tree, 2 = sequential";
+  encode_method_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(2)
+      .set__step(1)});
+  declareParam<int>(encode_method_paramDescriptor.name, config_.encode_method,
+    encode_method_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor deduplicate_paramDescriptor;
+  deduplicate_paramDescriptor.name = "deduplicate";
+  deduplicate_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  deduplicate_paramDescriptor.description =
+    "Remove duplicate point entries.";
+  declareParam<bool>(deduplicate_paramDescriptor.name, true, deduplicate_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor force_quantization_paramDescriptor;
+  force_quantization_paramDescriptor.name = "force_quantization";
+  force_quantization_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+  force_quantization_paramDescriptor.description =
+    "Force attribute quantization. Attributes of type float32 must be quantized for kd-tree "
+    "encoding.";
+  declareParam<bool>(
+    force_quantization_paramDescriptor.name, config_.force_quantization,
+    force_quantization_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_POSITION_paramDescriptor;
+  quantization_POSITION_paramDescriptor.name = "quantization_POSITION";
+  quantization_POSITION_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_POSITION_paramDescriptor.description =
+    "Number of bits for quantization of POSITION type attributes.";
+  quantization_POSITION_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_POSITION_paramDescriptor.name, config_.quantization_NORMAL,
+    quantization_POSITION_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_NORMAL_paramDescriptor;
+  quantization_NORMAL_paramDescriptor.name = "quantization_NORMAL";
+  quantization_NORMAL_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_NORMAL_paramDescriptor.description =
+    "Number of bits for quantization of NORMAL type attributes.";
+  quantization_NORMAL_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_NORMAL_paramDescriptor.name, config_.quantization_COLOR,
+    quantization_NORMAL_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_COLOR_paramDescriptor;
+  quantization_COLOR_paramDescriptor.name = "quantization_COLOR";
+  quantization_COLOR_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_COLOR_paramDescriptor.description =
+    "Number of bits for quantization of COLOR type attributes.";
+  quantization_COLOR_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_COLOR_paramDescriptor.name, config_.quantization_TEX_COORD,
+    quantization_COLOR_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_TEX_COORD_paramDescriptor;
+  quantization_TEX_COORD_paramDescriptor.name = "quantization_TEX_COORD";
+  quantization_TEX_COORD_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_TEX_COORD_paramDescriptor.description =
+    "Number of bits for quantization of TEX_COORD type attributes.";
+  quantization_TEX_COORD_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_TEX_COORD_paramDescriptor.name, config_.quantization_GENERIC,
+    quantization_TEX_COORD_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor quantization_GENERIC_paramDescriptor;
+  quantization_GENERIC_paramDescriptor.name = "quantization_GENERIC";
+  quantization_GENERIC_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  quantization_GENERIC_paramDescriptor.description =
+    "Number of bits for quantization of GENERIC type attributes.";
+  quantization_GENERIC_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(31)
+      .set__step(1)});
+  declareParam<int>(
+    quantization_GENERIC_paramDescriptor.name, config_.quantization_POSITION,
+    quantization_GENERIC_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor expert_quantization_paramDescriptor;
+  expert_quantization_paramDescriptor.name = "expert_quantization";
+  expert_quantization_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  expert_quantization_paramDescriptor.description =
+    "WARNING: Apply user specified quantization for PointField entries. User must specify all "
+    "entries at parameter server.";
+  declareParam<bool>(
+    expert_quantization_paramDescriptor.name, config_.expert_quantization,
+    expert_quantization_paramDescriptor);
+
+  rcl_interfaces::msg::ParameterDescriptor expert_attribute_types_paramDescriptor;
+  expert_attribute_types_paramDescriptor.name = "expert_attribute_types";
+  expert_attribute_types_paramDescriptor.type =
+    rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  expert_attribute_types_paramDescriptor.description =
+    "WARNING: Apply user specified attribute types for PointField entries. User must specify all "
+    "entries at parameter server.";
+  declareParam<bool>(
+    expert_attribute_types_paramDescriptor.name, config_.expert_attribute_types,
+    expert_attribute_types_paramDescriptor);
+
+  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/x", "POSITION");
+  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/y", "POSITION");
+  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/z", "POSITION");
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/x", 16);
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/y", 16);
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/z", 16);
+  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/rgb", 16);
+  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgb", true);
+  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgba", false);
+
+  auto param_change_callback =
+    [this](const std::vector<rclcpp::Parameter> & parameters) -> rcl_interfaces::msg::
+    SetParametersResult
+    {
+      auto result = rcl_interfaces::msg::SetParametersResult();
+      result.successful = true;
+      for (auto parameter : parameters) {
+        if (parameter.get_name() == "expert_quantization") {
+          config_.expert_quantization = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "force_quantization") {
+          config_.force_quantization = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "encode_speed") {
+          config_.encode_speed = static_cast<int>(parameter.as_int());
+          if (!(config_.encode_speed >= 0 && config_.encode_speed <= 10)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "encode_speed value range should be between [0, 10] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "decode_speed") {
+          config_.decode_speed = static_cast<int>(parameter.as_int());
+          if (!(config_.decode_speed >= 0 && config_.decode_speed <= 10)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "decode_speed value range should be between [0, 10] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "encode_method") {
+          config_.encode_method = static_cast<int>(parameter.as_int());
+          return result;
+        } else if (parameter.get_name() == "deduplicate") {
+          config_.deduplicate = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "quantization_POSITION") {
+          config_.quantization_POSITION = static_cast<int>(parameter.as_int());
+          if (!(config_.quantization_POSITION >= 1 && config_.quantization_POSITION <= 31)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_POSITION value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_NORMAL") {
+          config_.quantization_NORMAL = static_cast<int>(parameter.as_int());
+          if (!(config_.quantization_NORMAL >= 1 && config_.quantization_NORMAL <= 31)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_NORMAL value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_COLOR") {
+          config_.quantization_COLOR = static_cast<int>(parameter.as_int());
+          if (!(config_.quantization_COLOR >= 1 && config_.quantization_COLOR <= 31)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_COLOR value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_TEX_COORD") {
+          config_.quantization_TEX_COORD = static_cast<int>(parameter.as_int());
+          if (!(config_.quantization_TEX_COORD >= 1 && config_.quantization_TEX_COORD <= 31)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_TEX_COORD value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "quantization_GENERIC") {
+          config_.quantization_GENERIC = static_cast<int>(parameter.as_int());
+          if (!(config_.quantization_GENERIC >= 1 && config_.quantization_GENERIC <= 31)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "quantization_GENERIC value range should be between [1, 31] ");
+          }
+          return result;
+        } else if (parameter.get_name() == "expert_attribute_types") {
+          config_.expert_attribute_types = parameter.as_bool();
+          return result;
+        }
+      }
+      return result;
+    };
+  setParamCallback(param_change_callback);
+}
+
 cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::convertPC2toDraco(
   const sensor_msgs::msg::PointCloud2 & PC2, const std::string & topic, bool deduplicate,
   bool expert_encoding) const
@@ -82,7 +323,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
   // number of points in point cloud
   uint64_t number_of_points = PC2.height * PC2.width;
   // initialize builder object, requires prior knowledge of point cloud size for buffer allocation
-  builder.Start(number_of_points);
+  builder.Start(static_cast<unsigned int>(number_of_points));
   // vector to hold IDs of attributes for builder object
   std::vector<int> att_ids;
 
@@ -103,9 +344,8 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
   for (const auto & field : PC2.fields) {
     if (expert_encoding) {  // find attribute type in user specified parameters
       rgba_tweak = false;
-
       if (getParam(
-          topic + "/draco/attribute_mapping/attribute_type/" + field.name,
+          topic + "/attribute_mapping/attribute_type/" + field.name,
           expert_attribute_data_type))
       {
         if (expert_attribute_data_type == "POSITION") {  // if data type is POSITION
@@ -114,7 +354,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
           attribute_type = draco::GeometryAttribute::NORMAL;
         } else if (expert_attribute_data_type == "COLOR") {  // if data type is COLOR
           attribute_type = draco::GeometryAttribute::COLOR;
-          getParam(topic + "/draco/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
+          getParam(topic + "/attribute_mapping/rgba_tweak/" + field.name, rgba_tweak);
         } else if (expert_attribute_data_type == "TEX_COORD") {  // if data type is TEX_COORD
           attribute_type = draco::GeometryAttribute::TEX_COORD;
         } else if (expert_attribute_data_type == "GENERIC") {  // if data type is GENERIC
@@ -131,7 +371,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
           "Using regular type recognition instead.");
         RCLCPP_INFO_STREAM(
           getLogger(), "To set attribute type for " + field.name + " field entry, set " + topic +
-          "/draco/attribute_mapping/attribute_type/" + field.name);
+          "/attribute_mapping/attribute_type/" + field.name);
         expert_settings_ok = false;
       }
     }
@@ -280,7 +520,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
         for (const auto & field : rawDense.fields) {
           if (getParam(
-              base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name,
+              base_topic_ + "/attribute_mapping/quantization_bits/" + field.name,
               attribute_quantization_bits))
           {
             expert_encoder.SetAttributeQuantization(att_id, attribute_quantization_bits);
@@ -290,7 +530,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
               " field entry. Using regular encoder instead.");
             RCLCPP_INFO_STREAM(
               getLogger(), "To set quantization for " + field.name + " field entry, set " +
-              base_topic_ + "/draco/attribute_mapping/quantization_bits/" + field.name);
+              base_topic_ + "/attribute_mapping/quantization_bits/" + field.name);
             expert_settings_ok = false;
           }
           att_id++;
@@ -314,7 +554,6 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     }
   }
   // expert encoder end
-
   // regular encoder
   if ((!config_.expert_quantization) || (!expert_settings_ok)) {
     draco::Encoder encoder;
@@ -359,7 +598,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   }
   // regular encoder end
 
-  uint32_t compressed_data_size = encode_buffer.size();
+  uint32_t compressed_data_size = static_cast<uint32_t>(encode_buffer.size());
   auto cast_buffer = reinterpret_cast<const unsigned char *>(encode_buffer.data());
   std::vector<unsigned char> vec_data(cast_buffer, cast_buffer + compressed_data_size);
   compressed.compressed_data = vec_data;

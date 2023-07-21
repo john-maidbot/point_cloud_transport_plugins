@@ -47,6 +47,41 @@
 
 namespace draco_point_cloud_transport
 {
+void DracoSubscriber::declareParameters()
+{
+  declareParam<bool>(std::string("SkipDequantizationPOSITION"), false);
+  declareParam<bool>(std::string("SkipDequantizationNORMAL"), false);
+  declareParam<bool>(std::string("SkipDequantizationCOLOR"), false);
+  declareParam<bool>(std::string("SkipDequantizationTEX_COORD"), false);
+  declareParam<bool>(std::string("SkipDequantizationGENERIC"), false);
+
+  auto param_change_callback =
+    [this](std::vector<rclcpp::Parameter> parameters) -> rcl_interfaces::msg::SetParametersResult
+    {
+      auto result = rcl_interfaces::msg::SetParametersResult();
+      result.successful = true;
+      for (auto parameter : parameters) {
+        if (parameter.get_name() == "SkipDequantizationPOSITION") {
+          config_.SkipDequantizationPOSITION = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "SkipDequantizationNORMAL") {
+          config_.SkipDequantizationNORMAL = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "SkipDequantizationCOLOR") {
+          config_.SkipDequantizationCOLOR = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "SkipDequantizationTEX_COORD") {
+          config_.SkipDequantizationTEX_COORD = parameter.as_bool();
+          return result;
+        } else if (parameter.get_name() == "SkipDequantizationGENERIC") {
+          config_.SkipDequantizationGENERIC = parameter.as_bool();
+          return result;
+        }
+      }
+      return result;
+    };
+  setParamCallback(param_change_callback);
+}
 
 //! Method for converting into sensor_msgs::msg::PointCloud2
 cras::expected<bool, std::string> convertDracoToPC2(
@@ -105,7 +140,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
   const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed) const
 {
   // get size of buffer with compressed data in Bytes
-  uint32_t compressed_data_size = compressed.compressed_data.size();
+  uint32_t compressed_data_size = static_cast<uint32_t>(compressed.compressed_data.size());
 
   // empty buffer
   if (compressed_data_size == 0) {
