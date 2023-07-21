@@ -57,7 +57,6 @@ ZlibSubscriber::DecodeResult ZlibSubscriber::decodeTyped(
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
   gzip::Decomp decomp;
-  bool succ;
 
   std::shared_ptr<gzip::DataBlock> data = gzip::AllocateData(msg.compressed_data.size());
   memcpy(data->ptr, &msg.compressed_data[0], msg.compressed_data.size());

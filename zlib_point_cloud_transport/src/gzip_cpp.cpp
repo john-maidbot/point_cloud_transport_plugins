@@ -98,7 +98,7 @@ std::list<std::shared_ptr<DataBlock>> Comp::Process(
   // Prepare output buffer memory.
   uint8_t out_buffer[MAX_CHUNK_SIZE];
   zs_.next_in = reinterpret_cast<uint8_t *>(const_cast<uint8_t *>(buffer));
-  zs_.avail_in = size;
+  zs_.avail_in = static_cast<uInt>(size);
   do {
     // Reset output buffer position and size.
     zs_.avail_out = MAX_CHUNK_SIZE;
@@ -133,7 +133,7 @@ std::list<std::shared_ptr<DataBlock>> Decomp::Process(
   std::list<std::shared_ptr<DataBlock>> out_data_list;
   uint8_t out_buffer[MAX_CHUNK_SIZE];
   // Incoming buffer.
-  zs_.avail_in = compressed_data->size;
+  zs_.avail_in = static_cast<uInt>(compressed_data->size);
   zs_.next_in = compressed_data->ptr;
   int ret;
   do {

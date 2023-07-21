@@ -62,7 +62,7 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
 
   int total_size = 0;
   for (const auto & data : g_compressed_data) {
-    total_size += data->size;
+    total_size += static_cast<int>(data->size);
   }
 
   compressed.compressed_data.resize(total_size);
@@ -70,7 +70,7 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   int index = 0;
   for (const auto & data : g_compressed_data) {
     memcpy(&compressed.compressed_data[index], data->ptr, data->size);
-    index += data->size;
+    index += static_cast<int>(data->size);
   }
 
   compressed.width = raw.width;
