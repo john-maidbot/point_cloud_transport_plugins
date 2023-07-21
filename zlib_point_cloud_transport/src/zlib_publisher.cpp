@@ -31,13 +31,12 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include <zlib_point_cloud_transport/zlib_publisher.hpp>
 
-#include "gzip_cpp.hpp"
+#include "zlib_cpp.hpp"
 
 namespace zlib_point_cloud_transport
 {
@@ -54,23 +53,24 @@ std::string ZlibPublisher::getTransportName() const
 ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   const sensor_msgs::msg::PointCloud2 & raw) const
 {
-  gzip::Comp comp(gzip::Comp::Level::Level_7, true);
+  // TODO(ahcorde): Add ros parameter
+  zlib::Comp comp(zlib::Comp::Level::Level_7, true);
   auto g_compressed_data =
     comp.Process(&raw.data[0], raw.data.size(), true);
 
   point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
 
-  int total_size = 0;
+  size_t total_size = 0;
   for (const auto & data : g_compressed_data) {
-    total_size += static_cast<int>(data->size);
+    total_size += data->size;
   }
 
   compressed.compressed_data.resize(total_size);
 
-  int index = 0;
+  size_t index = 0;
   for (const auto & data : g_compressed_data) {
     memcpy(&compressed.compressed_data[index], data->ptr, data->size);
-    index += static_cast<int>(data->size);
+    index += data->size;
   }
 
   compressed.width = raw.width;

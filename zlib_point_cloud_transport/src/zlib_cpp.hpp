@@ -28,8 +28,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef GZIP_CPP_HPP_
-#define GZIP_CPP_HPP_
+#ifndef zlib_CPP_HPP_
+#define zlib_CPP_HPP_
 
 #include <zlib.h>
 
@@ -37,7 +37,7 @@
 #include <memory>
 #include <tuple>
 
-namespace gzip
+namespace zlib
 {
 
 struct DataBlock
@@ -70,7 +70,7 @@ public:
 
 public:
   /// Construct a compressor.
-  explicit Comp(Level level = Level::Default, bool gzip_header = false);
+  explicit Comp(Level level = Level::Default, bool zlib_header = false);
 
   /// Destructor, will release z_stream.
   ~Comp();
@@ -107,6 +107,6 @@ private:
   bool init_ok_;
 };
 
-}  // namespace gzip
+}  // namespace zlib
 
-#endif  // GZIP_CPP_HPP_
+#endif  // zlib_CPP_HPP_

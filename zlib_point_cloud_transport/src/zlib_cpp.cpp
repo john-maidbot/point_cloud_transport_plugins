@@ -28,14 +28,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "gzip_cpp.hpp"
+#include "zlib_cpp.hpp"
 
 #include <cstring>
 #include <utility>
 
-namespace gzip
+namespace zlib
 {
 
+// Block size block used to compress/uncompress the data
 const int MAX_CHUNK_SIZE = 1024;
 
 const int WINDOW_BITS = 15;
@@ -67,13 +68,13 @@ std::shared_ptr<DataBlock> ExpandDataList(const std::list<std::shared_ptr<DataBl
   return out_data;
 }
 
-Comp::Comp(Level level, bool gzip_header)
+Comp::Comp(Level level, bool zlib_header)
 : level_(level)
 {
   memset(&zs_, 0, sizeof(zs_));
   int windowBits = WINDOW_BITS;
-  if (gzip_header) {
-    // Configurate the compressor to write a simple gzip header and trailer
+  if (zlib_header) {
+    // Configurate the compressor to write a simple zlib header and trailer
     // around the compressed data instead of a zlib wrapper
     windowBits += 16;
   }
@@ -119,7 +120,7 @@ std::list<std::shared_ptr<DataBlock>> Comp::Process(
 Decomp::Decomp()
 {
   memset(&zs_, 0, sizeof(zs_));
-  // Enable zlib and gzip decoding with automatic header detection
+  // Enable zlib and zlib decoding with automatic header detection
   int windowBits = WINDOW_BITS + 32;
   int ret = inflateInit2(&zs_, windowBits);
   init_ok_ = ret == Z_OK;
@@ -161,4 +162,4 @@ std::list<std::shared_ptr<DataBlock>> Decomp::Process(
   return std::move(out_data_list);
 }
 
-}  // namespace gzip
+}  // namespace zlib

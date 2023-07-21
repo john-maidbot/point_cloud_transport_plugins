@@ -25,7 +25,7 @@ add_library(${PROJECT_NAME}
   SHARED
   src/zlib_publisher.cpp
   src/zlib_subscriber.cpp
-  src/gzip_cpp.cpp
+  src/zlib_cpp.cpp
   src/manifest.cpp
 )
 

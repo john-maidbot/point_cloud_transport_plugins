@@ -38,7 +38,7 @@
 
 #include <zlib_point_cloud_transport/zlib_subscriber.hpp>
 
-#include "gzip_cpp.hpp"
+#include "zlib_cpp.hpp"
 
 namespace zlib_point_cloud_transport
 {
@@ -56,15 +56,15 @@ ZlibSubscriber::DecodeResult ZlibSubscriber::decodeTyped(
 {
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
-  gzip::Decomp decomp;
+  zlib::Decomp decomp;
 
-  std::shared_ptr<gzip::DataBlock> data = gzip::AllocateData(msg.compressed_data.size());
+  std::shared_ptr<zlib::DataBlock> data = zlib::AllocateData(msg.compressed_data.size());
   memcpy(data->ptr, &msg.compressed_data[0], msg.compressed_data.size());
 
-  std::list<std::shared_ptr<gzip::DataBlock>> out_data_list;
+  std::list<std::shared_ptr<zlib::DataBlock>> out_data_list;
   out_data_list = decomp.Process(data);
 
-  std::shared_ptr<gzip::DataBlock> data2 = gzip::ExpandDataList(out_data_list);
+  std::shared_ptr<zlib::DataBlock> data2 = zlib::ExpandDataList(out_data_list);
 
   result->data.resize(data2->size);
   memcpy(&result->data[0], data2->ptr, data2->size);
