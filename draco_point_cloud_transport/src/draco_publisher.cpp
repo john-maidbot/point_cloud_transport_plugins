@@ -250,55 +250,55 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
           config_.force_quantization = parameter.as_bool();
           return result;
         } else if (parameter.get_name() == "encode_speed") {
-          config_.encode_speed = parameter.as_int();
+          config_.encode_speed = static_cast<int>(parameter.as_int());
           if (!(config_.encode_speed >= 0 && config_.encode_speed <= 10)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "encode_speed value range should be between [0, 10] ");
           }
           return result;
         } else if (parameter.get_name() == "decode_speed") {
-          config_.decode_speed = parameter.as_int();
+          config_.decode_speed = static_cast<int>(parameter.as_int());
           if (!(config_.decode_speed >= 0 && config_.decode_speed <= 10)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "decode_speed value range should be between [0, 10] ");
           }
           return result;
         } else if (parameter.get_name() == "encode_method") {
-          config_.encode_method = parameter.as_int();
+          config_.encode_method = static_cast<int>(parameter.as_int());
           return result;
         } else if (parameter.get_name() == "deduplicate") {
           config_.deduplicate = parameter.as_bool();
           return result;
         } else if (parameter.get_name() == "quantization_POSITION") {
-          config_.quantization_POSITION = parameter.as_int();
+          config_.quantization_POSITION = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_POSITION >= 1 && config_.quantization_POSITION <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_POSITION value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_NORMAL") {
-          config_.quantization_NORMAL = parameter.as_int();
+          config_.quantization_NORMAL = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_NORMAL >= 1 && config_.quantization_NORMAL <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_NORMAL value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_COLOR") {
-          config_.quantization_COLOR = parameter.as_int();
+          config_.quantization_COLOR = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_COLOR >= 1 && config_.quantization_COLOR <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_COLOR value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_TEX_COORD") {
-          config_.quantization_TEX_COORD = parameter.as_int();
+          config_.quantization_TEX_COORD = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_TEX_COORD >= 1 && config_.quantization_TEX_COORD <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_TEX_COORD value range should be between [1, 31] ");
           }
           return result;
         } else if (parameter.get_name() == "quantization_GENERIC") {
-          config_.quantization_GENERIC = parameter.as_int();
+          config_.quantization_GENERIC = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_GENERIC >= 1 && config_.quantization_GENERIC <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_GENERIC value range should be between [1, 31] ");
@@ -323,7 +323,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
   // number of points in point cloud
   uint64_t number_of_points = PC2.height * PC2.width;
   // initialize builder object, requires prior knowledge of point cloud size for buffer allocation
-  builder.Start(number_of_points);
+  builder.Start(static_cast<unsigned int>(number_of_points));
   // vector to hold IDs of attributes for builder object
   std::vector<int> att_ids;
 
@@ -598,7 +598,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   }
   // regular encoder end
 
-  uint32_t compressed_data_size = encode_buffer.size();
+  uint32_t compressed_data_size = static_cast<uint32_t>(encode_buffer.size());
   auto cast_buffer = reinterpret_cast<const unsigned char *>(encode_buffer.data());
   std::vector<unsigned char> vec_data(cast_buffer, cast_buffer + compressed_data_size);
   compressed.compressed_data = vec_data;

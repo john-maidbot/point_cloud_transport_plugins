@@ -140,7 +140,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
   const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed) const
 {
   // get size of buffer with compressed data in Bytes
-  uint32_t compressed_data_size = compressed.compressed_data.size();
+  uint32_t compressed_data_size = static_cast<uint32_t>(compressed.compressed_data.size());
 
   // empty buffer
   if (compressed_data_size == 0) {
