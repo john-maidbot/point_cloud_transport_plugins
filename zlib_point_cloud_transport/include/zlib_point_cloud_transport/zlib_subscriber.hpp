@@ -51,6 +51,11 @@ public:
 
   void declareParameters() override;
 
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/CompressedPointCloud2";
+  }
+
   DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
   const override;
 };
