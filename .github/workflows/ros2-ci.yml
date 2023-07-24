@@ -15,23 +15,10 @@ jobs:
     container:
       image: ${{ matrix.docker-image }}
     steps:
-      - uses: ros-tooling/setup-ros@0.6.2
-        with:
-          required-ros-distributions: ${{ matrix.ros-distro }}
-      - uses: actions/checkout@v3
-      - uses: ros-tooling/action-ros-ci@0.3.2
-        with:
-          target-ros2-distro: ${{ matrix.ros-distro }}
-          # build all packages listed in the meta package
-          package-name:
-            draco_point_cloud_transport
-            point_cloud_transport
-            point_cloud_interfaces
-            zlib_point_cloud_transport
-          vcs-repo-file-url: |
-            https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/point_cloud_transport.repos?token=${{ secrets.GITHUB_TOKEN }}
-          colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-      - uses: actions/upload-artifact@v3.1.2
-        with:
-          name: colcon-logs-ubuntu-22.04
-          path: ros_ws/log
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build and Test
+        run: .github/workflows/build-and-test.sh https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/point_cloud_transport.repos?token=${{ secrets.GITHUB_TOKEN }}
+        env:
+          DOCKER_IMAGE: ${{ matrix.docker-image }}
+          ROS_DISTRO: ${{ matrix.ros-distro }}
