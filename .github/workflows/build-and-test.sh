@@ -26,8 +26,8 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 mkdir -p $COLCON_WS_SRC
 cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC
 cd $COLCON_WS
-wget $1
-vcs import src < point_cloud_transport.repos 
+wget $1 -o point_cloud_transport.repos
+vcs import src < point_cloud_transport.repos
 colcon build --event-handlers console_direct+
 
 # Tests.
