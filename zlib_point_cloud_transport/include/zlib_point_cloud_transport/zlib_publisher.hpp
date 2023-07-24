@@ -55,6 +55,11 @@ public:
 
   void declareParameters(const std::string & base_topic) override;
 
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/CompressedPointCloud2";
+  }
+
   TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2 & raw) const override;
 };
 }  // namespace zlib_point_cloud_transport
