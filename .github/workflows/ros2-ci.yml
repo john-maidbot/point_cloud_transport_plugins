@@ -28,7 +28,6 @@ jobs:
             point_cloud_interfaces
             zlib_point_cloud_transport
           vcs-repo-file-url: |
-            https://raw.githubusercontent.com/ros2/ros2/${{ matrix.ros-distro }}/ros2.repos
             https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/point_cloud_transport.repos?token=${{ secrets.GITHUB_TOKEN }}
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
       - uses: actions/upload-artifact@v3.1.2
