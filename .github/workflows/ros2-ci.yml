@@ -1,0 +1,37 @@
+name: ROS2 CI
+
+on: [push, pull_request]
+
+jobs:
+  point_cloud_transport_ci:
+    name: point_cloud_transport CI
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - docker-image: "ubuntu:22.04"
+            ros-distro: "rolling"
+    container:
+      image: ${{ matrix.docker-image }}
+    steps:
+      - uses: ros-tooling/setup-ros@0.6.2
+        with:
+          required-ros-distributions: ${{ inputs.ros_distro }}
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/action-ros-ci@0.3.2
+        with:
+          target-ros2-distro: ${{ inputs.ros_distro }}
+          # build all packages listed in the meta package
+          package-name:
+            draco_point_cloud_transport
+            point_cloud_interfaces
+            zlib_point_cloud_transport
+          vcs-repo-file-url: |
+            https://raw.githubusercontent.com/ros2/ros2/${{ inputs.ros_distro }}/ros2.repos
+            https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/point_cloud_transport.repos?token=${{ secrets.GITHUB_TOKEN }}
+          colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: colcon-logs-ubuntu-22.04
+          path: ros_ws/log
