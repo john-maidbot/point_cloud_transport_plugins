@@ -32,6 +32,8 @@
 #include <string>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <sensor_msgs/point_cloud2_modifier.hpp>
 
 #include <projected_point_cloud_transport/projected_subscriber.hpp>
 
@@ -61,10 +63,49 @@ ProjectedSubscriber::DecodeResult ProjectedSubscriber::decodeTyped(
   // - spherical deprojection relative to some origin:
   // ---> viewpoint origin
 
-  // TODO (john.dangelo@tailos.com): Apply selected deprojection method
+  // SPHERICAL PROJECTION
+  cv::Mat spherical_image       = cv::imdecode(cv::Mat(msg.compressed_data), cv::IMREAD_UNCHANGED);
+  int phi_bins = spherical_image.rows;
+  int theta_bins = spherical_image.cols;
+  double phi_resolution = phi_bins / 2.0 / M_PI; // radians
+  double theta_resolution = theta_bins / 2.0 / M_PI; // radians
 
-  result->width = msg.width;
-  result->height = msg.height;
+  sensor_msgs::msg::PointCloud2 cloud;
+  cloud.header = msg.header;
+
+  sensor_msgs::PointCloud2Modifier modifier(cloud);
+  modifier.setPointCloud2Fields(3, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1,
+                                sensor_msgs::msg::PointField::FLOAT32, "z", 1,
+                                sensor_msgs::msg::PointField::FLOAT32);
+  modifier.resize(spherical_image.rows * spherical_image.cols);
+  sensor_msgs::PointCloud2Iterator<float> pcl_itr(cloud, "x");
+
+  size_t valid_points = 0;
+  // convert the spherical image to a point cloud
+  for(int row = 0; row < spherical_image.rows; row++)
+  {
+    for(int col = 0; col < spherical_image.cols; col++)
+    {
+      uint16_t cell = spherical_image.at<uint16_t>(row, col);
+      if(cell == 0)
+      {
+        continue;
+      }
+      // convert the spherical image pixel to a point cloud point
+      double rho = static_cast<double>(cell) / 1000.0; // meters
+      double phi = (row - phi_bins / 2.0) / phi_resolution;
+      double theta = (col - theta_bins / 2.0) / theta_resolution;
+      pcl_itr[0] = rho * std::sin(phi) * std::cos(theta);
+      pcl_itr[1] = rho * std::sin(phi) * std::sin(theta);
+      pcl_itr[2] = rho * std::cos(phi);
+      ++pcl_itr;
+      valid_points++;
+    }
+  }
+  modifier.resize(valid_points);
+
+  result->width = valid_points;
+  result->height = 1;
   result->row_step = msg.row_step;
   result->point_step = msg.point_step;
   result->is_bigendian = msg.is_bigendian;

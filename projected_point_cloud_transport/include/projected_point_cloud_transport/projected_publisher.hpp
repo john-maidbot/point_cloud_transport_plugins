@@ -37,6 +37,7 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 #include <point_cloud_transport/point_cloud_transport.hpp>
 
 #include <point_cloud_transport/simple_publisher_plugin.hpp>

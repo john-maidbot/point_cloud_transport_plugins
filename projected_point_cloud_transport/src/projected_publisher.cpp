@@ -31,6 +31,9 @@
 
 #include <string>
 
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud_iterator.hpp>
+
 #include <projected_point_cloud_transport/projected_publisher.hpp>
 
 namespace projected_point_cloud_transport
@@ -59,7 +62,39 @@ ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
 
   // TODO (john.dangelo@tailos.com): Apply selected projection method
 
+  // SPHERICAL PROJECTION
+  double phi_resolution = 0.5; // radians
+  double theta_resolution = 0.5; // radians
+  int phi_bins = 2 * M_PI / phi_resolution;
+  int theta_bins = 2 * M_PI / rho_resolution;
+
+  cv::Mat spherical_image{phi_bins, theta_bins, CV_16UC1, cv::Scalar(0)};
+
+  // iterate over the pointcloud and convert to polar coordinates
+  sensor_msgs::PointCloud2ConstIterator<float> iter_x(raw, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_y(raw, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_z(raw, "z");
+
+  for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+    double x = *iter_x;
+    double y = *iter_y;
+    double z = *iter_z;
+
+    double rho = std::sqrt(x * x + y * y + z * z);
+    double phi = std::atan2(y, x);
+    double theta = std::acos(z / rho);
+
+    int phi_index = phi / phi_resolution;
+    int theta_index = theta / theta_resolution;
+
+    auto& cell = spherical_image.at<uint16_t>(phi_index, rho_index);
+    cell = std::min(cell, static_cast<uint16_t>(rho * 1000)); // mm resolution
+  }
+
   // TODO (john.dangelo@tailos.com): Apply png compression
+  point_cloud_interfaces::msg::CompressPointCloud2 compressed;
+
+  cv::imencode(".png", spherical_image, compressed.compressed_data);
 
   compressed.width = raw.width;
   compressed.height = raw.height;
