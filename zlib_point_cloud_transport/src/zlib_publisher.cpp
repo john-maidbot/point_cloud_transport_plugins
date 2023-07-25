@@ -43,6 +43,39 @@ namespace zlib_point_cloud_transport
 
 void ZlibPublisher::declareParameters(const std::string & base_topic)
 {
+  rcl_interfaces::msg::ParameterDescriptor encode_level_paramDescriptor;
+  encode_level_paramDescriptor.name = "encode_level";
+  encode_level_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+  encode_level_paramDescriptor.description =
+    "0 = minimun compression, but the maximun compression 10";
+  encode_level_paramDescriptor.set__integer_range(
+    {rcl_interfaces::msg::IntegerRange()
+      .set__from_value(0)
+      .set__to_value(10)
+      .set__step(1)});
+  declareParam<int>(
+    encode_level_paramDescriptor.name, this->encode_level_,
+    encode_level_paramDescriptor);
+
+  auto param_change_callback =
+    [this](const std::vector<rclcpp::Parameter> & parameters) -> rcl_interfaces::msg::
+    SetParametersResult
+    {
+      auto result = rcl_interfaces::msg::SetParametersResult();
+      result.successful = true;
+      for (auto parameter : parameters) {
+        if (parameter.get_name() == "encode_level") {
+          this->encode_level_ = static_cast<int>(parameter.as_int());
+          if (!(this->encode_level_ >= 0 && this->encode_level_ <= 10)) {
+            RCLCPP_ERROR_STREAM(
+              getLogger(), "encode_level value range should be between [0, 10] ");
+          }
+          return result;
+        }
+      }
+      return result;
+    };
+  setParamCallback(param_change_callback);
 }
 
 std::string ZlibPublisher::getTransportName() const
@@ -53,8 +86,7 @@ std::string ZlibPublisher::getTransportName() const
 ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   const sensor_msgs::msg::PointCloud2 & raw) const
 {
-  // TODO(ahcorde): Add ros parameter
-  zlib::Comp comp(zlib::Comp::Level::Level_7, true);
+  zlib::Comp comp(static_cast<zlib::Comp::Level>(this->encode_level_), true);
   auto g_compressed_data =
     comp.Process(&raw.data[0], raw.data.size(), true);
 

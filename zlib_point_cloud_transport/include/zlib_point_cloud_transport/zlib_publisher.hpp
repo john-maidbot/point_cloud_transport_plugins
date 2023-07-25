@@ -61,6 +61,9 @@ public:
   }
 
   TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2 & raw) const override;
+
+private:
+  int encode_level_{7};
 };
 }  // namespace zlib_point_cloud_transport
 
