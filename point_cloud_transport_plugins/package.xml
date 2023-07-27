@@ -13,6 +13,8 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <exec_depend>draco_point_cloud_transport</exec_depend>
+  <exec_depend>point_cloud_interfaces</exec_depend>
+  <exec_depend>zlib_point_cloud_transport</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
