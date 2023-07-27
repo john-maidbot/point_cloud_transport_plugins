@@ -114,6 +114,8 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   compressed.header = raw.header;
   compressed.fields = raw.fields;
 
+  compressed.format = getTransportName();
+
   return compressed;
 }
 

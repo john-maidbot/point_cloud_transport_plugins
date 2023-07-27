@@ -47,9 +47,11 @@
 namespace projected_point_cloud_transport
 {
 
+  enum
+
 class ProjectedPublisher
   : public point_cloud_transport::SimplePublisherPlugin<
-    point_cloud_interfaces::msg::CompressedPointCloud2>
+    point_cloud_interfaces::msg::ProjectedPointCloud>
 {
 public:
   std::string getTransportName() const override;

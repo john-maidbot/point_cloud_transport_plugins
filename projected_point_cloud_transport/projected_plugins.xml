@@ -4,8 +4,8 @@
         type="projected_point_cloud_transport::ProjectedPublisher"
         base_class_type="point_cloud_transport::PublisherPlugin">
         <description>
-            This plugin publishes a CompressedPointCloud2 topic by projecting the 3d points onto an
-            image and compressing the image like its a png image.
+            This plugin publishes a ProjectedPointCloud topic by projecting the 3d points onto an
+            2D grid and compressing the grid like its a png image.
         </description>
     </class>
 
@@ -14,7 +14,7 @@
         type="projected_point_cloud_transport::ProjectedSubscriber"
         base_class_type="point_cloud_transport::SubscriberPlugin">
         <description>
-            This plugin decompresses a CompressedPointCloud2 topic by decompressing like its a png
+            This plugin decompresses a ProjectedPointCloud topic by decompressing like its a png
             image and deprojecting the image into 3d.
         </description>
     </class>

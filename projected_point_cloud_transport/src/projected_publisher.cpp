@@ -53,8 +53,6 @@ ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
 {
 
   // TODO (john.dangelo@tailos.com): User can configure the projection to be
-  // - assume organized point cloud:
-  // ---> assumes the pointcloud is already organized like an image and can be compressed right away
   // - pin-hole projection relative to an imaginary camera:
   // ---> viewpoint origin, viewpoint direction, and pin-hole camera parameters
   // - spherical projection relative to some origin:
@@ -76,23 +74,23 @@ ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
   sensor_msgs::PointCloud2ConstIterator<float> iter_z(raw, "z");
 
   for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
-    double x = *iter_x;
-    double y = *iter_y;
-    double z = *iter_z;
+    const double& x = *iter_x;
+    const double& y = *iter_y;
+    const double& z = *iter_z;
 
-    double rho = std::sqrt(x * x + y * y + z * z);
-    double phi = std::atan2(y, x);
-    double theta = std::acos(z / rho);
+    const double rho = std::sqrt(x * x + y * y + z * z);
+    const double phi = std::atan2(y, x);
+    const double theta = std::acos(z / rho);
 
-    int phi_index = phi / phi_resolution;
-    int theta_index = theta / theta_resolution;
+    const int phi_index = phi / phi_resolution;
+    const int theta_index = theta / theta_resolution;
 
     auto& cell = spherical_image.at<uint16_t>(phi_index, rho_index);
     cell = std::min(cell, static_cast<uint16_t>(rho * 1000)); // mm resolution
   }
 
   // TODO (john.dangelo@tailos.com): Apply png compression
-  point_cloud_interfaces::msg::CompressPointCloud2 compressed;
+  point_cloud_interfaces::msg::ProjectedPointCloud compressed;
 
   cv::imencode(".png", spherical_image, compressed.compressed_data);
 
@@ -101,7 +99,7 @@ ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
   compressed.row_step = raw.row_step;
   compressed.point_step = raw.point_step;
   compressed.is_bigendian = raw.is_bigendian;
-  compressed.is_dense = raw.is_dense;
+  compressed.is_dense = true;
   compressed.header = raw.header;
   compressed.fields = raw.fields;
 

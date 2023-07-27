@@ -44,14 +44,14 @@ namespace projected_point_cloud_transport
 
 class ProjectedSubscriber
   : public point_cloud_transport::SimpleSubscriberPlugin<
-    point_cloud_interfaces::msg::CompressedPointCloud2>
+    point_cloud_interfaces::msg::ProjectedPointCloud>
 {
 public:
   std::string getTransportName() const override;
 
   void declareParameters() override;
 
-  DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
+  DecodeResult decodeTyped(const point_cloud_interfaces::msg::ProjectedPointCloud & compressed)
   const override;
 };
 }  // namespace projected_point_cloud_transport

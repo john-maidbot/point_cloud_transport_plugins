@@ -49,7 +49,7 @@ std::string ProjectedSubscriber::getTransportName() const
 }
 
 ProjectedSubscriber::DecodeResult ProjectedSubscriber::decodeTyped(
-  const point_cloud_interfaces::msg::CompressedPointCloud2 & msg) const
+  const point_cloud_interfaces::msg::ProjectedPointCloud & msg) const
 {
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
