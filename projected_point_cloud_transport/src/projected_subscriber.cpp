@@ -53,24 +53,78 @@ ProjectedSubscriber::DecodeResult ProjectedSubscriber::decodeTyped(
 {
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
-  // TODO (john.dangelo@tailos.com): Apply png decompression
+  cv::Mat projected_pointcloud_image = cv::imdecode(cv::Mat(msg.compressed_data), cv::IMREAD_UNCHANGED);
 
-  // TODO (john.dangelo@tailos.com): User can configure the deprojection to be
-  // - assume organized point cloud:
-  // ---> assumes the pointcloud is already organized like an image and can be compressed right away
-  // - pin-hole deprojection relative to an imaginary camera:
-  // ---> viewpoint origin, viewpoint direction, and pin-hole camera parameters
-  // - spherical deprojection relative to some origin:
-  // ---> viewpoint origin
+  switch(msg.projection_type){
+    case(point_cloud_interfaces::msg::ProjectedPointCloud::PINHOLE_PROJECTION):
+      deprojectPlaneToCloud(projected_pointcloud_image, result);
+    case(point_cloud_interfaces::msg::ProjectedPointCloud::SPHERICAL_PROJECTION):
+     deprojectSphereToCloud(projected_pointcloud_image, result);
+    default:
+      RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " is not known/supported!");
+  }
 
-  // SPHERICAL PROJECTION
-  cv::Mat spherical_image       = cv::imdecode(cv::Mat(msg.compressed_data), cv::IMREAD_UNCHANGED);
+  if(projected_pointcloud_image.empty()){
+    RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " failed to project pointcloud!");
+    return cras::make_unexpected("Failed to project pointcloud onto image!");
+  }
+
+  return result;
+}
+
+void ProjectedPublisher::deprojectPlaneToCloud(const cv::Mat& projected_pointcloud_image, const bool was_dense, sensor_msgs::msg::PointCloud2& cloud){
+  if(was_dense){
+    cloud.data = projected_pointcloud_image.data();
+  }else{
+    const int view_height = projected_pointcloud_image.rows;
+    const int view_width = projected_pointcloud_image.cols;
+    const float ppx = view_width/2;
+    const float ppy = view_height/2;
+    const float fx = view_width;
+    const float fy = view_width;
+
+    sensor_msgs::PointCloud2Modifier modifier(cloud);
+    modifier.setPointCloud2Fields(3, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1,
+                                  sensor_msgs::msg::PointField::FLOAT32, "z", 1,
+                                  sensor_msgs::msg::PointField::FLOAT32);
+    modifier.resize(projected_pointcloud_image.rows * projected_pointcloud_image.cols);
+    sensor_msgs::PointCloud2Iterator<float> pcl_itr(cloud, "x");
+
+    size_t valid_points = 0;
+
+    // if the pointcloud is NOT already organized, we need to apply the projection
+    for () {
+      for () {
+        const uint16_t& depth = projected_pointcloud_image.at<uint16_t>(row, col);
+
+        if(depth == 0){
+          continue;
+        }
+
+        float x = depth * (col - ppx ) / fx;
+        float y = depth * (row - ppy ) / fy;
+        float z = depth;
+
+        // TODO (john-maidbot): unrotate the d x/y/z based on view_point orientation
+
+        pcl_iter[0] = x;
+        pcl_iter[1] = y;
+        pcl_iter[2] = z;
+        ++pcl_itr;
+        valid_points++;
+      }
+    }
+    modifier.resize(valid_points);
+  }
+}
+
+void ProjectedSubscriber::deprojectSphereToCloud(){
+  const cv::Mat spherical_image       = cv::imdecode(cv::Mat(msg.compressed_data), cv::IMREAD_UNCHANGED);
   int phi_bins = spherical_image.rows;
   int theta_bins = spherical_image.cols;
   double phi_resolution = phi_bins / 2.0 / M_PI; // radians
   double theta_resolution = theta_bins / 2.0 / M_PI; // radians
 
-  sensor_msgs::msg::PointCloud2 cloud;
   cloud.header = msg.header;
 
   sensor_msgs::PointCloud2Modifier modifier(cloud);
@@ -112,8 +166,7 @@ ProjectedSubscriber::DecodeResult ProjectedSubscriber::decodeTyped(
   result->is_dense = msg.is_dense;
   result->header = msg.header;
   result->fields = msg.fields;
-
-  return result;
 }
+
 
 }  // namespace projected_point_cloud_transport

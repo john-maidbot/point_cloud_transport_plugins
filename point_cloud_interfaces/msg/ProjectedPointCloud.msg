@@ -11,17 +11,13 @@ uint8 projection_type
 
 std_msgs/Header header
 
-uint32 height
-uint32 width
-
-# TODO: How to maintain fields data? we would probably need a voxel grid
-sensor_msgs/PointField[] fields
-
-bool is_bigendian
-
-uint32 row_step
+# if the pointcloud was originally organized, the user probably wants it to stay that way
+bool was_dense
 
 uint8[] compressed_data
 
 # This is the point/orientation that acts as a reference for the pointcloud compression
 geometry_msgs/Pose view_point;
+
+# TODO: How to maintain fields data?
+# sensor_msgs/PointField[] fields

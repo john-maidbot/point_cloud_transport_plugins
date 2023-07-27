@@ -47,8 +47,6 @@
 namespace projected_point_cloud_transport
 {
 
-  enum
-
 class ProjectedPublisher
   : public point_cloud_transport::SimplePublisherPlugin<
     point_cloud_interfaces::msg::ProjectedPointCloud>
@@ -59,6 +57,16 @@ public:
   void declareParameters(const std::string & base_topic) override;
 
   TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2 & raw) const override;
+
+private:
+
+  geoemtry_msgs::msg::Pose view_point_;
+
+  // Optimization: If the user has spherical projection turned on, we never need to reallocate the
+  // spherical_projection_ image as its dimensions are not influenced by the pointcloud size.
+  cv::Mat spherical_projection_;
+
+
 };
 }  // namespace projected_point_cloud_transport
 
