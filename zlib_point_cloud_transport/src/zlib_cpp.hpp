@@ -28,8 +28,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef zlib_CPP_HPP_
-#define zlib_CPP_HPP_
+#ifndef ZLIB_CPP_HPP_
+#define ZLIB_CPP_HPP_
 
 #include <zlib.h>
 
@@ -109,4 +109,4 @@ private:
 
 }  // namespace zlib
 
-#endif  // zlib_CPP_HPP_
+#endif  // ZLIB_CPP_HPP_
