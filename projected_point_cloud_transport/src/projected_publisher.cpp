@@ -51,59 +51,56 @@ std::string ProjectedPublisher::getTransportName() const
 ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
   const sensor_msgs::msg::PointCloud2 & raw) const
 {
-
-  // TODO (john.dangelo@tailos.com): User can configure the projection to be
-  // - pin-hole projection relative to an imaginary camera:
-  // ---> viewpoint origin, viewpoint direction, and pin-hole camera parameters
-  // - spherical projection relative to some origin:
-  // ---> viewpoint origin
-
-  // TODO (john.dangelo@tailos.com): Apply selected projection method
-
-  // SPHERICAL PROJECTION
-  double phi_resolution = 0.5; // radians
-  double theta_resolution = 0.5; // radians
-  int phi_bins = 2 * M_PI / phi_resolution;
-  int theta_bins = 2 * M_PI / rho_resolution;
-
-  cv::Mat spherical_image{phi_bins, theta_bins, CV_16UC1, cv::Scalar(0)};
-
-  // iterate over the pointcloud and convert to polar coordinates
-  sensor_msgs::PointCloud2ConstIterator<float> iter_x(raw, "x");
-  sensor_msgs::PointCloud2ConstIterator<float> iter_y(raw, "y");
-  sensor_msgs::PointCloud2ConstIterator<float> iter_z(raw, "z");
-
-  for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
-    const double& x = *iter_x;
-    const double& y = *iter_y;
-    const double& z = *iter_z;
-
-    const double rho = std::sqrt(x * x + y * y + z * z);
-    const double phi = std::atan2(y, x);
-    const double theta = std::acos(z / rho);
-
-    const int phi_index = phi / phi_resolution;
-    const int theta_index = theta / theta_resolution;
-
-    auto& cell = spherical_image.at<uint16_t>(phi_index, rho_index);
-    cell = std::min(cell, static_cast<uint16_t>(rho * 1000)); // mm resolution
-  }
-
-  // TODO (john.dangelo@tailos.com): Apply png compression
   point_cloud_interfaces::msg::ProjectedPointCloud compressed;
 
-  cv::imencode(".png", spherical_image, compressed.compressed_data);
+  // apply selected projection
+  cv::Mat projected_pointcloud_image;
+  switch(projection_type_){
+    case(point_cloud_interfaces::msg::ProjectedPointCloud::PINHOLE_PROJECTION):
+      projectCloudOntoPlane(raw, projected_pointcloud_image);
+    case(point_cloud_interfaces::msg::ProjectedPointCloud::SPHERICAL_PROJECTION):
+     projectCloudOntoSphere(raw, projected_pointcloud_image);
+    default:
+      RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " is not known/supported!");
+  }
 
-  compressed.width = raw.width;
-  compressed.height = raw.height;
-  compressed.row_step = raw.row_step;
-  compressed.point_step = raw.point_step;
+  if(projected_pointcloud_image.empty()){
+    RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " failed to project pointcloud!");
+    return cras::make_unexpected("Failed to project pointcloud onto image!");
+  }
+
+  // Apply png compression
+  cv::imencode(".png", projected_pointcloud_image, compressed.compressed_data);
+
+  compressed.projection_type = projection_type_;
+
+  compressed.view_point = view_point_;
+
+  compressed.width = projected_pointcloud_image.cols;
+  compressed.height = projected_pointcloud_image.rows;
+  compressed.row_step = projected_pointcloud_image.step;
   compressed.is_bigendian = raw.is_bigendian;
   compressed.is_dense = true;
   compressed.header = raw.header;
-  compressed.fields = raw.fields;
+  // TODO (john.dangelo@tailos.com): Support the fields?
+  // compressed.fields = raw.fields;
 
   return compressed;
+}
+
+void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image){
+  if(cloud.is_dense){
+    // if the pointcloud is already organized, just point the cv::Mat at the data
+
+  }else{
+    // if the pointcloud is NOT already organized, we need to apply the projection
+
+
+  }
+}
+
+void ProjectedPublisher::projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image){
+  
 }
 
 }  // namespace projected_point_cloud_transport

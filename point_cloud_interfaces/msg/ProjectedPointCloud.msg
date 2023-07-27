@@ -23,4 +23,5 @@ uint32 row_step
 
 uint8[] compressed_data
 
-geometry_msgs/Pose projection_center
+# This is the point/orientation that acts as a reference for the pointcloud compression
+geometry_msgs/Pose view_point;
