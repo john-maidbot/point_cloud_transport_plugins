@@ -18,7 +18,7 @@
   <build_depend>draco</build_depend>
   <build_depend>pluginlib</build_depend>
 
-  <exec_depend>draco</exec_depend>
+  <exec_depend>libdraco-dev</exec_depend>
   <exec_depend>pluginlib</exec_depend>
 
   <depend>point_cloud_interfaces</depend>

@@ -74,7 +74,7 @@ private:
 
   class DracoPublisherConfig
   {
-  public:
+public:
     int encode_speed = 7;
     int decode_speed = 7;
     int encode_method = 0;
