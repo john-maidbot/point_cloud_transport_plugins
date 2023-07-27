@@ -47,11 +47,11 @@ void ZlibPublisher::declareParameters(const std::string & base_topic)
   encode_level_paramDescriptor.name = "encode_level";
   encode_level_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   encode_level_paramDescriptor.description =
-    "0 = minimun compression, but the maximun compression 10";
+    "0 = minimum compression, but the maximum compression 10";
   encode_level_paramDescriptor.set__integer_range(
     {rcl_interfaces::msg::IntegerRange()
-      .set__from_value(0)
-      .set__to_value(10)
+      .set__from_value(-1)
+      .set__to_value(9)
       .set__step(1)});
   declareParam<int>(
     encode_level_paramDescriptor.name, this->encode_level_,
@@ -66,7 +66,7 @@ void ZlibPublisher::declareParameters(const std::string & base_topic)
       for (auto parameter : parameters) {
         if (parameter.get_name() == "encode_level") {
           this->encode_level_ = static_cast<int>(parameter.as_int());
-          if (!(this->encode_level_ >= 0 && this->encode_level_ <= 10)) {
+          if (!(this->encode_level_ >= -1 && this->encode_level_ <= 9)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "encode_level value range should be between [0, 10] ");
           }
