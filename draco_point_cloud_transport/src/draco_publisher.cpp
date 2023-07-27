@@ -85,7 +85,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__from_value(0)
       .set__to_value(10)
       .set__step(1)});
-  declareParam<int>(encode_speed_paramDescriptor.name, config_.encode_speed,
+  declareParam<int>(
+    encode_speed_paramDescriptor.name, config_.encode_speed,
     encode_speed_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor decode_speed_paramDescriptor;
@@ -98,7 +99,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__from_value(0)
       .set__to_value(10)
       .set__step(1)});
-  declareParam<int>(decode_speed_paramDescriptor.name, config_.decode_speed,
+  declareParam<int>(
+    decode_speed_paramDescriptor.name, config_.decode_speed,
     decode_speed_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor encode_method_paramDescriptor;
@@ -111,7 +113,8 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__from_value(0)
       .set__to_value(2)
       .set__step(1)});
-  declareParam<int>(encode_method_paramDescriptor.name, config_.encode_method,
+  declareParam<int>(
+    encode_method_paramDescriptor.name, config_.encode_method,
     encode_method_paramDescriptor);
 
   rcl_interfaces::msg::ParameterDescriptor deduplicate_paramDescriptor;
