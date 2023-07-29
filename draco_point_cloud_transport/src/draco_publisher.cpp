@@ -602,6 +602,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
   auto cast_buffer = reinterpret_cast<const unsigned char *>(encode_buffer.data());
   std::vector<unsigned char> vec_data(cast_buffer, cast_buffer + compressed_data_size);
   compressed.compressed_data = vec_data;
+  compressed.format = getTransportName();
 
   return compressed;
 }

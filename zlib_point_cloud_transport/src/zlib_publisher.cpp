@@ -81,6 +81,7 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   compressed.is_dense = raw.is_dense;
   compressed.header = raw.header;
   compressed.fields = raw.fields;
+  compressed.format = getTransportName();
 
   return compressed;
 }
