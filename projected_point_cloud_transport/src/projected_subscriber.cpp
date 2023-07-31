@@ -93,8 +93,8 @@ void ProjectedPublisher::deprojectPlaneToCloud(const cv::Mat& projected_pointclo
     size_t valid_points = 0;
 
     // if the pointcloud is NOT already organized, we need to apply the projection
-    for () {
-      for () {
+    for (int row = 0; row < projected_pointcloud_image.rows; row++) {
+      for (int col = 0; col < projected_pointcloud_image.cols; col++) {
         const uint16_t& depth = projected_pointcloud_image.at<uint16_t>(row, col);
 
         if(depth == 0){
@@ -140,18 +140,16 @@ void ProjectedSubscriber::deprojectSphereToCloud(){
   {
     for(int col = 0; col < spherical_image.cols; col++)
     {
-      uint16_t cell = spherical_image.at<uint16_t>(row, col);
+      const uint16_t cell = spherical_image.at<uint16_t>(row, col);
       if(cell == 0)
       {
         continue;
       }
       // convert the spherical image pixel to a point cloud point
-      double rho = static_cast<double>(cell) / 1000.0; // meters
-      double phi = (row - phi_bins / 2.0) / phi_resolution;
-      double theta = (col - theta_bins / 2.0) / theta_resolution;
-      pcl_itr[0] = rho * std::sin(phi) * std::cos(theta);
-      pcl_itr[1] = rho * std::sin(phi) * std::sin(theta);
-      pcl_itr[2] = rho * std::cos(phi);
+      const double rho = static_cast<double>(cell) / 1000.0; // meters
+      pcl_itr[0] = rho * sinPhi(row, col) * cosTheta(row, col);
+      pcl_itr[1] = rho * sinPhi(row, col) * sinTheta(row, col);
+      pcl_itr[2] = rho * cosPhi(row, col);
       ++pcl_itr;
       valid_points++;
     }
