@@ -164,7 +164,8 @@ void ProjectedSubscriber::deprojectSphereToCloud(const cv::Mat& spherical_image,
       // convert the spherical image pixel to a point cloud point
       const double rho = static_cast<double>(cell) / 1000.0; // meters
       const double phi = row * phi_resolution;
-      const double theta = col * phi_resolution;
+      const double theta = col * theta_resolution;
+      // TODO (john-maidbot): This could be a lookup table if performance is a huge concern
       pcl_itr[0] = rho * std::sin(phi) * std::cos(theta);
       pcl_itr[1] = rho * std::sin(phi) * std::sin(theta);
       pcl_itr[2] = rho * std::cos(phi);

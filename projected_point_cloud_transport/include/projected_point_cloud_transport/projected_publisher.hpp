@@ -70,9 +70,23 @@ private:
 
   void projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const;
 
+  // bookkeeping variables
+  geometry_msgs::msg::Pose view_point_; // (Maybe users can set this somehow?)
+
+  // general parameters
   uint8_t projection_type_;
 
-  geometry_msgs::msg::Pose view_point_;
+  // params for planar projection
+  int view_height_;
+  int view_width_;
+  float ppx_;
+  float ppy_;
+  float fx_;
+  float fy_;
+
+  // params for spherical projection
+  double phi_resolution_;
+  double theta_resolution_;
 
 };
 }  // namespace projected_point_cloud_transport

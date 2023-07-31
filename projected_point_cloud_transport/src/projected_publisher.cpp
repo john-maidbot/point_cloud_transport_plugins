@@ -43,6 +43,17 @@ namespace projected_point_cloud_transport
 
 void ProjectedPublisher::declareParameters(const std::string & base_topic)
 {
+  // params for planar projection
+  view_height_ = 720;
+  view_width_ = 1080;
+  ppx_ = static_cast<float>(view_width_)/2.0;
+  ppy_ = static_cast<float>(view_height_)/2.0;
+  fx_ = view_width_;
+  fy_ = view_width_;
+
+  // params for spherical projection
+  phi_resolution_ = 0.034; // radians
+  theta_resolution_ = 0.034; // radians
 }
 
 std::string ProjectedPublisher::getTransportName() const
@@ -93,16 +104,8 @@ void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointClou
     // TODO (john.dangelo@tailos.com): if the pointcloud is already organized, just point the cv::Mat at the data
     projected_pointcloud_image = cv::Mat((int)cloud.height, (int)cloud.width, CV_32FC3, (void*)cloud.data.data());
   }else{
-    // TODO (john.dangelo@tailos.com): Make these parameters
-    const int view_height = 720;
-    const int view_width = 1080;
-    projected_pointcloud_image = cv::Mat(cv::Size(view_width, view_height), CV_16UC1, cv::Scalar(0));
-    const float ppx = view_width/2;
-    const float ppy = view_height/2;
-    const float fx = view_width;
-    const float fy = view_width;
-
     // if the pointcloud is NOT already organized, we need to apply the projection
+    projected_pointcloud_image = cv::Mat(cv::Size(view_width_, view_height_), CV_16UC1, cv::Scalar(0));
 
     // iterate over the pointcloud
     sensor_msgs::PointCloud2ConstIterator<float> iter_x(cloud, "x");
@@ -121,10 +124,10 @@ void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointClou
       // TODO (john-maidbot): rotate the d x/y/z so that z is along the view point orientation
       // TODO: can that be made more efficient by transforming the view point instead?
 
-      const int col = x/z * fx + ppx;
-      const int row = y/z * fy + ppy;
+      const int col = x/z * fx_ + ppx_;
+      const int row = y/z * fy_ + ppy_;
 
-      if(z == 0 || col < 0 || row < 0 || col >= view_width || row >= view_height){
+      if(z == 0 || col < 0 || row < 0 || col >= view_width_ || row >= view_height_){
         continue;
       }
 
@@ -135,11 +138,9 @@ void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointClou
 }
 
 void ProjectedPublisher::projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const{
-  // TODO (john.dangelo@tailos.com): Make these parameters
-  const double phi_resolution = 0.034; // radians
-  const double theta_resolution = 0.034; // radians
-  const int phi_bins = 2 * M_PI / phi_resolution;
-  const int theta_bins = 2 * M_PI / theta_resolution;
+  // compute image size based on resolution
+  const int phi_bins = 2 * M_PI / phi_resolution_;
+  const int theta_bins = 2 * M_PI / theta_resolution_;
 
   cv::Mat spherical_image{phi_bins, theta_bins, CV_16UC1, cv::Scalar(0)};
 
@@ -169,8 +170,8 @@ void ProjectedPublisher::projectCloudOntoSphere(const sensor_msgs::msg::PointClo
       theta += 2*M_PI;
     }
 
-    const int phi_index = std::min(static_cast<int>(phi / phi_resolution), phi_bins);
-    const int theta_index = std::min(static_cast<int>(theta / theta_resolution), theta_bins);
+    const int phi_index = std::min(static_cast<int>(phi / phi_resolution_), phi_bins);
+    const int theta_index = std::min(static_cast<int>(theta / theta_resolution_), theta_bins);
 
     auto& cell = spherical_image.at<uint16_t>(phi_index, theta_index);
     cell = std::min(cell, static_cast<uint16_t>(rho * 1000)); // mm resolution
