@@ -35,13 +35,14 @@
 #include <memory>
 #include <string>
 
+#include <opencv2/core.hpp>
+
+#include <geometry_msgs/msg/pose.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
+#include <point_cloud_interfaces/msg/projected_point_cloud.hpp>
 #include <point_cloud_transport/point_cloud_transport.hpp>
-
 #include <point_cloud_transport/simple_publisher_plugin.hpp>
-#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 
 
 namespace projected_point_cloud_transport
@@ -58,14 +59,20 @@ public:
 
   TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2 & raw) const override;
 
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/ProjectedPointCloud";
+  }
+
 private:
 
-  geoemtry_msgs::msg::Pose view_point_;
+  void projectCloudOntoPlane(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const;
 
-  // Optimization: If the user has spherical projection turned on, we never need to reallocate the
-  // spherical_projection_ image as its dimensions are not influenced by the pointcloud size.
-  cv::Mat spherical_projection_;
+  void projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const;
 
+  uint8_t projection_type_;
+
+  geometry_msgs::msg::Pose view_point_;
 
 };
 }  // namespace projected_point_cloud_transport

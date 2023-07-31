@@ -17,7 +17,7 @@ bool was_dense
 uint8[] compressed_data
 
 # This is the point/orientation that acts as a reference for the pointcloud compression
-geometry_msgs/Pose view_point;
+geometry_msgs/Pose view_point
 
 # TODO: How to maintain fields data?
 # sensor_msgs/PointField[] fields

@@ -31,8 +31,10 @@
 
 #include <string>
 
+#include <opencv2/imgcodecs.hpp>
+
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <sensor_msgs/point_cloud_iterator.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <projected_point_cloud_transport/projected_publisher.hpp>
 
@@ -61,11 +63,11 @@ ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
     case(point_cloud_interfaces::msg::ProjectedPointCloud::SPHERICAL_PROJECTION):
      projectCloudOntoSphere(raw, projected_pointcloud_image);
     default:
-      RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " is not known/supported!");
+      RCLCPP_ERROR_STREAM(getLogger(), "Projection type " << projection_type_ << " is not known/supported!");
   }
 
   if(projected_pointcloud_image.empty()){
-    RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " failed to project pointcloud!");
+    RCLCPP_ERROR_STREAM(getLogger(), "Projection type " << projection_type_ << " failed to project pointcloud!");
     return cras::make_unexpected("Failed to project pointcloud onto image!");
   }
 
@@ -86,10 +88,10 @@ ProjectedPublisher::TypedEncodeResult ProjectedPublisher::encodeTyped(
   return compressed;
 }
 
-void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image){
+void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const{
   if(cloud.is_dense){
     // TODO (john.dangelo@tailos.com): if the pointcloud is already organized, just point the cv::Mat at the data
-    projected_pointcloud_image = cv::Mat(cv::Size(cloud.width, cloud.height), CV_16UC1, cloud.data);
+    projected_pointcloud_image = cv::Mat((int)cloud.height, (int)cloud.width, CV_32FC3, (void*)cloud.data.data());
   }else{
     // TODO (john.dangelo@tailos.com): Make these parameters
     const int view_height = 720;
@@ -99,11 +101,18 @@ void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointClou
     const float ppy = view_height/2;
     const float fx = view_width;
     const float fy = view_width;
+
     // if the pointcloud is NOT already organized, we need to apply the projection
+
+    // iterate over the pointcloud
+    sensor_msgs::PointCloud2ConstIterator<float> iter_x(cloud, "x");
+    sensor_msgs::PointCloud2ConstIterator<float> iter_y(cloud, "y");
+    sensor_msgs::PointCloud2ConstIterator<float> iter_z(cloud, "z");
+
     for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
-      const double& x = *iter_x - view_point.position.x;
-      const double& y = *iter_y - view_point.position.y;
-      const double& z = *iter_z - view_point.position.z;
+      const double& x = *iter_x - view_point_.position.x;
+      const double& y = *iter_y - view_point_.position.y;
+      const double& z = *iter_z - view_point_.position.z;
 
       if(!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)){
         continue;
@@ -112,60 +121,61 @@ void ProjectedPublisher::projectCloudOntoPlane(const sensor_msgs::msg::PointClou
       // TODO (john-maidbot): rotate the d x/y/z so that z is along the view point orientation
       // TODO: can that be made more efficient by transforming the view point instead?
 
-      if(z == 0){
-        continue;
-      }
-
       const int col = x/z * fx + ppx;
       const int row = y/z * fy + ppy;
 
-      auto& cell = projected_pointcloud_image.at<uint16_t>(row, col);
-      cell = std::min(cell, static_cast<uint16_t>(depth * 1000)); // mm resolution
-    }    
+      if(z == 0 || col < 0 || row < 0 || col >= view_width || row >= view_height){
+        continue;
+      }
 
+      auto& cell = projected_pointcloud_image.at<uint16_t>(row, col);
+      cell = std::min(cell, static_cast<uint16_t>(z * 1000)); // mm resolution
+    }    
   }
 }
 
-void ProjectedPublisher::projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image){
+void ProjectedPublisher::projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const{
   // TODO (john.dangelo@tailos.com): Make these parameters
-  const double phi_resolution = 0.5; // radians
-  const double theta_resolution = 0.5; // radians
+  const double phi_resolution = 0.034; // radians
+  const double theta_resolution = 0.034; // radians
   const int phi_bins = 2 * M_PI / phi_resolution;
-  const int theta_bins = 2 * M_PI / rho_resolution;
+  const int theta_bins = 2 * M_PI / theta_resolution;
 
-  if(spherical_image.empty()){
-    spherical_image_ = cv::Mat{phi_bins, theta_bins, CV_16UC1, cv::Scalar(0)};
-  }else{
-    spherical_image.setTo(0);
-  }
+  cv::Mat spherical_image{phi_bins, theta_bins, CV_16UC1, cv::Scalar(0)};
 
   // iterate over the pointcloud and convert to polar coordinates
-  sensor_msgs::PointCloud2ConstIterator<float> iter_x(raw, "x");
-  sensor_msgs::PointCloud2ConstIterator<float> iter_y(raw, "y");
-  sensor_msgs::PointCloud2ConstIterator<float> iter_z(raw, "z");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_x(cloud, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_y(cloud, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_z(cloud, "z");
 
   for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
     // TODO (john.dangelo@tailos.com): should spherical projection account
     // for the orientation of the view point?
-    const double& x = *iter_x - view_point.position.x;
-    const double& y = *iter_y - view_point.position.y;
-    const double& z = *iter_z - view_point.position.z;
+    const double& x = *iter_x - view_point_.position.x;
+    const double& y = *iter_y - view_point_.position.y;
+    const double& z = *iter_z - view_point_.position.z;
 
     if(!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)){
       continue;
     }
 
     const double rho = std::sqrt(x * x + y * y + z * z);
-    const double phi = std::atan2(y, x);
-    const double theta = std::acos(z / rho);
+    double phi = std::atan2(y, x);
+    double theta = std::acos(z / rho);
+    if (phi < 0){
+      phi += 2*M_PI;
+    }
+    if (theta < 0){
+      theta += 2*M_PI;
+    }
 
-    const int phi_index = phi / phi_resolution;
-    const int theta_index = theta / theta_resolution;
+    const int phi_index = std::min(static_cast<int>(phi / phi_resolution), phi_bins);
+    const int theta_index = std::min(static_cast<int>(theta / theta_resolution), theta_bins);
 
-    auto& cell = spherical_image_.at<uint16_t>(phi_index, rho_index);
+    auto& cell = spherical_image.at<uint16_t>(phi_index, theta_index);
     cell = std::min(cell, static_cast<uint16_t>(rho * 1000)); // mm resolution
   }
-  projected_pointcloud_image = spherical_image_;
+  projected_pointcloud_image = spherical_image;
 }
 
 }  // namespace projected_point_cloud_transport

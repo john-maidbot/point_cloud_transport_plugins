@@ -33,9 +33,13 @@
 #define PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_
 
 #include <string>
+#include <vector>
 
-#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
+#include <opencv2/core.hpp>
 
+#include <sensor_msgs/msg/point_cloud2.hpp>
+
+#include <point_cloud_interfaces/msg/projected_point_cloud.hpp>
 #include <point_cloud_transport/simple_subscriber_plugin.hpp>
 #include <point_cloud_transport/transport_hints.hpp>
 
@@ -53,6 +57,18 @@ public:
 
   DecodeResult decodeTyped(const point_cloud_interfaces::msg::ProjectedPointCloud & compressed)
   const override;
+
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/ProjectedPointCloud";
+  }
+
+private:
+
+  void deprojectSphereToCloud(const cv::Mat& projected_pointcloud_image, const point_cloud_interfaces::msg::ProjectedPointCloud& msg, sensor_msgs::msg::PointCloud2::SharedPtr& cloud) const;
+
+  void deprojectPlaneToCloud(const cv::Mat& projected_pointcloud_image, const point_cloud_interfaces::msg::ProjectedPointCloud& msg, sensor_msgs::msg::PointCloud2::SharedPtr& cloud) const;
+
 };
 }  // namespace projected_point_cloud_transport
 

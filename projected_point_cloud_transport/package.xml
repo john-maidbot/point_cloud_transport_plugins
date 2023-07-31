@@ -20,10 +20,11 @@
 
   <exec_depend>pluginlib</exec_depend>
 
+  <depend>OpenCV</depend>
   <depend>point_cloud_interfaces</depend>
   <depend>point_cloud_transport</depend>
   <depend>rclcpp</depend>
-  <depend>libopencv</depend>
+  <depend>sensor_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

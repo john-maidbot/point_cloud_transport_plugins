@@ -31,9 +31,9 @@
 
 #include <string>
 
-#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <opencv2/imgcodecs.hpp>
+
 #include <sensor_msgs/point_cloud2_iterator.hpp>
-#include <sensor_msgs/point_cloud2_modifier.hpp>
 
 #include <projected_point_cloud_transport/projected_subscriber.hpp>
 
@@ -57,24 +57,33 @@ ProjectedSubscriber::DecodeResult ProjectedSubscriber::decodeTyped(
 
   switch(msg.projection_type){
     case(point_cloud_interfaces::msg::ProjectedPointCloud::PINHOLE_PROJECTION):
-      deprojectPlaneToCloud(projected_pointcloud_image, result);
+      deprojectPlaneToCloud(projected_pointcloud_image, msg, result);
     case(point_cloud_interfaces::msg::ProjectedPointCloud::SPHERICAL_PROJECTION):
-     deprojectSphereToCloud(projected_pointcloud_image, result);
+     deprojectSphereToCloud(projected_pointcloud_image, msg, result);
     default:
-      RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " is not known/supported!");
+      RCLCPP_ERROR_STREAM(getLogger(), "Projection type " << msg.projection_type << " is not known/supported!");
   }
 
   if(projected_pointcloud_image.empty()){
-    RCLCPP_ERROR(getLogger(), "Projection type " << projection_type_ << " failed to project pointcloud!");
+    RCLCPP_ERROR_STREAM(getLogger(), "Projection type " << msg.projection_type << " failed to project pointcloud!");
     return cras::make_unexpected("Failed to project pointcloud onto image!");
   }
 
   return result;
 }
 
-void ProjectedPublisher::deprojectPlaneToCloud(const cv::Mat& projected_pointcloud_image, const bool was_dense, sensor_msgs::msg::PointCloud2& cloud){
-  if(was_dense){
-    cloud.data = projected_pointcloud_image.data();
+void ProjectedSubscriber::deprojectPlaneToCloud(const cv::Mat& projected_pointcloud_image, const point_cloud_interfaces::msg::ProjectedPointCloud& msg, sensor_msgs::msg::PointCloud2::SharedPtr& cloud) const{
+  if(msg.was_dense){
+    memcpy(cloud->data.data(), projected_pointcloud_image.data, projected_pointcloud_image.total());
+    cloud->width = projected_pointcloud_image.cols;
+    cloud->height = projected_pointcloud_image.rows;
+    cloud->header = msg.header;
+    // cloud->row_step = msg.row_step;
+    // cloud->point_step = msg.point_step;
+    // cloud->is_bigendian = msg.is_bigendian;
+    // cloud->is_dense = true;
+    // cloud->fields = msg.fields;
+
   }else{
     const int view_height = projected_pointcloud_image.rows;
     const int view_width = projected_pointcloud_image.cols;
@@ -83,12 +92,12 @@ void ProjectedPublisher::deprojectPlaneToCloud(const cv::Mat& projected_pointclo
     const float fx = view_width;
     const float fy = view_width;
 
-    sensor_msgs::PointCloud2Modifier modifier(cloud);
+    sensor_msgs::PointCloud2Modifier modifier(*cloud);
     modifier.setPointCloud2Fields(3, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1,
                                   sensor_msgs::msg::PointField::FLOAT32, "z", 1,
                                   sensor_msgs::msg::PointField::FLOAT32);
     modifier.resize(projected_pointcloud_image.rows * projected_pointcloud_image.cols);
-    sensor_msgs::PointCloud2Iterator<float> pcl_itr(cloud, "x");
+    sensor_msgs::PointCloud2Iterator<float> pcl_itr(*cloud, "x");
 
     size_t valid_points = 0;
 
@@ -107,32 +116,39 @@ void ProjectedPublisher::deprojectPlaneToCloud(const cv::Mat& projected_pointclo
 
         // TODO (john-maidbot): unrotate the d x/y/z based on view_point orientation
 
-        pcl_iter[0] = x;
-        pcl_iter[1] = y;
-        pcl_iter[2] = z;
+        pcl_itr[0] = x;
+        pcl_itr[1] = y;
+        pcl_itr[2] = z;
         ++pcl_itr;
         valid_points++;
       }
     }
     modifier.resize(valid_points);
+    cloud->width = valid_points;
+    cloud->height = 1;
+    cloud->header = msg.header;
+    // cloud->row_step = msg.row_step;
+    // cloud->point_step = msg.point_step;
+    // cloud->is_bigendian = msg.is_bigendian;
+    // cloud->is_dense = msg.is_dense;
+    // cloud->fields = msg.fields;
   }
 }
 
-void ProjectedSubscriber::deprojectSphereToCloud(){
-  const cv::Mat spherical_image       = cv::imdecode(cv::Mat(msg.compressed_data), cv::IMREAD_UNCHANGED);
+void ProjectedSubscriber::deprojectSphereToCloud(const cv::Mat& spherical_image, const point_cloud_interfaces::msg::ProjectedPointCloud& msg, sensor_msgs::msg::PointCloud2::SharedPtr& cloud) const {
   int phi_bins = spherical_image.rows;
   int theta_bins = spherical_image.cols;
   double phi_resolution = phi_bins / 2.0 / M_PI; // radians
   double theta_resolution = theta_bins / 2.0 / M_PI; // radians
 
-  cloud.header = msg.header;
+  cloud->header = msg.header;
 
-  sensor_msgs::PointCloud2Modifier modifier(cloud);
+  sensor_msgs::PointCloud2Modifier modifier(*cloud);
   modifier.setPointCloud2Fields(3, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1,
                                 sensor_msgs::msg::PointField::FLOAT32, "z", 1,
                                 sensor_msgs::msg::PointField::FLOAT32);
   modifier.resize(spherical_image.rows * spherical_image.cols);
-  sensor_msgs::PointCloud2Iterator<float> pcl_itr(cloud, "x");
+  sensor_msgs::PointCloud2Iterator<float> pcl_itr(*cloud, "x");
 
   size_t valid_points = 0;
   // convert the spherical image to a point cloud
@@ -147,23 +163,25 @@ void ProjectedSubscriber::deprojectSphereToCloud(){
       }
       // convert the spherical image pixel to a point cloud point
       const double rho = static_cast<double>(cell) / 1000.0; // meters
-      pcl_itr[0] = rho * sinPhi(row, col) * cosTheta(row, col);
-      pcl_itr[1] = rho * sinPhi(row, col) * sinTheta(row, col);
-      pcl_itr[2] = rho * cosPhi(row, col);
+      const double phi = row * phi_resolution;
+      const double theta = col * phi_resolution;
+      pcl_itr[0] = rho * std::sin(phi) * std::cos(theta);
+      pcl_itr[1] = rho * std::sin(phi) * std::sin(theta);
+      pcl_itr[2] = rho * std::cos(phi);
       ++pcl_itr;
       valid_points++;
     }
   }
   modifier.resize(valid_points);
 
-  result->width = valid_points;
-  result->height = 1;
-  result->row_step = msg.row_step;
-  result->point_step = msg.point_step;
-  result->is_bigendian = msg.is_bigendian;
-  result->is_dense = msg.is_dense;
-  result->header = msg.header;
-  result->fields = msg.fields;
+  cloud->width = valid_points;
+  cloud->height = 1;
+  cloud->header = msg.header;
+  // cloud->row_step = msg.row_step;
+  // cloud->point_step = msg.point_step;
+  // cloud->is_bigendian = msg.is_bigendian;
+  // cloud->is_dense = msg.is_dense;
+  // cloud->fields = msg.fields;
 }
 
 
