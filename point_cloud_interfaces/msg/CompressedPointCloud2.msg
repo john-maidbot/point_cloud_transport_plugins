@@ -19,4 +19,4 @@ uint8[] compressed_data
 bool is_dense
 
 # compression format used (e.g. draco, zlib, etc.)
-bool format
+string format
