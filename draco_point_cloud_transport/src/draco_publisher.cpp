@@ -42,7 +42,7 @@
 #include <vector>
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
-#include <point_cloud_transport/expected.hpp>
+#include <tl/expected.hpp>
 
 #include <draco_point_cloud_transport/cloud.hpp>
 #include <draco_point_cloud_transport/draco_publisher.hpp>
@@ -317,7 +317,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   setParamCallback(param_change_callback);
 }
 
-cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::convertPC2toDraco(
+tl::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::convertPC2toDraco(
   const sensor_msgs::msg::PointCloud2 & PC2, const std::string & topic, bool deduplicate,
   bool expert_encoding) const
 {
@@ -411,7 +411,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
       case sensor_msgs::msg::PointField::FLOAT64: attribute_data_type = draco::DT_FLOAT64;
         rgba_tweak_64bit = true;
         break;
-      default: return cras::make_unexpected("Invalid data type in PointCloud2 to Draco conversion");
+      default: return tl::make_unexpected("Invalid data type in PointCloud2 to Draco conversion");
     }
     // attribute data type switch end
 
@@ -439,7 +439,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
   std::unique_ptr<draco::PointCloud> pc = builder.Finalize(deduplicate);
 
   if (pc == nullptr) {
-    return cras::make_unexpected(
+    return tl::make_unexpected(
       "Conversion from sensor_msgs::msg::PointCloud2 to Draco::PointCloud failed");
   }
 
@@ -454,7 +454,7 @@ cras::expected<std::unique_ptr<draco::PointCloud>, std::string> DracoPublisher::
   pc->AddMetadata(std::move(metadata));
 
   if ((pc->num_points() != number_of_points) && !deduplicate) {
-    return cras::make_unexpected(
+    return tl::make_unexpected(
       "Number of points in Draco::PointCloud differs from sensor_msgs::msg::PointCloud2!");
   }
 
@@ -489,7 +489,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     rawDense, base_topic_, config_.deduplicate,
     config_.expert_attribute_types);
   if (!res) {
-    return cras::make_unexpected(res.error());
+    return tl::make_unexpected(res.error());
   }
 
   const auto & pc = res.value();
@@ -551,7 +551,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
 
     if (status.code() != 0) {
       // TODO(anyone): Fix with proper format
-      return cras::make_unexpected(
+      return tl::make_unexpected(
         "Draco encoder returned code " + std::to_string(
           status.code()) + ": " + status.error_msg() + ".");
     }
@@ -594,7 +594,7 @@ DracoPublisher::TypedEncodeResult DracoPublisher::encodeTyped(
     draco::Status status = encoder.EncodePointCloudToBuffer(*pc, &encode_buffer);
 
     if (!status.ok()) {
-      return cras::make_unexpected(
+      return tl::make_unexpected(
         "Draco encoder returned code " + std::to_string(
           status.code()) + ": " + status.error_msg() + ".");
     }

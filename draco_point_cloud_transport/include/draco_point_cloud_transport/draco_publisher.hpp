@@ -68,7 +68,7 @@ public:
   static void registerNormalField(const std::string & field);
 
 private:
-  cras::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
+  tl::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
     const sensor_msgs::msg::PointCloud2 & PC2, const std::string & topic, bool deduplicate,
     bool expert_encoding) const;
 
