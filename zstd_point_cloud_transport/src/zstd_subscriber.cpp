@@ -29,6 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <zstd.h>
+
 #include <list>
 #include <memory>
 #include <string>
@@ -37,8 +39,6 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <zstd_point_cloud_transport/zstd_subscriber.hpp>
-
-#include "zstd.h"
 
 namespace zstd_point_cloud_transport
 {
@@ -62,16 +62,16 @@ ZstdSubscriber::DecodeResult ZstdSubscriber::decodeTyped(
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
   auto const est_decomp_size =
-      ZSTD_getDecompressedSize(&msg.compressed_data[0], msg.compressed_data.size());
+    ZSTD_getDecompressedSize(&msg.compressed_data[0], msg.compressed_data.size());
 
   std::string decomp_buffer{};
   decomp_buffer.resize(est_decomp_size);
 
   size_t const decomp_size = ZSTD_decompress(
-      (void*)decomp_buffer.data(),
-      est_decomp_size,
-      &msg.compressed_data[0],
-      msg.compressed_data.size());
+    static_cast<void *>(decomp_buffer.data()),
+    est_decomp_size,
+    &msg.compressed_data[0],
+    msg.compressed_data.size());
 
   decomp_buffer.resize(decomp_size);
   decomp_buffer.shrink_to_fit();

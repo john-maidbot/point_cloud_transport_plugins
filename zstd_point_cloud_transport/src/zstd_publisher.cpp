@@ -29,14 +29,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <zstd.h>
+
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include <zstd_point_cloud_transport/zstd_publisher.hpp>
-
-#include "zstd.h"
 
 namespace zstd_point_cloud_transport
 {
@@ -96,8 +96,9 @@ ZstdPublisher::TypedEncodeResult ZstdPublisher::encodeTyped(
   std::string comp_buffer{};
   comp_buffer.resize(est_compress_size);
   auto compress_size =
-      ZSTD_compress((void*)comp_buffer.data(), est_compress_size, &raw.data[0],
-                    raw.data.size(), this->encode_level_);
+    ZSTD_compress(
+    static_cast<void *>(omp_buffer.data()), est_compress_size, &raw.data[0],
+    raw.data.size(), this->encode_level_);
 
   comp_buffer.resize(compress_size);
   comp_buffer.shrink_to_fit();
@@ -119,4 +120,4 @@ ZstdPublisher::TypedEncodeResult ZstdPublisher::encodeTyped(
   return compressed;
 }
 
-}  // namespace zlib_point_cloud_transport
+}  // namespace zstd_point_cloud_transport
