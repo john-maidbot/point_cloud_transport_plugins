@@ -97,7 +97,7 @@ ZstdPublisher::TypedEncodeResult ZstdPublisher::encodeTyped(
   comp_buffer.resize(est_compress_size);
   auto compress_size =
     ZSTD_compress(
-    static_cast<void *>(omp_buffer.data()), est_compress_size, &raw.data[0],
+    static_cast<void *>(comp_buffer.data()), est_compress_size, &raw.data[0],
     raw.data.size(), this->encode_level_);
 
   comp_buffer.resize(compress_size);
