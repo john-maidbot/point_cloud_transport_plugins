@@ -29,18 +29,49 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef DRACO_POINT_CLOUD_TRANSPORT__DRACO_SUBSCRIBER_HPP_
+#define DRACO_POINT_CLOUD_TRANSPORT__DRACO_SUBSCRIBER_HPP_
 
-#include <pluginlib/class_list_macros.hpp>
+#include <draco/point_cloud/point_cloud.h>
 
-#include <point_cloud_transport/publisher_plugin.hpp>
-#include <point_cloud_transport/subscriber_plugin.hpp>
+#include <string>
 
-#include <draco_point_cloud_transport/draco_publisher.hpp>
-#include <draco_point_cloud_transport/draco_subscriber.hpp>
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoPublisher,
-  point_cloud_transport::PublisherPlugin)
-PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoSubscriber,
-  point_cloud_transport::SubscriberPlugin)
+#include <point_cloud_transport/simple_subscriber_plugin.hpp>
+#include <point_cloud_transport/transport_hints.hpp>
+
+namespace draco_point_cloud_transport
+{
+
+class DracoSubscriber
+  : public point_cloud_transport::SimpleSubscriberPlugin<
+    point_cloud_interfaces::msg::CompressedPointCloud2>
+{
+public:
+  std::string getTransportName() const override;
+
+  void declareParameters() override;
+
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/CompressedPointCloud2";
+  }
+
+  DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
+  const override;
+
+  struct DracoSubscriberConfig
+  {
+    bool SkipDequantizationPOSITION = false;
+    bool SkipDequantizationNORMAL = false;
+    bool SkipDequantizationCOLOR = false;
+    bool SkipDequantizationTEX_COORD = false;
+    bool SkipDequantizationGENERIC = false;
+  };
+
+  DracoSubscriberConfig config_;
+};
+}  // namespace draco_point_cloud_transport
+
+#endif  // DRACO_POINT_CLOUD_TRANSPORT__DRACO_SUBSCRIBER_HPP_

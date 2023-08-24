@@ -2,39 +2,34 @@ cmake_minimum_required(VERSION 3.10.2)
 
 set(CMAKE_CXX_STANDARD 17)
 
-project(draco_point_cloud_transport)
+project(zlib_point_cloud_transport)
 
 find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(point_cloud_interfaces REQUIRED)
 find_package(point_cloud_transport REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
-
-find_package(Draco REQUIRED)
+find_package(ZLIB REQUIRED)
 
 set(dependencies
   pluginlib
   point_cloud_interfaces
   point_cloud_transport
   rclcpp
-  sensor_msgs
-  std_msgs
 )
 
 
-include_directories(include ${DRACO_INCLUDE_DIR})
+include_directories(include)
 
 add_library(${PROJECT_NAME}
   SHARED
-  src/cloud.cpp
-  src/draco_publisher.cpp
-  src/draco_subscriber.cpp
+  src/zlib_publisher.cpp
+  src/zlib_subscriber.cpp
+  src/zlib_cpp.cpp
   src/manifest.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${DRACO_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
 
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
@@ -49,7 +44,7 @@ install(
   DESTINATION include/${PROJECT_NAME}
 )
 
-pluginlib_export_plugin_description_file(point_cloud_transport draco_plugins.xml)
+pluginlib_export_plugin_description_file(point_cloud_transport zlib_plugins.xml)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

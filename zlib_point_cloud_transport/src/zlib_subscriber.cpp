@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2023, Czech Technical University in Prague
- * Copyright (c) 2019, paplhjak
+ * Copyright (c) 2023, Open Source Robotics Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,17 +29,56 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pluginlib/class_list_macros.hpp>
+#include <list>
+#include <memory>
+#include <string>
+#include <vector>
 
-#include <point_cloud_transport/publisher_plugin.hpp>
-#include <point_cloud_transport/subscriber_plugin.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <draco_point_cloud_transport/draco_publisher.hpp>
-#include <draco_point_cloud_transport/draco_subscriber.hpp>
+#include <zlib_point_cloud_transport/zlib_subscriber.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoPublisher,
-  point_cloud_transport::PublisherPlugin)
-PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoSubscriber,
-  point_cloud_transport::SubscriberPlugin)
+#include "zlib_cpp.hpp"
+
+namespace zlib_point_cloud_transport
+{
+void ZlibSubscriber::declareParameters()
+{
+}
+
+std::string ZlibSubscriber::getTransportName() const
+{
+  return "zlib";
+}
+
+ZlibSubscriber::DecodeResult ZlibSubscriber::decodeTyped(
+  const point_cloud_interfaces::msg::CompressedPointCloud2 & msg) const
+{
+  auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
+
+  zlib::Decomp decomp;
+
+  std::shared_ptr<zlib::DataBlock> data = zlib::AllocateData(msg.compressed_data.size());
+  memcpy(data->ptr, &msg.compressed_data[0], msg.compressed_data.size());
+
+  std::list<std::shared_ptr<zlib::DataBlock>> out_data_list;
+  out_data_list = decomp.Process(data);
+
+  std::shared_ptr<zlib::DataBlock> data2 = zlib::ExpandDataList(out_data_list);
+
+  result->data.resize(data2->size);
+  memcpy(&result->data[0], data2->ptr, data2->size);
+
+  result->width = msg.width;
+  result->height = msg.height;
+  result->row_step = msg.row_step;
+  result->point_step = msg.point_step;
+  result->is_bigendian = msg.is_bigendian;
+  result->is_dense = msg.is_dense;
+  result->header = msg.header;
+  result->fields = msg.fields;
+
+  return result;
+}
+
+}  // namespace zlib_point_cloud_transport

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2023, Czech Technical University in Prague
- * Copyright (c) 2019, paplhjak
+ * Copyright (c) 2023, Open Source Robotics Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,17 +29,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pluginlib/class_list_macros.hpp>
+#ifndef ZLIB_POINT_CLOUD_TRANSPORT__ZLIB_SUBSCRIBER_HPP_
+#define ZLIB_POINT_CLOUD_TRANSPORT__ZLIB_SUBSCRIBER_HPP_
 
-#include <point_cloud_transport/publisher_plugin.hpp>
-#include <point_cloud_transport/subscriber_plugin.hpp>
+#include <string>
 
-#include <draco_point_cloud_transport/draco_publisher.hpp>
-#include <draco_point_cloud_transport/draco_subscriber.hpp>
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoPublisher,
-  point_cloud_transport::PublisherPlugin)
-PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoSubscriber,
-  point_cloud_transport::SubscriberPlugin)
+#include <point_cloud_transport/simple_subscriber_plugin.hpp>
+#include <point_cloud_transport/transport_hints.hpp>
+
+namespace zlib_point_cloud_transport
+{
+
+class ZlibSubscriber
+  : public point_cloud_transport::SimpleSubscriberPlugin<
+    point_cloud_interfaces::msg::CompressedPointCloud2>
+{
+public:
+  std::string getTransportName() const override;
+
+  void declareParameters() override;
+
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/CompressedPointCloud2";
+  }
+
+  DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
+  const override;
+};
+}  // namespace zlib_point_cloud_transport
+
+#endif  // ZLIB_POINT_CLOUD_TRANSPORT__ZLIB_SUBSCRIBER_HPP_

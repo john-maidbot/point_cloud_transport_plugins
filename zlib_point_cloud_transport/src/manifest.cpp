@@ -35,12 +35,12 @@
 #include <point_cloud_transport/publisher_plugin.hpp>
 #include <point_cloud_transport/subscriber_plugin.hpp>
 
-#include <draco_point_cloud_transport/draco_publisher.hpp>
-#include <draco_point_cloud_transport/draco_subscriber.hpp>
+#include <zlib_point_cloud_transport/zlib_publisher.hpp>
+#include <zlib_point_cloud_transport/zlib_subscriber.hpp>
 
 PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoPublisher,
+  zlib_point_cloud_transport::ZlibPublisher,
   point_cloud_transport::PublisherPlugin)
 PLUGINLIB_EXPORT_CLASS(
-  draco_point_cloud_transport::DracoSubscriber,
+  zlib_point_cloud_transport::ZlibSubscriber,
   point_cloud_transport::SubscriberPlugin)
