@@ -4,6 +4,8 @@ This metapackage contains the most common plugins for pointcloud compression usi
 
 Currently provided are:
 
-- [draco_point_cloud_transport](https://github.com/ctu-vras/point_cloud_transport_plugins/tree/master/draco_point_cloud_transport) - A library using Google Draco to compress the pointclouds.
+- [draco_point_cloud_transport](https://github.com/ros-perception/point_cloud_transport_plugins/tree/rolling/draco_point_cloud_transport) - A library using Google Draco to compress the pointclouds.
+
+- [zlib_point_cloud_transport](https://github.com/ros-perception/point_cloud_transport_plugins/tree/rolling/zlib_point_cloud_transport) - A library using zlib to compress the pointclouds.
 
 More transports can be added. Pull requests are welcome!
