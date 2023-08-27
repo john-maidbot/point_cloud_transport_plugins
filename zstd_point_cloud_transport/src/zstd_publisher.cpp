@@ -93,19 +93,18 @@ ZstdPublisher::TypedEncodeResult ZstdPublisher::encodeTyped(
 {
   size_t est_compress_size = ZSTD_compressBound(raw.data.size());
 
-  std::string comp_buffer{};
-  comp_buffer.resize(est_compress_size);
+  point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
+  compressed.compressed_data.resize(est_compress_size);
+
   auto compress_size =
     ZSTD_compress(
-    static_cast<void *>(comp_buffer.data()), est_compress_size, &raw.data[0],
-    raw.data.size(), this->encode_level_);
+    static_cast<void *>(&compressed.compressed_data[0]),
+    est_compress_size,
+    &raw.data[0],
+    raw.data.size(),
+    this->encode_level_);
 
-  comp_buffer.resize(compress_size);
-  comp_buffer.shrink_to_fit();
-
-  point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
   compressed.compressed_data.resize(compress_size);
-  memcpy(&compressed.compressed_data[0], comp_buffer.data(), comp_buffer.size());
 
   compressed.width = raw.width;
   compressed.height = raw.height;

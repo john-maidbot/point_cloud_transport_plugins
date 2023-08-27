@@ -64,20 +64,15 @@ ZstdSubscriber::DecodeResult ZstdSubscriber::decodeTyped(
   auto const est_decomp_size =
     ZSTD_getDecompressedSize(&msg.compressed_data[0], msg.compressed_data.size());
 
-  std::string decomp_buffer{};
-  decomp_buffer.resize(est_decomp_size);
+  result->data.resize(est_decomp_size);
 
   size_t const decomp_size = ZSTD_decompress(
-    static_cast<void *>(decomp_buffer.data()),
+    static_cast<void *>(&result->data[0]),
     est_decomp_size,
     &msg.compressed_data[0],
     msg.compressed_data.size());
 
-  decomp_buffer.resize(decomp_size);
-  decomp_buffer.shrink_to_fit();
-
-  result->data.resize(decomp_buffer.size());
-  memcpy(&result->data[0], decomp_buffer.data(), decomp_buffer.size());
+  result->data.resize(decomp_size);
 
   result->width = msg.width;
   result->height = msg.height;
