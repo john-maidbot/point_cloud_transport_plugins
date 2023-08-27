@@ -5,7 +5,7 @@
     zstd_point_cloud_transport provides a plugin to point_cloud_transport for sending point clouds
     encoded with lib
   </description>
-  <author>Jakub Paplham</author>
+  <author>Alejandro Hernandez Cordero</author>
   <maintainer email="alejandro@openrobotics.org">Alejandro Hernandez Cordero</maintainer>
   <license>BSD</license>
 
