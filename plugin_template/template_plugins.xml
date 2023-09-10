@@ -1,0 +1,19 @@
+<library path="template_point_cloud_transport">
+    <class
+        name="point_cloud_transport/template_pub"
+        type="template_point_cloud_transport::TemplatePublisher"
+        base_class_type="point_cloud_transport::PublisherPlugin">
+        <description>
+            This plugin publishes a CustomMessage using the awesome power of turtles.
+        </description>
+    </class>
+
+    <class
+        name="point_cloud_transport/template_sub"
+        type="template_point_cloud_transport::TemplateSubscriber"
+        base_class_type="point_cloud_transport::SubscriberPlugin">
+        <description>
+            This plugin decompresses a CustomMessage topic, also using turtles.
+        </description>
+    </class>
+</library>

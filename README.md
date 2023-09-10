@@ -11,3 +11,5 @@ Currently provided are:
 - [zstd_point_cloud_transport](https://github.com/ros-perception/point_cloud_transport_plugins/tree/master/zstd_point_cloud_transport) - A library using ZSTD to compress the pointclouds.
 
 More transports can be added. Pull requests are welcome!
+
+If it is not clear how to write a custom transport plugin, please see the `plugin_template` directory. This provides a template as well as written instructions for writing a custom transport plugin.
