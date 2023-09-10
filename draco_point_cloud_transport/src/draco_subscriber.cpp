@@ -41,7 +41,7 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
-#include <point_cloud_transport/expected.hpp>
+#include <tl/expected.hpp>
 
 #include <draco_point_cloud_transport/draco_subscriber.hpp>
 
@@ -84,7 +84,7 @@ void DracoSubscriber::declareParameters()
 }
 
 //! Method for converting into sensor_msgs::msg::PointCloud2
-cras::expected<bool, std::string> convertDracoToPC2(
+tl::expected<bool, std::string> convertDracoToPC2(
   const draco::PointCloud & pc,
   const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed_PC2,
   sensor_msgs::msg::PointCloud2 & PC2)
@@ -104,7 +104,7 @@ cras::expected<bool, std::string> convertDracoToPC2(
 
     // check if attribute is valid
     if (!attribute->IsValid()) {
-      return cras::make_unexpected(
+      return tl::make_unexpected(
         std::string(
           "In point_cloud_transport::DracoToPC2, attribute of Draco pointcloud is not valid!"));
     }
@@ -144,7 +144,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
 
   // empty buffer
   if (compressed_data_size == 0) {
-    return cras::make_unexpected("Received compressed Draco message with zero length.");
+    return tl::make_unexpected("Received compressed Draco message with zero length.");
   }
 
   draco::DecoderBuffer decode_buffer;
@@ -177,7 +177,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
   // decode buffer into draco point cloud
   const auto res = decoder.DecodePointCloudFromBuffer(&decode_buffer);
   if (!res.ok()) {
-    return cras::make_unexpected(
+    return tl::make_unexpected(
       "Draco decoder returned code " + std::to_string(
         res.status().code()) + ": " + res.status().error_msg() + ".");
   }
@@ -187,7 +187,7 @@ DracoSubscriber::DecodeResult DracoSubscriber::decodeTyped(
   auto message = std::make_shared<sensor_msgs::msg::PointCloud2>();
   const auto convertRes = convertDracoToPC2(*decoded_pc, compressed, *message);
   if (!convertRes) {
-    return cras::make_unexpected(convertRes.error());
+    return tl::make_unexpected(convertRes.error());
   }
 
   return message;

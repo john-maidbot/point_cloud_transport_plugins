@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2023, Czech Technical University in Prague
- * Copyright (c) 2019, paplhjak
+ * Copyright (c) 2023, Open Source Robotics Foundation, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,24 +29,24 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DRACO_POINT_CLOUD_TRANSPORT__DRACO_PUBLISHER_HPP_
-#define DRACO_POINT_CLOUD_TRANSPORT__DRACO_PUBLISHER_HPP_
-
-#include <draco/point_cloud/point_cloud.h>
+#ifndef ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_PUBLISHER_HPP_
+#define ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_PUBLISHER_HPP_
 
 #include <memory>
 #include <string>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <point_cloud_transport/simple_publisher_plugin.hpp>
+#include <point_cloud_transport/point_cloud_transport.hpp>
 
+#include <point_cloud_transport/simple_publisher_plugin.hpp>
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 
-namespace draco_point_cloud_transport
+
+namespace zstd_point_cloud_transport
 {
 
-class DracoPublisher
+class ZstdPublisher
   : public point_cloud_transport::SimplePublisherPlugin<
     point_cloud_interfaces::msg::CompressedPointCloud2>
 {
@@ -56,41 +55,13 @@ public:
 
   void declareParameters(const std::string & base_topic) override;
 
-  std::string getDataType() const override
-  {
-    return "point_cloud_interfaces/msg/CompressedPointCloud2";
-  }
+  std::string getDataType() const override;
 
   TypedEncodeResult encodeTyped(const sensor_msgs::msg::PointCloud2 & raw) const override;
 
-  static void registerPositionField(const std::string & field);
-  static void registerColorField(const std::string & field);
-  static void registerNormalField(const std::string & field);
-
 private:
-  tl::expected<std::unique_ptr<draco::PointCloud>, std::string> convertPC2toDraco(
-    const sensor_msgs::msg::PointCloud2 & PC2, const std::string & topic, bool deduplicate,
-    bool expert_encoding) const;
-
-  class DracoPublisherConfig
-  {
-public:
-    int encode_speed = 7;
-    int decode_speed = 7;
-    int encode_method = 0;
-    bool deduplicate = true;
-    bool force_quantization = false;
-    int quantization_POSITION = 14;
-    int quantization_NORMAL = 14;
-    int quantization_COLOR = 14;
-    int quantization_TEX_COORD = 14;
-    int quantization_GENERIC = 14;
-    bool expert_quantization = false;
-    bool expert_attribute_types = false;
-  };
-
-  DracoPublisherConfig config_;
+  int encode_level_{7};
 };
-}  // namespace draco_point_cloud_transport
+}  // namespace zstd_point_cloud_transport
 
-#endif  // DRACO_POINT_CLOUD_TRANSPORT__DRACO_PUBLISHER_HPP_
+#endif  // ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_PUBLISHER_HPP_

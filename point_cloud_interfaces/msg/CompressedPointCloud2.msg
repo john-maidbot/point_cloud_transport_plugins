@@ -18,5 +18,5 @@ uint8[] compressed_data
 
 bool is_dense
 
-# type of encoding used (e.g. draco, zlib, etc...)
+# compression format used (e.g. draco, zlib, etc.)
 string format

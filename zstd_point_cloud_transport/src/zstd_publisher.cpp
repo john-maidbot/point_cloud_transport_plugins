@@ -29,22 +29,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <zstd.h>
+
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <zlib_point_cloud_transport/zlib_publisher.hpp>
+#include <zstd_point_cloud_transport/zstd_publisher.hpp>
 
-#include "zlib_cpp.hpp"
-
-namespace zlib_point_cloud_transport
+namespace zstd_point_cloud_transport
 {
 
-void ZlibPublisher::declareParameters(const std::string & base_topic)
+void ZstdPublisher::declareParameters(const std::string & base_topic)
 {
   rcl_interfaces::msg::ParameterDescriptor encode_level_paramDescriptor;
-  encode_level_paramDescriptor.name = "encode_level";
+  encode_level_paramDescriptor.name = "zstd_encode_level";
   encode_level_paramDescriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
   encode_level_paramDescriptor.description =
     "0 = minimum compression, but the maximum compression 10";
@@ -64,7 +64,7 @@ void ZlibPublisher::declareParameters(const std::string & base_topic)
       auto result = rcl_interfaces::msg::SetParametersResult();
       result.successful = true;
       for (auto parameter : parameters) {
-        if (parameter.get_name() == "encode_level") {
+        if (parameter.get_name() == "zstd_encode_level") {
           this->encode_level_ = static_cast<int>(parameter.as_int());
           if (!(this->encode_level_ >= -1 && this->encode_level_ <= 9)) {
             RCLCPP_ERROR_STREAM(
@@ -78,32 +78,33 @@ void ZlibPublisher::declareParameters(const std::string & base_topic)
   setParamCallback(param_change_callback);
 }
 
-std::string ZlibPublisher::getTransportName() const
+std::string ZstdPublisher::getDataType() const
 {
-  return "zlib";
+  return "point_cloud_interfaces/msg/CompressedPointCloud2";
 }
 
-ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
+std::string ZstdPublisher::getTransportName() const
+{
+  return "zstd";
+}
+
+ZstdPublisher::TypedEncodeResult ZstdPublisher::encodeTyped(
   const sensor_msgs::msg::PointCloud2 & raw) const
 {
-  zlib::Comp comp(static_cast<zlib::Comp::Level>(this->encode_level_), true);
-  auto g_compressed_data =
-    comp.Process(&raw.data[0], raw.data.size(), true);
+  size_t est_compress_size = ZSTD_compressBound(raw.data.size());
 
   point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
+  compressed.compressed_data.resize(est_compress_size);
 
-  size_t total_size = 0;
-  for (const auto & data : g_compressed_data) {
-    total_size += data->size;
-  }
+  auto compress_size =
+    ZSTD_compress(
+    static_cast<void *>(&compressed.compressed_data[0]),
+    est_compress_size,
+    &raw.data[0],
+    raw.data.size(),
+    this->encode_level_);
 
-  compressed.compressed_data.resize(total_size);
-
-  size_t index = 0;
-  for (const auto & data : g_compressed_data) {
-    memcpy(&compressed.compressed_data[index], data->ptr, data->size);
-    index += data->size;
-  }
+  compressed.compressed_data.resize(compress_size);
 
   compressed.width = raw.width;
   compressed.height = raw.height;
@@ -115,9 +116,7 @@ ZlibPublisher::TypedEncodeResult ZlibPublisher::encodeTyped(
   compressed.fields = raw.fields;
   compressed.format = getTransportName();
 
-  compressed.format = getTransportName();
-
   return compressed;
 }
 
-}  // namespace zlib_point_cloud_transport
+}  // namespace zstd_point_cloud_transport

@@ -1,6 +1,6 @@
 <package format="3">
   <name>point_cloud_transport_plugins</name>
-  <version>1.0.5</version>
+  <version>0.0.0</version>
   <description>Metapackage with common point_cloud_transport plugins</description>
   <author>Jakub Paplham</author>
   <maintainer email="peckama2@fel.cvut.cz">Martin Pecka</maintainer>
@@ -15,6 +15,7 @@
   <exec_depend>draco_point_cloud_transport</exec_depend>
   <exec_depend>point_cloud_interfaces</exec_depend>
   <exec_depend>zlib_point_cloud_transport</exec_depend>
+  <exec_depend>zstd_point_cloud_transport</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
