@@ -35,7 +35,7 @@
 
 #include <string>
 
-#include <point_cloud_interfaces/msg/template_message.hpp>
+#include <point_cloud_interfaces/msg/custom_message.hpp>
 
 #include <point_cloud_transport/simple_subscriber_plugin.hpp>
 #include <point_cloud_transport/transport_hints.hpp>

@@ -14,12 +14,12 @@ For demonstrative purposes, the plugin which we will be going through in this tu
 
 ## 2) Setup your plugin package
 
-Each transport plugin is its own ROS2 package. To create your own plugin package, let's clone the <point_cloud_transport_plugins> repo and make a copy of `plugin_template`:
+Each transport plugin is its own ROS2 package. To create your own plugin package, let's clone the `point_cloud_transport_plugins` repo and make a copy of `plugin_template`:
 
 ```bash
 $ cd /point_cloud_transport_ws/src
 $ git clone https://github.com/ros-perception/point_cloud_transport_plugins.git
-$ cp point_cloud_transport_plugins/plugin_template point_cloud_transport_plugins/goblin_point_cloud_transport
+$ cp -r point_cloud_transport_plugins/plugin_template point_cloud_transport_plugins/goblin_point_cloud_transport
 ```
 
 ## 3) Time for Pattern Matching
@@ -30,9 +30,10 @@ This template uses the plugin name **template**, which is referenced repeatedly 
 1. TEMPLATE -> GOBLIN
 2. Template -> Goblin
 3. template_ -> goblin_
+4. "template" -> "goblin"
 ```
 
-You can also rename the files within the `goblin_point_cloud_transport` folder to match this convention. i.e.
+You can also rename the folders and files within the `goblin_point_cloud_transport` folder to match this convention. i.e.
 ```
 1. *template_plugins.xml*
 2. *src/template_publisher.cpp*
@@ -59,6 +60,7 @@ Once you have defined your **GobMessage**, go through the following files (do no
 3. *CMakeLists.txt*
 4. *goblin_publisher.cpp*
 5. *goblin_subscriber.cpp*
+6. *goblin_plugins.xml*
 
 and use the find and replace tool to replace the original name of **CustomMessage** with **GobMessage**.
 
@@ -90,7 +92,7 @@ Then fill out the package.xml. If you are unfamiliar with how to do this, see he
 
 At this point your plugin should be able to succesfully compile, build, and be recognized by [point_cloud_transport](https://github.com/ros-perception/point_cloud_transport). 
 
-First, delete the COLCON_IGNORE file in <globlin_point_cloud_transport> (otherwise your package will be ignored).
+First, delete the COLCON_IGNORE file in `globlin_point_cloud_transport` (otherwise your package will be ignored).
 
 Build the plugin.
 
@@ -102,7 +104,20 @@ $ colcon build --merge-install --event-handlers console_direct+
 Then check all plugins currently available on your system by running the command:
 
 ``` bash
+source install/setup.bash
 ros2 run point_cloud_transport list_transports
+```
+
+The output should look something like this.
+
+```
+"point_cloud_transport/goblin"
+ - Provided by package: goblin_point_cloud_transport
+ - Publisher: 
+            This plugin publishes a CompressedPointCloud2 using the awesome power of turtles.
+        
+ - Subscriber: 
+            This plugin decompresses a CompressedPointCloud2 topic, also using turtles.
 ```
 
 Do you see your plugin? If not, please look back through these instructions and through the plugin code to verify you replaced all the instances of **template** with **goblin** and that the CMakeLists.txt and package.xml files are up to date w.r.t. file naming and any dependencies you have added.

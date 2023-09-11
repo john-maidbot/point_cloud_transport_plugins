@@ -40,7 +40,7 @@
 #include <point_cloud_transport/point_cloud_transport.hpp>
 
 #include <point_cloud_transport/simple_publisher_plugin.hpp>
-#include <point_cloud_interfaces/msg/template_message.hpp>
+#include <point_cloud_interfaces/msg/custom_message.hpp>
 
 
 namespace template_point_cloud_transport
