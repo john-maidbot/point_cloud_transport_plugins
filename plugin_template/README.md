@@ -42,7 +42,7 @@ You can also rename the folders and files within the `goblin_point_cloud_transpo
 5. *include/template_point_cloud_transport/template_subscriber.hpp*
 ```
 
-Be sure to double checkt that the CMakeLists.txt file points the expected files and that all the `#include`'s are still in order.
+Be sure to double check that the `CMakeLists.txt` file points the expected files and that all the `#include`'s are still in order. Otherwise you will run into issues during the build phase.
 
 ## 4) Custom Message (Optional)
 
