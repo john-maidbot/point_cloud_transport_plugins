@@ -1,9 +1,9 @@
-# \<TEMPLATEPLUGIN POINT CLOUD TRANSPORT>
+# \<TEMPLATE POINT CLOUD TRANSPORT>
 **ROS2 v0.1.**
 
-This repository serves as a tutorial on how to create a custom plugin for <point_cloud_transport>. It assumes that you already have a working <point_cloud_transport> installation.
+This repository serves as a tutorial on how to create a custom plugin for `point_cloud_transport`. It assumes that you already have a working `point_cloud_transport` installation.
 
-This is the spiritual successor to: https://github.com/paplhjak/templateplugin_point_cloud_transport and is heavily derived from it. In the ROS2 port, we opted to migrate the plugin tutorial but move it right next to the plugin code to avoid the instructions going stale. It is worth noting that there is nothing stopping the plugin you write from existing in a separate package or repo from <point_cloud_transport_plugins>.
+This is the spiritual successor to: https://github.com/paplhjak/templateplugin_point_cloud_transport and is heavily derived from it. In the ROS2 port, we opted to migrate the plugin tutorial but move it right next to the plugin code to avoid the instructions going stale. It is worth noting that there is nothing stopping the plugin you write from existing in a separate package or repo from `point_cloud_transport_plugins`.
 
 ## 1) Plugin naming
 Each plugin needs its own name. It should be short and descriptive.
@@ -24,7 +24,7 @@ $ cp point_cloud_transport_plugins/plugin_template point_cloud_transport_plugins
 
 ## 3) Time for Pattern Matching
 
-This template uses the plugin name **template**, which is referenced repeatedly in the source files. The files and classes implemented within the plugin follow a strict naming convention, inheriting from the name of the plugin. To follow the convention, we will replace each instance of **template** with the name of our new plugin. This can be done quickly using a case-sensitive find and replace tool. Most editors can invoke this tool. Once you make sure that the find is case-sensitive, go through the files in *ONLY* the <goblin_point_cloud_transport> folder, and make the following replacements:
+This template uses the plugin name **template**, which is referenced repeatedly in the source files. The files and classes implemented within the plugin follow a strict naming convention, inheriting from the name of the plugin. To follow the convention, we will replace each instance of **template** with the name of our new plugin. This can be done quickly using a case-sensitive find and replace tool. Most editors can invoke this tool. Once you make sure that the find is case-sensitive, go through the files in *ONLY* the `goblin_point_cloud_transport` folder, and make the following replacements:
 
 ```
 1. TEMPLATE -> GOBLIN
@@ -32,7 +32,7 @@ This template uses the plugin name **template**, which is referenced repeatedly 
 3. template_ -> goblin_
 ```
 
-You can also rename the files within the <goblin_point_cloud_transport> folder to match this convention. i.e.
+You can also rename the files within the `goblin_point_cloud_transport` folder to match this convention. i.e.
 ```
 1. *template_plugins.xml*
 2. *src/template_publisher.cpp*
@@ -45,7 +45,7 @@ Be sure to double checkt that the CMakeLists.txt file points the expected files 
 
 ## 4) Custom Message (Optional)
 
-Although making your own compressed message type is an option, please check <point_cloud_interfaces> first to see if any existing compressed PointCloud2 message types already meet your needs. If they do, replace any instance of `CustomMessage` in the template package with that message's name, e.g. for `CompressedPointCloud2` (do not forget to check the #include's)
+Although making your own compressed message type is an option, please check `point_cloud_interfaces` first to see if any existing compressed PointCloud2 message types already meet your needs. If they do, replace any instance of `CustomMessage` in the template package with that message's name, e.g. for `CompressedPointCloud2` (do not forget to check the #include's)
 
 ```
 CustomMessage -> CompressedPointCloud2
@@ -88,7 +88,7 @@ Then fill out the package.xml. If you are unfamiliar with how to do this, see he
 
 ## 8) Build time!
 
-At this point your plugin should be able to succesfully compile, build, and be recognized by [<point_cloud_transport>](https://github.com/ros-perception/point_cloud_transport). 
+At this point your plugin should be able to succesfully compile, build, and be recognized by [point_cloud_transport](https://github.com/ros-perception/point_cloud_transport). 
 
 First, delete the COLCON_IGNORE file in <globlin_point_cloud_transport> (otherwise your package will be ignored).
 
