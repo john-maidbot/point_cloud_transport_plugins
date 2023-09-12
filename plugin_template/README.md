@@ -78,7 +78,7 @@ The encodeTyped function takes in a `sensor_msgs::msg::PointCloud2` message, com
 
 Implementation of the subscriber can be located in *src/goblin_subscriber.cpp* within function *decodeTyped*.
 
-The *decodeTyped* function takes in our plugin's message format, decompresses the data and converts it into a sensor_msgs::msg::PointCloud2. Once the point cloud message is ready, it is passed on to the subscriber callback. Just like in the publisher plugin, the subscriber plugin is only concerned with decoding and conversion. It does not actually call the subscriber callback.
+The *decodeTyped* function takes in our plugin's message format, decompresses the data and converts it into a `sensor_msgs::msg::PointCloud2`. Once the point cloud message is ready, it is passed on to the subscriber callback. Just like in the publisher plugin, the subscriber plugin is only concerned with decoding and conversion. It does not actually call the subscriber callback.
 
 ## 7) Description of Plugin
 
