@@ -3,7 +3,7 @@
 
 This repository serves as a tutorial on how to create a custom plugin for `point_cloud_transport`. It assumes that you already have a working `point_cloud_transport` installation.
 
-This is the spiritual successor to: https://github.com/paplhjak/templateplugin_point_cloud_transport and is heavily derived from it. In the ROS2 port, we opted to migrate the plugin tutorial but move it right next to the plugin code to avoid the instructions going stale. It is worth noting that there is nothing stopping the plugin you write from existing in a separate package or repo from `point_cloud_transport_plugins`.
+This is the spiritual successor to: https://github.com/paplhjak/templateplugin_point_cloud_transport and is heavily derived from it. In the ROS2 port, we opted to migrate the plugin tutorial but move it right next to the plugin code to avoid the instructions going stale. It is worth noting that there is nothing stopping the plugin you write from existing in a separate package or repository from `point_cloud_transport_plugins`.
 
 ## 1) Plugin naming
 Each plugin needs its own name. It should be short and descriptive.
