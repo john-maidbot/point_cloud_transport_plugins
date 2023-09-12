@@ -120,7 +120,7 @@ The output should look something like this.
             This plugin decompresses a CompressedPointCloud2 topic, also using turtles.
 ```
 
-Do you see your plugin? If not, please look back through these instructions and through the plugin code to verify you replaced all the instances of **template** with **goblin** and that the CMakeLists.txt and package.xml files are up to date w.r.t. file naming and any dependencies you have added.
+Do you see your plugin? If not, please look back through these instructions and through the plugin code to verify you replaced all the instances of **template** with **goblin** and that the `CMakeLists.txt` and `package.xm`l files are up to date w.r.t. file naming and any dependencies you have added.
 
 Support
 =======
