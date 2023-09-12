@@ -84,7 +84,7 @@ The *decodeTyped* function takes in our plugin's message format, decompresses th
 
 Before we distribute our plugin, it is important that we fill in all the necessary information about it. 
 
-In goblin_plugins.xml, make sure to provide a brief description of both the publisher and the subscriber our plugin uses.
+In `goblin_plugins.xml`, make sure to provide a brief description of both the publisher and the subscriber our plugin uses.
 
 Then fill out the package.xml. If you are unfamiliar with how to do this, see here please: https://docs.ros.org/en/rolling/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html#customize-package-xml.
 
