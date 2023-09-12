@@ -34,6 +34,7 @@ This template uses the plugin name **template**, which is referenced repeatedly 
 ```
 
 You can also rename the folders and files within the `goblin_point_cloud_transport` folder to match this convention. i.e.
+
 ```
 1. *template_plugins.xml*
 2. *src/template_publisher.cpp*
@@ -120,7 +121,7 @@ The output should look something like this.
             This plugin decompresses a CompressedPointCloud2 topic, also using turtles.
 ```
 
-Do you see your plugin? If not, please look back through these instructions and through the plugin code to verify you replaced all the instances of **template** with **goblin** and that the `CMakeLists.txt` and `package.xm`l files are up to date w.r.t. file naming and any dependencies you have added.
+Do you see your plugin? If not, please look back through these instructions and through the plugin code to verify you replaced all the instances of **template** with **goblin** and that the `CMakeLists.txt` and `package.xml` files are up to date w.r.t. file naming and any dependencies you have added.
 
 Support
 =======
