@@ -125,7 +125,7 @@ Do you see your plugin? If not, please look back through these instructions and 
 Support
 =======
 
-If you have found an error in these instructions, please file an issue at: [https://github.com/ros-perception/point_cloud_transport/issues]()
+If you have found an error in these instructions, please [file an issue](https://github.com/ros-perception/point_cloud_transport/issues).
 
 Patches are encouraged, and may be submitted by forking this project and
 submitting a pull request through GitHub. Any help is further development of the project is much appreciated.
