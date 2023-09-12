@@ -1,0 +1,31 @@
+<package format="3">
+  <name>template_point_cloud_transport</name>
+  <version>0.0.0</version>
+  <description>
+    template_point_cloud_transport is not a real transport plugin. It is just a template to reference when
+    making new point_cloud_transport plugins.
+  </description>
+  <author>YourNameHere</author>
+  <maintainer email="your_email@hello.world">YourNameHere</maintainer>
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/rolling/point_cloud_transport_plugins</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>pluginlib</build_depend>
+
+  <exec_depend>pluginlib</exec_depend>
+
+  <!-- TODO (YourNameHere): You might need more dependencies-->
+  <depend>point_cloud_interfaces</depend>
+  <depend>point_cloud_transport</depend>
+  <depend>rclcpp</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
