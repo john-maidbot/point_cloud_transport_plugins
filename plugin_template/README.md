@@ -72,7 +72,7 @@ CustomMessage -> GobMessage
 
 Implementation of the publisher can be located in *src/goblin_publisher.cpp* within function *encodeTyped*.
 
-The encodeTyped function takes in a sensor_msgs::msg::PointCloud2 message, compresses it and converts the compressed data into our plugin's message format (see Step 4). You might have noticed that the plugin is only concerned with the compression / conversion process and does not call publish. This was done intentionally to separate concerns between plugin implementation and core point_cloud_transport functionality.
+The encodeTyped function takes in a `sensor_msgs::msg::PointCloud2` message, compresses it and converts the compressed data into our plugin's message format (see Step 4). You might have noticed that the plugin is only concerned with the compression / conversion process and does not call publish. This was done intentionally to separate concerns between plugin implementation and core `point_cloud_transport` functionality.
 
 ## 6) Implementing Subscriber Functionality
 
