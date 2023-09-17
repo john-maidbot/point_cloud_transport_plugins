@@ -30,8 +30,10 @@
  */
 
 #include <string>
+#include <sstream>
 
 #include <pcl-1.12/pcl/compression/organized_pointcloud_compression.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
@@ -46,12 +48,29 @@ namespace organized_point_cloud_transport
     // params for planar projection
     projector_info_.height = 720;
     projector_info_.width = 1080;
-    projector_info.k[2] = static_cast<float>(projector_info_.width) / 2.0;
-    projector_info.k[5] = static_cast<float>(projector_info_.height) / 2.0;
-    projector_info.k[0] = projector_info_.width;
-    projector_info.k[4] = projector_info_.width;
+    projector_info_.k[2] = static_cast<float>(projector_info_.width) / 2.0;
+    projector_info_.k[5] = static_cast<float>(projector_info_.height) / 2.0;
+    projector_info_.k[0] = projector_info_.width;
+    projector_info_.k[4] = projector_info_.width;
     // compression params
     png_level_ = 3;
+
+    // if this is the first time receieving a message, setup the tf2 machinery
+    if (!tf_buffer_)
+    {
+      auto node_ptr = getNode();
+      if(node_ptr == nullptr){
+        RCLCPP_ERROR_STREAM(getLogger(), "Node pointer is null!");
+      }
+      tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_ptr->get_clock());
+      // disable intra process communication in case someone is using this in a composition
+      rclcpp::SubscriptionOptions tf2_subscription_options;
+      tf2_subscription_options.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable;
+      tf_listener_ = std::make_shared<tf2_ros::TransformListener>(
+          *tf_buffer_, node_ptr, true, tf2_ros::DynamicListenerQoS(), tf2_ros::StaticListenerQoS(),
+          tf2_subscription_options, tf2_subscription_options);
+    }
+
   }
 
   std::string OrganizedPublisher::getTransportName() const
@@ -62,11 +81,11 @@ namespace organized_point_cloud_transport
   OrganizedPublisher::TypedEncodeResult OrganizedPublisher::encodeTyped(
       const sensor_msgs::msg::PointCloud2 &raw) const
   {
-    point_cloud_interfaces::msg::OrganizedPointCloud compressed;
+    point_cloud_interfaces::msg::CompressedPointCloud2 compressed;
 
     if (raw.is_dense)
     {
-      handleOrganized(raw, compressed.compressed_data);
+      encodeOrganizedPointCloud2(raw, compressed.compressed_data);
       compressed.header = raw.header;
       compressed.height = raw.height;
       compressed.width = raw.width;
@@ -77,7 +96,7 @@ namespace organized_point_cloud_transport
     {
       sensor_msgs::msg::PointCloud2 organized;
       organizePointCloud2(raw, organized);
-      handleOrganized(organized, compressed.compressed_data);
+      encodeOrganizedPointCloud2(organized, compressed.compressed_data);
       // Populate the msg metadata
       compressed.header = organized.header;
       compressed.height = organized.height;
@@ -99,13 +118,14 @@ namespace organized_point_cloud_transport
 
     // PCL has a nice solution for organized pointclouds, so let's not reinvent the wheel
     pcl::PCLPointCloud2 pcl_pc2;
-    pcl_conversions::toPCL(*input, pcl_pc2);
-    std::ostream compressed_data_stream;
+    pcl_conversions::toPCL(cloud, pcl_pc2);
+    std::ostringstream compressed_data_stream;
     if (has_rgb)
     {
       auto temp_cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
       pcl::fromPCLPointCloud2(pcl_pc2, *temp_cloud);
-      OrganizedPointCloudCompression<PointXYZRGB>::encodePointCloud(temp_cloud,
+      pcl::io::OrganizedPointCloudCompression<pcl::PointXYZRGB> encoder;
+      encoder.encodePointCloud(temp_cloud,
                                                                     compressed_data_stream,
                                                                     true,
                                                                     false,
@@ -116,33 +136,22 @@ namespace organized_point_cloud_transport
     {
       auto temp_cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
       pcl::fromPCLPointCloud2(pcl_pc2, *temp_cloud);
-      OrganizedPointCloudCompression<PointXYZ>::encodePointCloud(temp_cloud,
+      pcl::io::OrganizedPointCloudCompression<pcl::PointXYZ> encoder;
+      encoder.encodePointCloud(temp_cloud,
                                                                  compressed_data_stream,
                                                                  false,
                                                                  false,
                                                                  false,
                                                                  png_level_);
     }
-    compressed_data = std::vector<uint8_t>(std::istreambuf_iterator<char>(compressed_data_stream), {});
+    compressed_data = std::vector<uint8_t>(compressed_data_stream.str().begin(), compressed_data_stream.str().end());
   }
 
   void OrganizedPublisher::organizePointCloud2(const sensor_msgs::msg::PointCloud2 &unorganized_cloud, sensor_msgs::msg::PointCloud2 &organized_cloud) const
   {
-    // if this is the first time receieving a message, setup the tf2 machinery
-    if (!tf2_buffer_)
-    {
-      tf_buffer_ = std::make_shared<tf2_ros::Buffer>(getClock());
-      // disable intra process communication in case someone is using this in a composition
-      rclcpp::SubscriptionOptions tf2_subscription_options;
-      tf2_subscription_options.use_intra_process_comm = rclcpp::IntraProcessSetting::Disable;
-      tf_listener_ = std::make_shared<tf2_ros::TransformListener>(
-          *tf_buffer_, this, true, tf2_ros::DynamicListenerQoS(), tf2_ros::StaticListenerQoS(),
-          tf2_subscription_options, tf2_subscription_options);
-    }
-
     // get the transform between the frame_id of the pointcloud and the frame_id of the view point
     geometry_msgs::msg::TransformStamped transform_stamped;
-    if (raw.header.frame_id == projector_info_.header.frame_id)
+    if (unorganized_cloud.header.frame_id == projector_info_.header.frame_id)
     {
       transform_stamped.transform.rotation.w = 1;
     }
@@ -152,11 +161,11 @@ namespace organized_point_cloud_transport
       {
         // impatiently lookup the transform
         transform_stamped = tf_buffer_->lookupTransform(
-            projector_info_.header.frame_id, raw.header.frame_id, raw.header.stamp, tf2::TimePointZero());
+            projector_info_.header.frame_id, unorganized_cloud.header.frame_id, unorganized_cloud.header.stamp, rclcpp::Duration::from_seconds(0.1));
       }
       catch (tf2::TransformException &ex)
       {
-        RCLCPP_ERROR_STREAM(getLogger(), "Failed to lookup transform from " << projector_info_.header.frame_id << " to " << raw.header.frame_id << "!");
+        RCLCPP_ERROR_STREAM(getLogger(), "Failed to lookup transform from " << projector_info_.header.frame_id << " to " << unorganized_cloud.header.frame_id << "!");
         RCLCPP_ERROR_STREAM(getLogger(), "Using identity transform instead!");
       }
     }
@@ -164,8 +173,8 @@ namespace organized_point_cloud_transport
     // Check if the cloud has rgb data
     const auto predicate = [](const auto &field)
     { return field.name == "rgb"; };
-    const auto result = std::find_if(cloud.fields.cbegin(), cloud.fields.cend(), predicate);
-    const bool has_rgb = result != cloud.fields.cend();
+    const auto result = std::find_if(unorganized_cloud.fields.cbegin(), unorganized_cloud.fields.cend(), predicate);
+    const bool has_rgb = result != unorganized_cloud.fields.cend();
 
     // initialize the pointcloud accordingly
     organized_cloud.is_dense = true;
@@ -175,7 +184,7 @@ namespace organized_point_cloud_transport
     organized_cloud.width = projector_info_.width;
     organized_cloud.is_bigendian = unorganized_cloud.is_bigendian;
 
-    sensor_msgs::PointCloud2Modifier modifier(point_cloud_msg);
+    sensor_msgs::PointCloud2Modifier modifier(organized_cloud);
     if (has_rgb)
     {
       modifier.setPointCloud2FieldsByString(2, "xyz", "rgb"); // Define fields as XYZ and RGB
@@ -190,36 +199,36 @@ namespace organized_point_cloud_transport
     sensor_msgs::PointCloud2ConstIterator<float> u_iter_x(unorganized_cloud, "x");
     sensor_msgs::PointCloud2ConstIterator<float> u_iter_y(unorganized_cloud, "y");
     sensor_msgs::PointCloud2ConstIterator<float> u_iter_z(unorganized_cloud, "z");
-    sensor_msgs::PointCloud2Iterator<uint8_t> u_iter_r(unorganized_cloud, "r");
-    sensor_msgs::PointCloud2Iterator<uint8_t> u_iter_g(unorganized_cloud, "g");
-    sensor_msgs::PointCloud2Iterator<uint8_t> u_iter_b(unorganized_cloud, "b");
+    sensor_msgs::PointCloud2ConstIterator<uint8_t> u_iter_r(unorganized_cloud, "r");
+    sensor_msgs::PointCloud2ConstIterator<uint8_t> u_iter_g(unorganized_cloud, "g");
+    sensor_msgs::PointCloud2ConstIterator<uint8_t> u_iter_b(unorganized_cloud, "b");
 
     // initialize the point objects for the transform
     geometry_msgs::msg::PointStamped old_point, new_point;
 
-    for (; u_iter_x != iter.end(); ++u_iter_x, ++u_iter_y, ++u_iter_z, ++u_iter_r, ++u_iter_g, ++u_iter_b)
+    for (; u_iter_x != u_iter_x.end(); ++u_iter_x, ++u_iter_y, ++u_iter_z, ++u_iter_r, ++u_iter_g, ++u_iter_b)
     {
-      old_point.x = *u_iter_x;
-      old_point.y = *u_iter_y;
-      old_point.z = *u_iter_z;
+      old_point.point.x = *u_iter_x;
+      old_point.point.y = *u_iter_y;
+      old_point.point.z = *u_iter_z;
 
       // skip points that are not finite
-      if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z))
+      if (!std::isfinite(old_point.point.x) || !std::isfinite(old_point.point.y) || !std::isfinite(old_point.point.z))
       {
         continue;
       }
 
       // transform the point into the view point frame
-      tf2::doTransform(old_point, new_point, transform);
+      tf2::doTransform(old_point, new_point, transform_stamped);
 
-      if (z <= 0)
+      if (new_point.point.z <= 0)
       {
         // the imaginary camera doesnt see this point
         continue;
       }
 
-      const int col = new_point.x / new_point.z * projector_info_.k[0] + projector_info_.k[2];
-      const int row = new_point.y / new_point.z * projector_info_.k[4] + projector_info_.k[5];
+      const int col = new_point.point.x / new_point.point.z * projector_info_.k[0] + projector_info_.k[2];
+      const int row = new_point.point.y / new_point.point.z * projector_info_.k[4] + projector_info_.k[5];
 
       if (col < 0 || row < 0 || col >= projector_info_.width || row >= projector_info_.height)
       {
@@ -229,9 +238,12 @@ namespace organized_point_cloud_transport
 
       // get index into organized pointcloud
       const int index = row * organized_cloud.row_step + col * organized_cloud.point_step;
+
       // get the current z coordinate of this cell in the organized pointcloud
-      float &cell_z_value = organized_cloud[index + 2];
-      if (cell_z_value < z)
+      // reinterprety the uint8_t memory as float
+      float* z_ptr = reinterpret_cast<float*>(&organized_cloud.data[index + 2*4]);
+      
+      if (*z_ptr < new_point.point.z)
       {
         // this point is further than the one already in the image at this pixel
         continue;
@@ -240,18 +252,19 @@ namespace organized_point_cloud_transport
       if (has_rgb)
       {
         // copy the xyz and rgb values
-        organized_cloud[index + 0] = x;
-        organized_cloud[index + 1] = y;
-        cell_z_value = z;
-        organized_cloud[index + 3] = *u_iter_r;
-        organized_cloud[index + 4] = *u_iter_g;
-        organized_cloud[index + 5] = *u_iter_b;
+        *reinterpret_cast<float*>(&organized_cloud.data[index + 0*4]) = new_point.point.x;
+        *reinterpret_cast<float*>(&organized_cloud.data[index + 1*4]) = new_point.point.y;
+        *z_ptr = new_point.point.z;
+        // TODO (john-maidbot): This might be wrong
+        organized_cloud.data[index + 3*4 + 1] = *u_iter_r;
+        organized_cloud.data[index + 3*4 + 2] = *u_iter_g;
+        organized_cloud.data[index + 3*4 + 3] = *u_iter_b;
       }
       else
       {
-        organized_cloud[index + 0] = x;
-        organized_cloud[index + 1] = y;
-        cell_z_value = z;
+        *reinterpret_cast<float*>(&organized_cloud.data[index + 0*4]) = new_point.point.x;
+        *reinterpret_cast<float*>(&organized_cloud.data[index + 1*4]) = new_point.point.y;
+        *z_ptr = new_point.point.z;
       }
     }
   }

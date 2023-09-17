@@ -5,25 +5,25 @@ set(CMAKE_CXX_STANDARD 17)
 project(organized_point_cloud_transport)
 
 find_package(ament_cmake REQUIRED)
-find_package(libpcl-common REQUIRED)
-find_package(libpcl-io REQUIRED)
 find_package(pcl_conversions REQUIRED)
+find_package(pcl_ros REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(point_cloud_interfaces REQUIRED)
 find_package(point_cloud_transport REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
 set(dependencies
-  libpcl-common
-  libpcl-io
   pcl_conversions
+  pcl_ros
   pluginlib
   point_cloud_interfaces
   point_cloud_transport
   rclcpp
   sensor_msgs
+  tf2_geometry_msgs
   tf2_ros
 )
 

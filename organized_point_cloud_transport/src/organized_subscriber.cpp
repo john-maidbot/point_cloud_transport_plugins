@@ -30,8 +30,10 @@
  */
 
 #include <string>
+#include <sstream>
 
 #include <pcl-1.12/pcl/compression/organized_pointcloud_compression.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
@@ -49,7 +51,7 @@ std::string OrganizedSubscriber::getTransportName() const
 }
 
 OrganizedSubscriber::DecodeResult OrganizedSubscriber::decodeTyped(
-  const point_cloud_interfaces::msg::OrganizedPointCloud & msg) const
+  const point_cloud_interfaces::msg::CompressedPointCloud2 & msg) const
 {
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
@@ -59,16 +61,23 @@ OrganizedSubscriber::DecodeResult OrganizedSubscriber::decodeTyped(
   const bool has_rgb = (field_result != msg.fields.cend());
 
   // decompress the cloud
+  std::istringstream stream(reinterpret_cast<const char*>(msg.compressed_data.data()));
   if(has_rgb){
     auto temp_cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
-    OrganizedPointCloudCompression<PointXYZRGB>::decodePointCloud (msg.compessed_data, temp_cloud, false);
-    pcl_conversions::moveFromPCL(*temp_cloud, *result);
+    pcl::io::OrganizedPointCloudCompression<pcl::PointXYZRGB> decoder;
+    decoder.decodePointCloud (stream, temp_cloud, false);
+    pcl::PCLPointCloud2::Ptr temp_cloud_pcl2 = pcl::make_shared<pcl::PCLPointCloud2>();
+    pcl::toPCLPointCloud2(*temp_cloud, *temp_cloud_pcl2);
+    pcl_conversions::moveFromPCL(*temp_cloud_pcl2, *result);
   }else{
     auto temp_cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
-    OrganizedPointCloudCompression<PointXYZ>::encodePointCloud (msg.compessed_data, temp_cloud, false);
-    pcl_conversions::moveFromPCL(*temp_cloud, *result);
+    pcl::io::OrganizedPointCloudCompression<pcl::PointXYZ> decoder;
+    decoder.decodePointCloud (stream, temp_cloud, false);
+    pcl::PCLPointCloud2::Ptr temp_cloud_pcl2 = pcl::make_shared<pcl::PCLPointCloud2>();
+    pcl::toPCLPointCloud2(*temp_cloud, *temp_cloud_pcl2);
+    pcl_conversions::moveFromPCL(*temp_cloud_pcl2, *result);
   }
-  result->header = msg->header;
+  result->header = msg.header;
 
   return result;
 }

@@ -37,7 +37,7 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <point_cloud_interfaces/msg/organized_point_cloud.hpp>
+#include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
 #include <point_cloud_transport/simple_subscriber_plugin.hpp>
 #include <point_cloud_transport/transport_hints.hpp>
 
@@ -46,19 +46,19 @@ namespace organized_point_cloud_transport
 
 class OrganizedSubscriber
   : public point_cloud_transport::SimpleSubscriberPlugin<
-    point_cloud_interfaces::msg::OrganizedPointCloud>
+    point_cloud_interfaces::msg::CompressedPointCloud2>
 {
 public:
   std::string getTransportName() const override;
 
   void declareParameters() override;
 
-  DecodeResult decodeTyped(const point_cloud_interfaces::msg::OrganizedPointCloud & compressed)
+  DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
   const override;
 
   std::string getDataType() const override
   {
-    return "point_cloud_interfaces/msg/OrganizedPointCloud";
+    return "point_cloud_interfaces/msg/CompressedPointCloud2";
   }
 
 };
