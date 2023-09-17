@@ -50,8 +50,9 @@ namespace organized_point_cloud_transport
     projector_info_.width = 1080;
     projector_info_.k[2] = static_cast<float>(projector_info_.width) / 2.0;
     projector_info_.k[5] = static_cast<float>(projector_info_.height) / 2.0;
-    projector_info_.k[0] = projector_info_.width;
-    projector_info_.k[4] = projector_info_.width;
+    const float fov = M_PI_2;
+    projector_info_.k[0] = projector_info_.width / (2 * std::tan(fov / 2.0));
+    projector_info_.k[4] = projector_info_.height / (2 * std::tan(fov / 2.0));
     // compression params
     png_level_ = 3;
 
@@ -59,7 +60,8 @@ namespace organized_point_cloud_transport
     if (!tf_buffer_)
     {
       auto node_ptr = getNode();
-      if(node_ptr == nullptr){
+      if (node_ptr == nullptr)
+      {
         RCLCPP_ERROR_STREAM(getLogger(), "Node pointer is null!");
       }
       tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_ptr->get_clock());
@@ -70,7 +72,6 @@ namespace organized_point_cloud_transport
           *tf_buffer_, node_ptr, true, tf2_ros::DynamicListenerQoS(), tf2_ros::StaticListenerQoS(),
           tf2_subscription_options, tf2_subscription_options);
     }
-
   }
 
   std::string OrganizedPublisher::getTransportName() const
@@ -126,11 +127,11 @@ namespace organized_point_cloud_transport
       pcl::fromPCLPointCloud2(pcl_pc2, *temp_cloud);
       pcl::io::OrganizedPointCloudCompression<pcl::PointXYZRGB> encoder;
       encoder.encodePointCloud(temp_cloud,
-                                                                    compressed_data_stream,
-                                                                    true,
-                                                                    false,
-                                                                    false,
-                                                                    png_level_);
+                               compressed_data_stream,
+                               true,
+                               false,
+                               false,
+                               png_level_);
     }
     else
     {
@@ -138,11 +139,11 @@ namespace organized_point_cloud_transport
       pcl::fromPCLPointCloud2(pcl_pc2, *temp_cloud);
       pcl::io::OrganizedPointCloudCompression<pcl::PointXYZ> encoder;
       encoder.encodePointCloud(temp_cloud,
-                                                                 compressed_data_stream,
-                                                                 false,
-                                                                 false,
-                                                                 false,
-                                                                 png_level_);
+                               compressed_data_stream,
+                               false,
+                               false,
+                               false,
+                               png_level_);
     }
     compressed_data = std::vector<uint8_t>(compressed_data_stream.str().begin(), compressed_data_stream.str().end());
   }
@@ -241,8 +242,8 @@ namespace organized_point_cloud_transport
 
       // get the current z coordinate of this cell in the organized pointcloud
       // reinterprety the uint8_t memory as float
-      float* z_ptr = reinterpret_cast<float*>(&organized_cloud.data[index + 2*4]);
-      
+      float *z_ptr = reinterpret_cast<float *>(&organized_cloud.data[index + 2 * 4]);
+
       if (*z_ptr < new_point.point.z)
       {
         // this point is further than the one already in the image at this pixel
@@ -252,18 +253,18 @@ namespace organized_point_cloud_transport
       if (has_rgb)
       {
         // copy the xyz and rgb values
-        *reinterpret_cast<float*>(&organized_cloud.data[index + 0*4]) = new_point.point.x;
-        *reinterpret_cast<float*>(&organized_cloud.data[index + 1*4]) = new_point.point.y;
+        *reinterpret_cast<float *>(&organized_cloud.data[index + 0 * 4]) = new_point.point.x;
+        *reinterpret_cast<float *>(&organized_cloud.data[index + 1 * 4]) = new_point.point.y;
         *z_ptr = new_point.point.z;
         // TODO (john-maidbot): This might be wrong
-        organized_cloud.data[index + 3*4 + 1] = *u_iter_r;
-        organized_cloud.data[index + 3*4 + 2] = *u_iter_g;
-        organized_cloud.data[index + 3*4 + 3] = *u_iter_b;
+        organized_cloud.data[index + 3 * 4 + 1] = *u_iter_r;
+        organized_cloud.data[index + 3 * 4 + 2] = *u_iter_g;
+        organized_cloud.data[index + 3 * 4 + 3] = *u_iter_b;
       }
       else
       {
-        *reinterpret_cast<float*>(&organized_cloud.data[index + 0*4]) = new_point.point.x;
-        *reinterpret_cast<float*>(&organized_cloud.data[index + 1*4]) = new_point.point.y;
+        *reinterpret_cast<float *>(&organized_cloud.data[index + 0 * 4]) = new_point.point.x;
+        *reinterpret_cast<float *>(&organized_cloud.data[index + 1 * 4]) = new_point.point.y;
         *z_ptr = new_point.point.z;
       }
     }
