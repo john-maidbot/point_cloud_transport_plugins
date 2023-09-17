@@ -4,8 +4,10 @@
         type="organized_point_cloud_transport::OrganizedPublisher"
         base_class_type="point_cloud_transport::PublisherPlugin">
         <description>
-            This plugin publishes a CompressedPointCloud2 topic by projecting the 3d points onto an
-            2D grid and compressing the grid like its a png image.
+            This plugin publishes a CompressedPointCloud2 message as a png-compressed, organized
+            pointcloud. If the
+            pointcloud is not already organized, it is organized via pin-hole projection. The
+            projection is configurable.
         </description>
     </class>
 
@@ -14,8 +16,8 @@
         type="organized_point_cloud_transport::OrganizedSubscriber"
         base_class_type="point_cloud_transport::SubscriberPlugin">
         <description>
-            This plugin decompresses a CompressedPointCloud2 topic by decompressing like its a png
-            image and deprojecting the image into 3d.
+            This plugin decompresses a png-compressed, organized CompressedPointCloud2 message into
+            a PointCloud2 message.
         </description>
     </class>
 </library>
