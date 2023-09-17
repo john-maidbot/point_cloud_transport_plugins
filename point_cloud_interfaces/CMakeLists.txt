@@ -10,7 +10,6 @@ find_package(std_msgs REQUIRED)
 
 set(msg_files
   "msg/CompressedPointCloud2.msg"
-  "msg/ProjectedPointCloud.msg"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

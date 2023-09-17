@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2023, Czech Technical University in Prague
- * Copyright (c) 2019, paplhjak
+ * Copyright (c) 2023, John D'Angelo
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,17 +29,39 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pluginlib/class_list_macros.hpp>
+#ifndef PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_
+#define PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_
 
-#include <point_cloud_transport/publisher_plugin.hpp>
-#include <point_cloud_transport/subscriber_plugin.hpp>
+#include <string>
+#include <vector>
 
-#include <projected_point_cloud_transport/projected_publisher.hpp>
-#include <projected_point_cloud_transport/projected_subscriber.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
-PLUGINLIB_EXPORT_CLASS(
-  projected_point_cloud_transport::ProjectedPublisher,
-  point_cloud_transport::PublisherPlugin)
-PLUGINLIB_EXPORT_CLASS(
-  projected_point_cloud_transport::ProjectedSubscriber,
-  point_cloud_transport::SubscriberPlugin)
+#include <point_cloud_interfaces/msg/organized_point_cloud.hpp>
+#include <point_cloud_transport/simple_subscriber_plugin.hpp>
+#include <point_cloud_transport/transport_hints.hpp>
+
+namespace organized_point_cloud_transport
+{
+
+class OrganizedSubscriber
+  : public point_cloud_transport::SimpleSubscriberPlugin<
+    point_cloud_interfaces::msg::OrganizedPointCloud>
+{
+public:
+  std::string getTransportName() const override;
+
+  void declareParameters() override;
+
+  DecodeResult decodeTyped(const point_cloud_interfaces::msg::OrganizedPointCloud & compressed)
+  const override;
+
+  std::string getDataType() const override
+  {
+    return "point_cloud_interfaces/msg/OrganizedPointCloud";
+  }
+
+};
+}  // namespace organized_point_cloud_transport
+
+#endif  // PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_

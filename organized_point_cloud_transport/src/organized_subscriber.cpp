@@ -29,47 +29,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_
-#define PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_
-
 #include <string>
-#include <vector>
 
-#include <opencv2/core.hpp>
+#include <pcl-1.12/pcl/compression/organized_pointcloud_compression.h>
 
-#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
-#include <point_cloud_interfaces/msg/projected_point_cloud.hpp>
-#include <point_cloud_transport/simple_subscriber_plugin.hpp>
-#include <point_cloud_transport/transport_hints.hpp>
+#include <organized_point_cloud_transport/organized_subscriber.hpp>
 
-namespace projected_point_cloud_transport
+namespace organized_point_cloud_transport
 {
-
-class ProjectedSubscriber
-  : public point_cloud_transport::SimpleSubscriberPlugin<
-    point_cloud_interfaces::msg::ProjectedPointCloud>
+void OrganizedSubscriber::declareParameters()
 {
-public:
-  std::string getTransportName() const override;
+}
 
-  void declareParameters() override;
+std::string OrganizedSubscriber::getTransportName() const
+{
+  return "organized";
+}
 
-  DecodeResult decodeTyped(const point_cloud_interfaces::msg::ProjectedPointCloud & compressed)
-  const override;
+OrganizedSubscriber::DecodeResult OrganizedSubscriber::decodeTyped(
+  const point_cloud_interfaces::msg::OrganizedPointCloud & msg) const
+{
+  auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
-  std::string getDataType() const override
-  {
-    return "point_cloud_interfaces/msg/ProjectedPointCloud";
+  // determine if this is an xyz only or an xyzrgb cloud
+  const auto predicate = [](const auto& field) { return field.name == "rgb"; };
+  const auto field_result = std::find_if(msg.fields.cbegin (), msg.fields.cend (), predicate);
+  const bool has_rgb = (field_result != msg.fields.cend());
+
+  // decompress the cloud
+  if(has_rgb){
+    auto temp_cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZRGB>>();
+    OrganizedPointCloudCompression<PointXYZRGB>::decodePointCloud (msg.compessed_data, temp_cloud, false);
+    pcl_conversions::moveFromPCL(*temp_cloud, *result);
+  }else{
+    auto temp_cloud = pcl::make_shared<pcl::PointCloud<pcl::PointXYZ>>();
+    OrganizedPointCloudCompression<PointXYZ>::encodePointCloud (msg.compessed_data, temp_cloud, false);
+    pcl_conversions::moveFromPCL(*temp_cloud, *result);
   }
+  result->header = msg->header;
 
-private:
+  return result;
+}
 
-  void deprojectSphereToCloud(const cv::Mat& projected_pointcloud_image, const point_cloud_interfaces::msg::ProjectedPointCloud& msg, sensor_msgs::msg::PointCloud2::SharedPtr& cloud) const;
-
-  void deprojectPlaneToCloud(const cv::Mat& projected_pointcloud_image, const point_cloud_interfaces::msg::ProjectedPointCloud& msg, sensor_msgs::msg::PointCloud2::SharedPtr& cloud) const;
-
-};
-}  // namespace projected_point_cloud_transport
-
-#endif  // PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_SUBSCRIBER_HPP_
+}  // namespace organized_point_cloud_transport

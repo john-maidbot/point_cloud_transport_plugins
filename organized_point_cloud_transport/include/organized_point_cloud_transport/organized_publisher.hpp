@@ -35,22 +35,25 @@
 #include <memory>
 #include <string>
 
-#include <opencv2/core.hpp>
-
 #include <geometry_msgs/msg/pose.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2/utils.h>
 
-#include <point_cloud_interfaces/msg/projected_point_cloud.hpp>
+#include <point_cloud_interfaces/msg/organized_point_cloud.hpp>
 #include <point_cloud_transport/point_cloud_transport.hpp>
 #include <point_cloud_transport/simple_publisher_plugin.hpp>
 
 
-namespace projected_point_cloud_transport
+namespace organized_point_cloud_transport
 {
 
-class ProjectedPublisher
+class OrganizedPublisher
   : public point_cloud_transport::SimplePublisherPlugin<
-    point_cloud_interfaces::msg::ProjectedPointCloud>
+    point_cloud_interfaces::msg::OrganizedPointCloud>
 {
 public:
   std::string getTransportName() const override;
@@ -61,34 +64,26 @@ public:
 
   std::string getDataType() const override
   {
-    return "point_cloud_interfaces/msg/ProjectedPointCloud";
+    return "point_cloud_interfaces/msg/OrganizedPointCloud";
   }
 
 private:
 
-  void projectCloudOntoPlane(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const;
+  void encodeOrganizedPointCloud2(const sensor_msgs::msg::PointCloud2& cloud, std::vector<uint8_t>& compressed_data) const;
 
-  void projectCloudOntoSphere(const sensor_msgs::msg::PointCloud2& cloud, cv::Mat& projected_pointcloud_image) const;
+  void organizePointCloud2(const sensor_msgs::msg::PointCloud2& cloud, sensor_msgs::msg::PointCloud2& organized) const;
 
-  // bookkeeping variables
-  geometry_msgs::msg::Pose view_point_; // (Maybe users can set this somehow?)
-
-  // general parameters
-  uint8_t projection_type_;
+  // tf2 machinery
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
   // params for planar projection
-  int view_height_;
-  int view_width_;
-  float ppx_;
-  float ppy_;
-  float fx_;
-  float fy_;
+  sensor_msgs::msg::CameraInfo projector_info_;
 
-  // params for spherical projection
-  double phi_resolution_;
-  double theta_resolution_;
+  // params for compression
+  int png_level_;
 
 };
-}  // namespace projected_point_cloud_transport
+}  // namespace organized_point_cloud_transport
 
 #endif  // PROJECTED_POINT_CLOUD_TRANSPORT__PROJECTED_PUBLISHER_HPP_

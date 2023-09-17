@@ -1,0 +1,21 @@
+<library path="organized_point_cloud_transport">
+    <class
+        name="point_cloud_transport/organized_pub"
+        type="organized_point_cloud_transport::OrganizedPublisher"
+        base_class_type="point_cloud_transport::PublisherPlugin">
+        <description>
+            This plugin publishes a OrganizedPointCloud topic by projecting the 3d points onto an
+            2D grid and compressing the grid like its a png image.
+        </description>
+    </class>
+
+    <class
+        name="point_cloud_transport/organized_sub"
+        type="organized_point_cloud_transport::OrganizedSubscriber"
+        base_class_type="point_cloud_transport::SubscriberPlugin">
+        <description>
+            This plugin decompresses a OrganizedPointCloud topic by decompressing like its a png
+            image and deprojecting the image into 3d.
+        </description>
+    </class>
+</library>
