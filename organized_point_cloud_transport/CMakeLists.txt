@@ -35,6 +35,7 @@ include_directories(
 add_library(${PROJECT_NAME}
   SHARED
   src/manifest.cpp
+  src/organize_cloud.cpp
   src/organized_publisher.cpp
   src/organized_subscriber.cpp
 )
