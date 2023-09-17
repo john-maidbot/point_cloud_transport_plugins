@@ -207,7 +207,7 @@ namespace organized_point_cloud_transport
     // initialize the point objects for the transform
     geometry_msgs::msg::PointStamped old_point, new_point;
 
-    for (; u_iter_x != u_iter_x.end(); ++u_iter_x, ++u_iter_y, ++u_iter_z, ++u_iter_r, ++u_iter_g, ++u_iter_b)
+    for (; u_iter_x != u_iter_x.end())
     {
       old_point.point.x = *u_iter_x;
       old_point.point.y = *u_iter_y;
@@ -260,6 +260,7 @@ namespace organized_point_cloud_transport
         organized_cloud.data[index + 3 * 4 + 1] = *u_iter_r;
         organized_cloud.data[index + 3 * 4 + 2] = *u_iter_g;
         organized_cloud.data[index + 3 * 4 + 3] = *u_iter_b;
+        ++u_iter_r, ++u_iter_g, ++u_iter_b;
       }
       else
       {
@@ -267,6 +268,7 @@ namespace organized_point_cloud_transport
         *reinterpret_cast<float *>(&organized_cloud.data[index + 1 * 4]) = new_point.point.y;
         *z_ptr = new_point.point.z;
       }
+      ++u_iter_x, ++u_iter_y, ++u_iter_z;
     }
   }
 
