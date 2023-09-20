@@ -2,6 +2,9 @@
 Changelog for package point_cloud_interfaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.0 (2023-09-20)
+------------------
+
 2.0.0 (2023-09-18)
 ------------------
 * Set version to zero, this package was never released (`#15 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/15>`_)

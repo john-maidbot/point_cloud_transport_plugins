@@ -2,6 +2,11 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+3.0.0 (2023-09-20)
+------------------
+* feat: use tl_expected of ros package (`#22 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/22>`_)
+* Contributors: Daisuke Nishimatsu
+
 2.0.0 (2023-09-18)
 ------------------
 * Port to ROS 2
