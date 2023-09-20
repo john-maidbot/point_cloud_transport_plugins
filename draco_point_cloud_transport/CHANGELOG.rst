@@ -2,6 +2,11 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.6 (2023-09-20)
+------------------
+* ROS 2 port.
+* Contributors: Alejandro Hernandez Cordero, john-maidbot
+
 1.0.5 (2023-06-16)
 ------------------
 * Fixed formatting.
