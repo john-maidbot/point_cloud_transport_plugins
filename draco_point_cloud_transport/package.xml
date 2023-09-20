@@ -15,7 +15,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>draco</build_depend>
+  <build_depend>libdraco-dev</build_depend>
   <build_depend>pluginlib</build_depend>
 
   <exec_depend>libdraco-dev</exec_depend>
