@@ -8,7 +8,7 @@ This is the spiritual successor to: https://github.com/paplhjak/templateplugin_p
 ## 1) Plugin naming
 Each plugin needs its own name. It should be short and descriptive.
 
-For example: [draco_point_cloud_transport](https://github.com/ros-perception/point_cloud_transport_plugins/tree/rolling/draco_point_cloud_transport) is a plugin which uses Google [Draco](https://github.com/google/draco) compression, therefore the name **draco**.
+For example: [draco_point_cloud_transport](https://github.com/ros-perception/point_cloud_transport_plugins/tree/iron/draco_point_cloud_transport) is a plugin which uses Google [Draco](https://github.com/google/draco) compression, therefore the name **draco**.
 
 For demonstrative purposes, the plugin which we will be going through in this tutorial has used the name **template**. And we will be modifying the template to make our own plugin named **goblin**.
 
@@ -53,7 +53,7 @@ Although making your own compressed message type is an option, please check `poi
 CustomMessage -> CompressedPointCloud2
 ```
 
-If you do need a custom message, let's assume it is called **GobMessage**. See here if you are not familiar with defining a custom ROS2 message: https://docs.ros.org/en/rolling/index.html. 
+If you do need a custom message, let's assume it is called **GobMessage**. See here if you are not familiar with defining a custom ROS2 message: https://docs.ros.org/en/iron/index.html.
 Once you have defined your **GobMessage**, go through the following files (do not forget to check the #include's):
 
 1. *goblin_publisher.h*
@@ -83,15 +83,15 @@ The *decodeTyped* function takes in our plugin's message format, decompresses th
 
 ## 7) Description of Plugin
 
-Before we distribute our plugin, it is important that we fill in all the necessary information about it. 
+Before we distribute our plugin, it is important that we fill in all the necessary information about it.
 
 In `goblin_plugins.xml`, make sure to provide a brief description of both the publisher and the subscriber our plugin uses.
 
-Then fill out the package.xml. If you are unfamiliar with how to do this, see here please: https://docs.ros.org/en/rolling/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html#customize-package-xml.
+Then fill out the package.xml. If you are unfamiliar with how to do this, see here please: https://docs.ros.org/en/iron/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html#customize-package-xml.
 
 ## 8) Build time!
 
-At this point your plugin should be able to succesfully compile, build, and be recognized by [point_cloud_transport](https://github.com/ros-perception/point_cloud_transport). 
+At this point your plugin should be able to succesfully compile, build, and be recognized by [point_cloud_transport](https://github.com/ros-perception/point_cloud_transport).
 
 First, delete the COLCON_IGNORE file in `globlin_point_cloud_transport` (otherwise your package will be ignored).
 
@@ -114,10 +114,10 @@ The output should look something like this.
 ```
 "point_cloud_transport/goblin"
  - Provided by package: goblin_point_cloud_transport
- - Publisher: 
+ - Publisher:
             This plugin publishes a CompressedPointCloud2 using the awesome power of turtles.
-        
- - Subscriber: 
+
+ - Subscriber:
             This plugin decompresses a CompressedPointCloud2 topic, also using turtles.
 ```
 
