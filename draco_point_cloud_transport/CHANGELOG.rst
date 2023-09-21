@@ -2,6 +2,16 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.7 (2023-09-21)
+------------------
+* use the right key for draco (`#21 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/21>`_) (`#23 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/23>`_)
+  (cherry picked from commit c7b46c442317db84a876cfcafa2dd4b91696d236)
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* feat: use tl_expected of ros package (`#22 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/22>`_) (`#25 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/25>`_)
+  (cherry picked from commit ad4b632d977a8a06d641bd3fe1b21fc4ba8da0dd)
+  Co-authored-by: Daisuke Nishimatsu <42202095+wep21@users.noreply.github.com>
+* Contributors: mergify[bot]
+
 1.0.6 (2023-09-20)
 ------------------
 * ROS 2 port.
