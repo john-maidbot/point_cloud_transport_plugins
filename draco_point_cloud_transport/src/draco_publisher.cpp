@@ -229,15 +229,15 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     expert_attribute_types_paramDescriptor.name, config_.expert_attribute_types,
     expert_attribute_types_paramDescriptor);
 
-  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/x", "POSITION");
-  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/y", "POSITION");
-  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/z", "POSITION");
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/x", 16);
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/y", 16);
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/z", 16);
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/rgb", 16);
-  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgb", true);
-  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgba", false);
+  declareParam<std::string>("attribute_mapping.attribute_type.x", "POSITION");
+  declareParam<std::string>("attribute_mapping.attribute_type.y", "POSITION");
+  declareParam<std::string>("attribute_mapping.attribute_type.z", "POSITION");
+  declareParam<int>("attribute_mapping.quantization_bits.x", 16);
+  declareParam<int>("attribute_mapping.quantization_bits.y", 16);
+  declareParam<int>("attribute_mapping.quantization_bits.z", 16);
+  declareParam<int>("attribute_mapping.quantization_bits.rgb", 16);
+  declareParam<bool>("attribute_mapping.rgba_tweak.rgb", true);
+  declareParam<bool>("attribute_mapping.rgba_tweak.rgba", false);
 
   auto param_change_callback =
     [this](const std::vector<rclcpp::Parameter> & parameters) -> rcl_interfaces::msg::
