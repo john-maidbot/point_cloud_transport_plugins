@@ -30,6 +30,8 @@
 #ifndef ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_SUBSCRIBER_HPP_
 #define ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_SUBSCRIBER_HPP_
 
+#include <zstd.h>
+
 #include <string>
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
@@ -45,6 +47,8 @@ class ZstdSubscriber
     point_cloud_interfaces::msg::CompressedPointCloud2>
 {
 public:
+  ZstdSubscriber();
+
   std::string getTransportName() const override;
 
   void declareParameters() override;
@@ -53,6 +57,9 @@ public:
 
   DecodeResult decodeTyped(const point_cloud_interfaces::msg::CompressedPointCloud2 & compressed)
   const override;
+
+private:
+  ZSTD_DCtx * zstd_context_{nullptr};
 };
 }  // namespace zstd_point_cloud_transport
 

@@ -29,6 +29,8 @@
 #ifndef ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_PUBLISHER_HPP_
 #define ZSTD_POINT_CLOUD_TRANSPORT__ZSTD_PUBLISHER_HPP_
 
+#include <zstd.h>
+
 #include <memory>
 #include <string>
 
@@ -48,6 +50,8 @@ class ZstdPublisher
     point_cloud_interfaces::msg::CompressedPointCloud2>
 {
 public:
+  ZstdPublisher();
+
   std::string getTransportName() const override;
 
   void declareParameters(const std::string & base_topic) override;
@@ -58,6 +62,12 @@ public:
 
 private:
   int encode_level_{7};
+
+  // When compressing many times,
+  // it is recommended to allocate a context just once,
+  // and re-use it for each successive compression operation.
+  // This will make workload friendlier for system's memory.
+  ZSTD_CCtx * zstd_context_{nullptr};
 };
 }  // namespace zstd_point_cloud_transport
 

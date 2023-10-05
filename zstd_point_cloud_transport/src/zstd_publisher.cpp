@@ -38,6 +38,11 @@
 namespace zstd_point_cloud_transport
 {
 
+ZstdPublisher::ZstdPublisher()
+{
+  this->zstd_context_ = ZSTD_createCCtx();
+}
+
 void ZstdPublisher::declareParameters(const std::string & base_topic)
 {
   rcl_interfaces::msg::ParameterDescriptor encode_level_paramDescriptor;
@@ -61,7 +66,7 @@ void ZstdPublisher::declareParameters(const std::string & base_topic)
       auto result = rcl_interfaces::msg::SetParametersResult();
       result.successful = true;
       for (auto parameter : parameters) {
-        if (parameter.get_name() == "zstd_encode_level") {
+        if (parameter.get_name().find("zstd_encode_level") != std::string::npos) {
           this->encode_level_ = static_cast<int>(parameter.as_int());
           if (!(this->encode_level_ >= -1 && this->encode_level_ <= 9)) {
             RCLCPP_ERROR_STREAM(
@@ -94,7 +99,8 @@ ZstdPublisher::TypedEncodeResult ZstdPublisher::encodeTyped(
   compressed.compressed_data.resize(est_compress_size);
 
   auto compress_size =
-    ZSTD_compress(
+    ZSTD_compressCCtx(
+    this->zstd_context_,
     static_cast<void *>(&compressed.compressed_data[0]),
     est_compress_size,
     &raw.data[0],
