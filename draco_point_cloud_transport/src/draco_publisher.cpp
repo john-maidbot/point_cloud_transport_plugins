@@ -226,15 +226,15 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
     expert_attribute_types_paramDescriptor.name, config_.expert_attribute_types,
     expert_attribute_types_paramDescriptor);
 
-  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/x", "POSITION");
-  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/y", "POSITION");
-  declareParam<std::string>(base_topic + "/attribute_mapping/attribute_type/z", "POSITION");
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/x", 16);
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/y", 16);
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/z", 16);
-  declareParam<int>(base_topic + "/attribute_mapping/quantization_bits/rgb", 16);
-  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgb", true);
-  declareParam<bool>(base_topic + "/attribute_mapping/rgba_tweak/rgba", false);
+  declareParam<std::string>("attribute_mapping.attribute_type.x", "POSITION");
+  declareParam<std::string>("attribute_mapping.attribute_type.y", "POSITION");
+  declareParam<std::string>("attribute_mapping.attribute_type.z", "POSITION");
+  declareParam<int>("attribute_mapping.quantization_bits.x", 16);
+  declareParam<int>("attribute_mapping.quantization_bits.y", 16);
+  declareParam<int>("attribute_mapping.quantization_bits.z", 16);
+  declareParam<int>("attribute_mapping.quantization_bits.rgb", 16);
+  declareParam<bool>("attribute_mapping.rgba_tweak.rgb", true);
+  declareParam<bool>("attribute_mapping.rgba_tweak.rgba", false);
 
   auto param_change_callback =
     [this](const std::vector<rclcpp::Parameter> & parameters) -> rcl_interfaces::msg::
@@ -243,68 +243,68 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       auto result = rcl_interfaces::msg::SetParametersResult();
       result.successful = true;
       for (auto parameter : parameters) {
-        if (parameter.get_name() == "expert_quantization") {
+        if (parameter.get_name().find("expert_quantization") != std::string::npos) {
           config_.expert_quantization = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "force_quantization") {
+        } else if (parameter.get_name().find("force_quantization") != std::string::npos) {
           config_.force_quantization = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "encode_speed") {
+        } else if (parameter.get_name().find("encode_speed") != std::string::npos) {
           config_.encode_speed = static_cast<int>(parameter.as_int());
           if (!(config_.encode_speed >= 0 && config_.encode_speed <= 10)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "encode_speed value range should be between [0, 10] ");
           }
           return result;
-        } else if (parameter.get_name() == "decode_speed") {
+        } else if (parameter.get_name().find("decode_speed") != std::string::npos) {
           config_.decode_speed = static_cast<int>(parameter.as_int());
           if (!(config_.decode_speed >= 0 && config_.decode_speed <= 10)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "decode_speed value range should be between [0, 10] ");
           }
           return result;
-        } else if (parameter.get_name() == "encode_method") {
+        } else if (parameter.get_name().find("encode_method") != std::string::npos) {
           config_.encode_method = static_cast<int>(parameter.as_int());
           return result;
-        } else if (parameter.get_name() == "deduplicate") {
+        } else if (parameter.get_name().find("deduplicate") != std::string::npos) {
           config_.deduplicate = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "quantization_POSITION") {
+        } else if (parameter.get_name().find("quantization_POSITION") != std::string::npos) {
           config_.quantization_POSITION = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_POSITION >= 1 && config_.quantization_POSITION <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_POSITION value range should be between [1, 31] ");
           }
           return result;
-        } else if (parameter.get_name() == "quantization_NORMAL") {
+        } else if (parameter.get_name().find("quantization_NORMAL") != std::string::npos) {
           config_.quantization_NORMAL = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_NORMAL >= 1 && config_.quantization_NORMAL <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_NORMAL value range should be between [1, 31] ");
           }
           return result;
-        } else if (parameter.get_name() == "quantization_COLOR") {
+        } else if (parameter.get_name().find("quantization_COLOR") != std::string::npos) {
           config_.quantization_COLOR = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_COLOR >= 1 && config_.quantization_COLOR <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_COLOR value range should be between [1, 31] ");
           }
           return result;
-        } else if (parameter.get_name() == "quantization_TEX_COORD") {
+        } else if (parameter.get_name().find("quantization_TEX_COORD") != std::string::npos) {
           config_.quantization_TEX_COORD = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_TEX_COORD >= 1 && config_.quantization_TEX_COORD <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_TEX_COORD value range should be between [1, 31] ");
           }
           return result;
-        } else if (parameter.get_name() == "quantization_GENERIC") {
+        } else if (parameter.get_name().find("quantization_GENERIC") != std::string::npos) {
           config_.quantization_GENERIC = static_cast<int>(parameter.as_int());
           if (!(config_.quantization_GENERIC >= 1 && config_.quantization_GENERIC <= 31)) {
             RCLCPP_ERROR_STREAM(
               getLogger(), "quantization_GENERIC value range should be between [1, 31] ");
           }
           return result;
-        } else if (parameter.get_name() == "expert_attribute_types") {
+        } else if (parameter.get_name().find("expert_attribute_types") != std::string::npos) {
           config_.expert_attribute_types = parameter.as_bool();
           return result;
         }

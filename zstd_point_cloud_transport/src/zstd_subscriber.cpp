@@ -40,6 +40,11 @@
 
 namespace zstd_point_cloud_transport
 {
+ZstdSubscriber::ZstdSubscriber()
+{
+  this->zstd_context_ = ZSTD_createDCtx();
+}
+
 void ZstdSubscriber::declareParameters()
 {
 }
@@ -64,7 +69,8 @@ ZstdSubscriber::DecodeResult ZstdSubscriber::decodeTyped(
 
   result->data.resize(est_decomp_size);
 
-  size_t const decomp_size = ZSTD_decompress(
+  size_t const decomp_size = ZSTD_decompressDCtx(
+    this->zstd_context_,
     static_cast<void *>(&result->data[0]),
     est_decomp_size,
     &msg.compressed_data[0],
