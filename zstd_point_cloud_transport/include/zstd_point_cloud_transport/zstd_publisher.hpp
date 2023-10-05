@@ -65,6 +65,11 @@ public:
 
 private:
   int encode_level_{7};
+
+  // When compressing many times,
+  // it is recommended to allocate a context just once,
+  // and re-use it for each successive compression operation.
+  // This will make workload friendlier for system's memory.
   ZSTD_CCtx * zstd_context_{nullptr};
 };
 }  // namespace zstd_point_cloud_transport
