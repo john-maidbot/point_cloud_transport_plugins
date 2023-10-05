@@ -21,11 +21,11 @@ rosdep init
 rosdep update
 
 # Build.
-source /opt/ros/$ROS_DISTRO/setup.bash
 mkdir -p $COLCON_WS_SRC
 cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC
 cd $COLCON_WS
 rosdep install --from-paths ./ -i -y -r --rosdistro $ROS_DISTRO $ROSDEP_ARGS
+source /opt/ros/$ROS_DISTRO/setup.bash
 colcon build --event-handlers console_direct+
 
 # Tests.
