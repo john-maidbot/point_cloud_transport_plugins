@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build and Test
-        run: .github/workflows/build-and-test.sh https://raw.githubusercontent.com/${{ github.repository }}/${{ github.sha }}/point_cloud_transport.repos
+        run: .github/workflows/build-and-test.sh
         env:
           DOCKER_IMAGE: ${{ matrix.docker-image }}
           ROS_DISTRO: ${{ matrix.ros-distro }}
