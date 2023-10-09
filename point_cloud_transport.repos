@@ -1,5 +1,0 @@
-repositories:
-  point_cloud_transport:
-    type: git
-    url: https://github.com/john-maidbot/point_cloud_transport
-    version: rolling

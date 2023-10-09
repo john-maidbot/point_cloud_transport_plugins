@@ -19,17 +19,13 @@ apt-get install -y python3-colcon-common-extensions \
 
 rosdep init
 rosdep update
-rosdep install --from-paths ./ -i -y -r --rosdistro $ROS_DISTRO $ROSDEP_ARGS
 
 # Build.
-source /opt/ros/$ROS_DISTRO/setup.bash
 mkdir -p $COLCON_WS_SRC
 cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC
 cd $COLCON_WS
-echo $1
-wget $1
-vcs import src < point_cloud_transport.repos
 rosdep install --from-paths ./ -i -y -r --rosdistro $ROS_DISTRO $ROSDEP_ARGS
+source /opt/ros/$ROS_DISTRO/setup.bash
 colcon build --event-handlers console_direct+
 
 # Tests.
