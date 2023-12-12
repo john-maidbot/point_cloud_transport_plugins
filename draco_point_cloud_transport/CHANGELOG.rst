@@ -2,6 +2,13 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.9 (2023-12-12)
+------------------
+* Fixed draco subscriber param names (`#38 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/38>`_) (`#39 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/39>`_)
+  (cherry picked from commit 7d3294d9a3630c989e53b88b16436d6147c88242)
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+* Contributors: mergify[bot]
+
 1.0.8 (2023-10-05)
 ------------------
 * Fixed parameter names (`#28 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/28>`_) (`#29 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/29>`_)

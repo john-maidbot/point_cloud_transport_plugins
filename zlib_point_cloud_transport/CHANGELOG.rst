@@ -2,6 +2,9 @@
 Changelog for package zlib_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.9 (2023-12-12)
+------------------
+
 1.0.8 (2023-10-05)
 ------------------
 * Fixed parameter names (`#28 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/28>`_) (`#29 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/29>`_)
