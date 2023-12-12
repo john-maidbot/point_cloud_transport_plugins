@@ -59,19 +59,19 @@ void DracoSubscriber::declareParameters()
       auto result = rcl_interfaces::msg::SetParametersResult();
       result.successful = true;
       for (auto parameter : parameters) {
-        if (parameter.get_name() == "SkipDequantizationPOSITION") {
+        if (parameter.get_name().find("SkipDequantizationPOSITION") != std::string::npos) {
           config_.SkipDequantizationPOSITION = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "SkipDequantizationNORMAL") {
+        } else if (parameter.get_name().find("SkipDequantizationNORMAL") != std::string::npos) {
           config_.SkipDequantizationNORMAL = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "SkipDequantizationCOLOR") {
+        } else if (parameter.get_name().find("SkipDequantizationCOLOR") != std::string::npos) {
           config_.SkipDequantizationCOLOR = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "SkipDequantizationTEX_COORD") {
+        } else if (parameter.get_name().find("SkipDequantizationTEX_COORD") != std::string::npos) {
           config_.SkipDequantizationTEX_COORD = parameter.as_bool();
           return result;
-        } else if (parameter.get_name() == "SkipDequantizationGENERIC") {
+        } else if (parameter.get_name().find("SkipDequantizationGENERIC") != std::string::npos) {
           config_.SkipDequantizationGENERIC = parameter.as_bool();
           return result;
         }
