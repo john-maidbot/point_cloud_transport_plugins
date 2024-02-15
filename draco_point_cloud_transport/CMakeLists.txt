@@ -9,6 +9,7 @@ find_package(pluginlib REQUIRED)
 find_package(point_cloud_interfaces REQUIRED)
 find_package(point_cloud_transport REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rcpputils REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
@@ -19,6 +20,7 @@ set(dependencies
   point_cloud_interfaces
   point_cloud_transport
   rclcpp
+  rcpputils
   sensor_msgs
   std_msgs
 )
