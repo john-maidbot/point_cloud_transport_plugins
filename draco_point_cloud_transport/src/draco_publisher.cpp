@@ -39,7 +39,7 @@
 #include <vector>
 
 #include <point_cloud_interfaces/msg/compressed_point_cloud2.hpp>
-#include <tl_expected/expected.hpp>
+#include <rcpputils/tl_expected/expected.hpp>
 
 #include <draco_point_cloud_transport/cloud.hpp>
 #include <draco_point_cloud_transport/draco_publisher.hpp>
