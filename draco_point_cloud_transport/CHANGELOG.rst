@@ -2,6 +2,11 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.0.4 (2023-02-19)
+------------------
+* Use tl_expected from rcpputils (`#42 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/42>`_) (`#43 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/43>`_)
+* Contributors: Alejandro Hernández Cordero
+
 2.0.3 (2023-12-12)
 ------------------
 * Fixed draco subscriber param names (`#38 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/38>`_) (`#40 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/40>`_)
