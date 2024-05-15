@@ -149,9 +149,9 @@ void GenericCloudIterator<T>::copyData(const GenericCloudIterator<T> & otherIter
 
 // explicitly instantiate
 template class GenericCloudIteratorBase<unsigned char, unsigned char, unsigned char,
-    sensor_msgs::msg::PointCloud2, GenericCloudIterator>;
+  sensor_msgs::msg::PointCloud2, GenericCloudIterator>;
 template class GenericCloudIteratorBase<unsigned char, const unsigned char, const unsigned char,
-    const sensor_msgs::msg::PointCloud2, GenericCloudConstIterator>;
+  const sensor_msgs::msg::PointCloud2, GenericCloudConstIterator>;
 
 template class GenericCloudIterator<>;
 template class GenericCloudConstIterator<>;
