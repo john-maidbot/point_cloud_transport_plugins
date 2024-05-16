@@ -58,6 +58,7 @@ void ZstdPublisher::declareParameters(const std::string & base_topic)
   declareParam<int>(
     encode_level_paramDescriptor.name, this->encode_level_,
     encode_level_paramDescriptor);
+  getParam<int>(encode_level_paramDescriptor.name, this->encode_level_);
 
   auto param_change_callback =
     [this](const std::vector<rclcpp::Parameter> & parameters) -> rcl_interfaces::msg::
