@@ -88,6 +88,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<int>(
     encode_speed_paramDescriptor.name, config_.encode_speed,
     encode_speed_paramDescriptor);
+  getParam<int>(encode_speed_paramDescriptor.name, config_.encode_speed);
 
   rcl_interfaces::msg::ParameterDescriptor decode_speed_paramDescriptor;
   decode_speed_paramDescriptor.name = "decode_speed";
@@ -102,6 +103,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<int>(
     decode_speed_paramDescriptor.name, config_.decode_speed,
     decode_speed_paramDescriptor);
+  getParam<int>(decode_speed_paramDescriptor.name, config_.decode_speed);
 
   rcl_interfaces::msg::ParameterDescriptor encode_method_paramDescriptor;
   encode_method_paramDescriptor.name = "encode_method";
@@ -116,6 +118,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<int>(
     encode_method_paramDescriptor.name, config_.encode_method,
     encode_method_paramDescriptor);
+  getParam<int>(encode_method_paramDescriptor.name, config_.encode_method);
 
   rcl_interfaces::msg::ParameterDescriptor deduplicate_paramDescriptor;
   deduplicate_paramDescriptor.name = "deduplicate";
@@ -123,6 +126,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   deduplicate_paramDescriptor.description =
     "Remove duplicate point entries.";
   declareParam<bool>(deduplicate_paramDescriptor.name, true, deduplicate_paramDescriptor);
+  getParam<bool>(deduplicate_paramDescriptor.name, config_.deduplicate);
 
   rcl_interfaces::msg::ParameterDescriptor force_quantization_paramDescriptor;
   force_quantization_paramDescriptor.name = "force_quantization";
@@ -133,6 +137,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<bool>(
     force_quantization_paramDescriptor.name, config_.force_quantization,
     force_quantization_paramDescriptor);
+  getParam<bool>(force_quantization_paramDescriptor.name, config_.force_quantization);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_POSITION_paramDescriptor;
   quantization_POSITION_paramDescriptor.name = "quantization_POSITION";
@@ -146,8 +151,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_POSITION_paramDescriptor.name, config_.quantization_NORMAL,
+    quantization_POSITION_paramDescriptor.name, config_.quantization_POSITION,
     quantization_POSITION_paramDescriptor);
+  getParam<int>(quantization_POSITION_paramDescriptor.name, config_.quantization_POSITION);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_NORMAL_paramDescriptor;
   quantization_NORMAL_paramDescriptor.name = "quantization_NORMAL";
@@ -160,8 +166,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_NORMAL_paramDescriptor.name, config_.quantization_COLOR,
+    quantization_NORMAL_paramDescriptor.name, config_.quantization_NORMAL,
     quantization_NORMAL_paramDescriptor);
+  getParam<int>(quantization_NORMAL_paramDescriptor.name, config_.quantization_NORMAL);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_COLOR_paramDescriptor;
   quantization_COLOR_paramDescriptor.name = "quantization_COLOR";
@@ -174,8 +181,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_COLOR_paramDescriptor.name, config_.quantization_TEX_COORD,
+    quantization_COLOR_paramDescriptor.name, config_.quantization_COLOR,
     quantization_COLOR_paramDescriptor);
+  getParam<int>(quantization_COLOR_paramDescriptor.name, config_.quantization_COLOR);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_TEX_COORD_paramDescriptor;
   quantization_TEX_COORD_paramDescriptor.name = "quantization_TEX_COORD";
@@ -189,8 +197,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_TEX_COORD_paramDescriptor.name, config_.quantization_GENERIC,
+    quantization_TEX_COORD_paramDescriptor.name, config_.quantization_TEX_COORD,
     quantization_TEX_COORD_paramDescriptor);
+  getParam<int>(quantization_TEX_COORD_paramDescriptor.name, config_.quantization_TEX_COORD);
 
   rcl_interfaces::msg::ParameterDescriptor quantization_GENERIC_paramDescriptor;
   quantization_GENERIC_paramDescriptor.name = "quantization_GENERIC";
@@ -204,8 +213,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
       .set__to_value(31)
       .set__step(1)});
   declareParam<int>(
-    quantization_GENERIC_paramDescriptor.name, config_.quantization_POSITION,
+    quantization_GENERIC_paramDescriptor.name, config_.quantization_GENERIC,
     quantization_GENERIC_paramDescriptor);
+  getParam<int>(quantization_GENERIC_paramDescriptor.name, config_.quantization_GENERIC);
 
   rcl_interfaces::msg::ParameterDescriptor expert_quantization_paramDescriptor;
   expert_quantization_paramDescriptor.name = "expert_quantization";
@@ -217,6 +227,7 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<bool>(
     expert_quantization_paramDescriptor.name, config_.expert_quantization,
     expert_quantization_paramDescriptor);
+  getParam<bool>(expert_quantization_paramDescriptor.name, config_.expert_quantization);
 
   rcl_interfaces::msg::ParameterDescriptor expert_attribute_types_paramDescriptor;
   expert_attribute_types_paramDescriptor.name = "expert_attribute_types";
@@ -228,7 +239,9 @@ void DracoPublisher::declareParameters(const std::string & base_topic)
   declareParam<bool>(
     expert_attribute_types_paramDescriptor.name, config_.expert_attribute_types,
     expert_attribute_types_paramDescriptor);
+  getParam<bool>(expert_attribute_types_paramDescriptor.name, config_.expert_attribute_types);
 
+  // we call get param at runtime to get the latest value for these
   declareParam<std::string>("attribute_mapping.attribute_type.x", "POSITION");
   declareParam<std::string>("attribute_mapping.attribute_type.y", "POSITION");
   declareParam<std::string>("attribute_mapping.attribute_type.z", "POSITION");
