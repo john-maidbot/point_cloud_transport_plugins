@@ -167,54 +167,54 @@ void copyChannelData(
  * Points for which FILTER is true are part of the final pointcloud.
  */
 #define CREATE_FILTERED_CLOUD(IN, OUT, KEEP_ORGANIZED, FILTER) { \
-    const auto inputIsOrganized = (IN).height > 1; \
-    const auto outIsOrganized = (KEEP_ORGANIZED) && inputIsOrganized; \
+  const auto inputIsOrganized = (IN).height > 1; \
+  const auto outIsOrganized = (KEEP_ORGANIZED) && inputIsOrganized; \
  \
-    (OUT).header = (IN).header; \
-    (OUT).fields = (IN).fields; \
-    (OUT).point_step = (IN).point_step; \
-    (OUT).height = outIsOrganized ? (IN).height : 1; \
-    (OUT).width = outIsOrganized ? (IN).width : 0; \
+  (OUT).header = (IN).header; \
+  (OUT).fields = (IN).fields; \
+  (OUT).point_step = (IN).point_step; \
+  (OUT).height = outIsOrganized ? (IN).height : 1; \
+  (OUT).width = outIsOrganized ? (IN).width : 0; \
  \
-    (OUT).data.resize(0); \
-    (OUT).data.reserve((IN).data.size()); \
+  (OUT).data.resize(0); \
+  (OUT).data.reserve((IN).data.size()); \
  \
-    ::cras::CloudConstIter x_it((IN), "x"); \
-    ::cras::CloudConstIter y_it((IN), "y"); \
-    ::cras::CloudConstIter z_it((IN), "z"); \
+  ::cras::CloudConstIter x_it((IN), "x"); \
+  ::cras::CloudConstIter y_it((IN), "y"); \
+  ::cras::CloudConstIter z_it((IN), "z"); \
  \
-    const auto numPoints = ::cras::numPoints(IN); \
+  const auto numPoints = ::cras::numPoints(IN); \
  \
-    if (!outIsOrganized) { \
-      for (size_t i = 0; i < numPoints; ++i, ++x_it, ++y_it, ++z_it) { \
-        if (FILTER) { \
-          size_t from = (i / (IN).width) * (IN).row_step + (i % (IN).width) * (IN).point_step; \
-          size_t to = from + (IN).point_step; \
-          (OUT).data.insert( \
-            (OUT).data.end(), (IN).data.begin() + from, \
-            (IN).data.begin() + to); \
-          (OUT).width++; \
-        } \
-      } \
-      (OUT).is_dense = true; \
-    } else { \
-      (OUT).data.insert((OUT).data.end(), (IN).data.begin(), (IN).data.end()); \
- \
-      ::cras::CloudIter x_out_it((OUT), "x"); \
-      ::cras::CloudIter y_out_it((OUT), "y"); \
-      ::cras::CloudIter z_out_it((OUT), "z"); \
-      const auto invalidValue = std::numeric_limits<float>::quiet_NaN(); \
- \
-      for (size_t i = 0; i < numPoints; \
-        ++i, ++x_it, ++y_it, ++z_it, ++x_out_it, ++y_out_it, ++z_out_it) { \
-        if (!(FILTER)) { \
-          *x_out_it = *y_out_it = *z_out_it = invalidValue; \
-          (OUT).is_dense = false; \
-        } \
-      } \
+  if (!outIsOrganized) { \
+  for (size_t i = 0; i < numPoints; ++i, ++x_it, ++y_it, ++z_it) { \
+    if (FILTER) { \
+      size_t from = (i / (IN).width) * (IN).row_step + (i % (IN).width) * (IN).point_step; \
+      size_t to = from + (IN).point_step; \
+      (OUT).data.insert( \
+        (OUT).data.end(), (IN).data.begin() + from, \
+        (IN).data.begin() + to); \
+      (OUT).width++; \
     } \
+  } \
+  (OUT).is_dense = true; \
+  } else { \
+  (OUT).data.insert((OUT).data.end(), (IN).data.begin(), (IN).data.end()); \
  \
-    (OUT).row_step = (OUT).width * (OUT).point_step; \
+  ::cras::CloudIter x_out_it((OUT), "x"); \
+  ::cras::CloudIter y_out_it((OUT), "y"); \
+  ::cras::CloudIter z_out_it((OUT), "z"); \
+  const auto invalidValue = std::numeric_limits<float>::quiet_NaN(); \
+ \
+  for (size_t i = 0; i < numPoints; \
+    ++i, ++x_it, ++y_it, ++z_it, ++x_out_it, ++y_out_it, ++z_out_it) { \
+    if (!(FILTER)) { \
+      *x_out_it = *y_out_it = *z_out_it = invalidValue; \
+      (OUT).is_dense = false; \
+    } \
+  } \
+  } \
+ \
+  (OUT).row_step = (OUT).width * (OUT).point_step; \
 }
 }  // namespace cras
 
