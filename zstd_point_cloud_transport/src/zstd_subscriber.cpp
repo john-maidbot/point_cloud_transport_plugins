@@ -67,7 +67,7 @@ ZstdSubscriber::DecodeResult ZstdSubscriber::decodeTyped(
   auto result = std::make_shared<sensor_msgs::msg::PointCloud2>();
 
   auto const est_decomp_size =
-    ZSTD_getDecompressedSize(&msg.compressed_data[0], msg.compressed_data.size());
+    ZSTD_getFrameContentSize(&msg.compressed_data[0], msg.compressed_data.size());
 
   result->data.resize(est_decomp_size);
 
