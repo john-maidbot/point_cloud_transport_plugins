@@ -2,6 +2,9 @@
 Changelog for package zstd_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.0.0 (2024-05-24)
+------------------
+
 3.0.4 (2024-05-24)
 ------------------
 * Get user specified parameters at startup (`#46 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/46>`_) (`#49 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/49>`_)
