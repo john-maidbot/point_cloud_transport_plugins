@@ -48,10 +48,15 @@ namespace draco_point_cloud_transport
 void DracoSubscriber::declareParameters()
 {
   declareParam<bool>(std::string("SkipDequantizationPOSITION"), false);
+  getParam<bool>(std::string("SkipDequantizationPOSITION"), config_.SkipDequantizationPOSITION);
   declareParam<bool>(std::string("SkipDequantizationNORMAL"), false);
+  getParam<bool>(std::string("SkipDequantizationNORMAL"), config_.SkipDequantizationNORMAL);
   declareParam<bool>(std::string("SkipDequantizationCOLOR"), false);
+  getParam<bool>(std::string("SkipDequantizationCOLOR"), config_.SkipDequantizationCOLOR);
   declareParam<bool>(std::string("SkipDequantizationTEX_COORD"), false);
+  getParam<bool>(std::string("SkipDequantizationTEX_COORD"), config_.SkipDequantizationTEX_COORD);
   declareParam<bool>(std::string("SkipDequantizationGENERIC"), false);
+  getParam<bool>(std::string("SkipDequantizationGENERIC"), config_.SkipDequantizationGENERIC);
 
   auto param_change_callback =
     [this](std::vector<rclcpp::Parameter> parameters) -> rcl_interfaces::msg::SetParametersResult
