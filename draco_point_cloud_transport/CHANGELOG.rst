@@ -2,6 +2,14 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.11 (2024-05-24)
+-------------------
+* Get user specified parameters at startup (`#46 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/46>`_) (`#50 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/50>`_)
+  Co-authored-by: Alejandro Hernández Cordero <ahcorde@gmail.com>
+  (cherry picked from commit 46f3d22f3d5660529f4372aeed3fbcb41852a911)
+  Co-authored-by: john-maidbot <78750993+john-maidbot@users.noreply.github.com>
+* Contributors: mergify[bot]
+
 1.0.10 (2024-02-19)
 -------------------
 * Use tl_expected from rcpputils (`#42 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/42>`_) (`#44 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/44>`_)
