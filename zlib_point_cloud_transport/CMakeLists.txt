@@ -12,14 +12,11 @@ find_package(rclcpp REQUIRED)
 find_package(ZLIB REQUIRED)
 
 set(dependencies
-  pluginlib
-  point_cloud_interfaces
-  point_cloud_transport
-  rclcpp
+  pluginlib::pluginlib
+  ${point_cloud_interfaces_TARGETS}
+  point_cloud_transport::point_cloud_transport
+  rclcpp::rclcpp
 )
-
-
-include_directories(include)
 
 add_library(${PROJECT_NAME}
   SHARED
@@ -29,9 +26,14 @@ add_library(${PROJECT_NAME}
   src/manifest.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ZLIB::ZLIB)
-
-ament_target_dependencies(${PROJECT_NAME} ${dependencies})
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ZLIB::ZLIB
+  ${dependencies}
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+)
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
