@@ -1,4 +1,4 @@
-# TODO (YourNameHere): This is not a working CMake Project! 
+# TODO (YourNameHere): This is not a working CMake Project!
 # Some assembly required for your plugin. (-:
 
 cmake_minimum_required(VERSION 3.10.2)
@@ -15,13 +15,15 @@ find_package(rclcpp REQUIRED)
 # TODO (YourNameHere): You might need more dependencies
 
 set(dependencies
-  pluginlib
-  point_cloud_interfaces
-  point_cloud_transport
-  rclcpp
+  pluginlib::pluginlib
+  ${point_cloud_interfaces_TARGETS}
+  point_cloud_transport::point_cloud_transport
+  rclcpp::rclcpp
 )
 
-include_directories(include)
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
 
 add_library(${PROJECT_NAME}
   SHARED
@@ -31,7 +33,9 @@ add_library(${PROJECT_NAME}
   src/template_subscriber.cpp
 )
 
-ament_target_dependencies(${PROJECT_NAME} ${dependencies})
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${dependencies}
+)
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib

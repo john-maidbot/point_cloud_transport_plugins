@@ -32,7 +32,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
   "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
-ament_target_dependencies(${PROJECT_NAME} )
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
