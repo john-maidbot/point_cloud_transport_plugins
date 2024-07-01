@@ -1,7 +1,5 @@
 # point_cloud_transport_plugins
 
-<<<<<<< HEAD
-=======
 [![Licence](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ROS2 Distro | Build Status | Package build |
@@ -38,7 +36,6 @@ Jazzy | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Jbin_uN64__
 Iron | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Ibin_uJ64__zstd_point_cloud_transport__ubuntu_jammy_amd64__binary)](https://build.ros2.org/job/Ibin_uJ64__zstd_point_cloud_transport__ubuntu_jammy_amd64__binary/) |
 Humble | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Hbin_uJ64__zstd_point_cloud_transport__ubuntu_jammy_amd64__binary)](https://build.ros2.org/job/Hbin_uJ64__zstd_point_cloud_transport__ubuntu_jammy_amd64__binary/) |
 
->>>>>>> fceb632 (udpate table with Jazzy (#53))
 This metapackage contains the most common plugins for pointcloud compression using [point_cloud_transport](https://wiki.ros.org/point_cloud_transport).
 
 Currently provided are:
