@@ -2,6 +2,11 @@
 Changelog for package zlib_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+5.0.1 (2024-09-03)
+------------------
+* Use target_link_libraries everywhere (`#52 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/52>`_)
+* Contributors: Alejandro Hernández Cordero
+
 5.0.0 (2024-05-24)
 ------------------
 * Get user specified parameters at startup (`#46 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/46>`_)
