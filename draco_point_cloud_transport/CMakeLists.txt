@@ -36,7 +36,7 @@ add_library(${PROJECT_NAME}
   src/manifest.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${DRACO_LIBRARY})
+target_link_libraries(${PROJECT_NAME} ${DRACO_LIBRARIES})
 
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
 
