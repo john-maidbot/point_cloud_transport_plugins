@@ -2,6 +2,12 @@
 Changelog for package draco_point_cloud_transport
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+4.0.1 (2024-09-03)
+------------------
+* Change Linking to DRACO_LIBRARIES as it was changes in draco (backport `#57 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/57>`_) (`#58 <https://github.com/ros-perception/point_cloud_transport_plugins/issues/58>`_)
+  Co-authored-by: Bo Chen <bo@enway.ai>
+* Contributors: mergify[bot]
+
 4.0.0 (2024-05-24)
 ------------------
 
