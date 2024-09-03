@@ -36,9 +36,21 @@ add_library(${PROJECT_NAME}
   src/manifest.cpp
 )
 
+<<<<<<< HEAD
 target_link_libraries(${PROJECT_NAME} ${DRACO_LIBRARY})
 
 ament_target_dependencies(${PROJECT_NAME} ${dependencies})
+=======
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  ${DRACO_LIBRARIES}
+  ${dependencies}
+)
+target_include_directories(${PROJECT_NAME} PRIVATE
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
+  ${DRACO_INCLUDE_DIR}
+)
+>>>>>>> 5126976 (Change Linking to DRACO_LIBRARIES as it was changes in draco (#57))
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
