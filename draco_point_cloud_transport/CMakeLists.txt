@@ -36,7 +36,7 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  ${DRACO_LIBRARY}
+  ${DRACO_LIBRARIES}
   ${dependencies}
 )
 target_include_directories(${PROJECT_NAME} PRIVATE
